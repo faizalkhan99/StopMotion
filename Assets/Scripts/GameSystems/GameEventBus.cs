@@ -48,6 +48,8 @@ public static class GameEventBus
 
 public enum GameState
 {
+    
+    MainMenu,
     Booting,
     Gameplay,
     Paused,
