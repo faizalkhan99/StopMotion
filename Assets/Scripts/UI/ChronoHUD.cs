@@ -68,10 +68,10 @@ public class ChronoHUD : MonoBehaviour
         if (timerText == null) return;
 
         float clampedTime = Mathf.Max(0f, timeRemaining);
-        int seconds = (int)clampedTime;
-        int milliseconds = (int)((clampedTime - seconds) * 100);
+        int minutes = (int)(clampedTime / 60);
+        int seconds = (int)(clampedTime % 60);
 
-        timerText.SetText("{0:00}.{1:00}", seconds, milliseconds);
+        timerText.SetText("{0:00}:{1:00}", minutes, seconds);
     }
 
     private void HandleChronoStateChanged(ChronoState newState)
