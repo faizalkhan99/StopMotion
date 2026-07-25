@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -26,9 +27,18 @@ public class ChronoController : MonoBehaviour
     [SerializeField] private float warningDuration = 0.75f;
     [SerializeField] private float minMoveSpeed = 0.1f;
     [SerializeField] private float idleGracePeriod = 0.3f;
+    [SerializeField] private float warnStopGracePeriod = 0.3f;
+    [SerializeField] private float warnGoGracePeriod = 0.3f;
 
     [Header("Dynamic Rhythm Engine (Weighted Profiles)")]
     [SerializeField] private PacingProfile[] profiles;
+
+    [Header("Pacing Source")]
+    [Tooltip("When true, ChronoController self-times Ticking/Frozen durations " +
+             "using weighted random profiles. When false, external calls via " +
+             "GameEventBus.PauseTimer()/ResumeTimer() drive the timing " +
+             "(for use with LevelChronoProfileSO on AIEnemyInfluence).")]
+    [SerializeField] private bool useInternalRandomPacing = true;
 
     [Header("Debug View (Read Only)")]
     [SerializeField] private ChronoState currentState;
@@ -51,6 +61,8 @@ public class ChronoController : MonoBehaviour
         minMoveSpeed = 0.1f;
         idleGracePeriod = 0.3f;
         levelCountdownTimer = 60f;
+        warnStopGracePeriod = 0.3f;
+        warnGoGracePeriod = 0.3f;
 
         profiles = new PacingProfile[3]
         {
@@ -75,11 +87,13 @@ public class ChronoController : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
+        GameEventBus.OnChronoStateChanged += HandleChronoStateControl;
     }
 
     private void OnDisable()
     {
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
+        GameEventBus.OnChronoStateChanged -= HandleChronoStateControl;
     }
 
     private void RecalculateFastMath()
@@ -89,22 +103,73 @@ public class ChronoController : MonoBehaviour
 
     private void Start()
     {
-        SelectNewProfile();
-        TransitionTo(ChronoState.Ticking, currentMoveDuration);
+        if (useInternalRandomPacing)
+        {
+            SelectNewProfile();
+            TransitionTo(ChronoState.Ticking, currentMoveDuration);
+        }
     }
 
-    private void Update()
-    {
-        if (isGameOver || currentGameState != GameState.Gameplay) return;
+    // private void Update()
+    // {
+    //     if (isGameOver || currentGameState != GameState.Gameplay) return;
+    //     if (GameEventBus.IsPaused) return;
 
-        UpdateLevelTimer();
-        UpdateFSM();
-        EvaluateEnforcement();
+    //     UpdateLevelTimer();
+    //     UpdateFSM();
+    //     EvaluateEnforcement();
+    // }
+
+    private IEnumerator TimerCountDown(float duration, ChronoState targetState)
+    {
+        yield return new WaitForSecondsRealtime(duration);
+        GameEventBus.TriggerChronoStateChanged(targetState);
+        Debug.Log($" countdown finished");
     }
 
     private void HandleGameStateChanged(GameState newState)
     {
         currentGameState = newState;
+    }
+
+    private void HandleChronoStateControl(ChronoState newState)
+    {
+        switch (newState)
+        {
+            case ChronoState.WarnStop:
+                if (currentState == ChronoState.Ticking)
+                {
+                    TransitionTo(ChronoState.WarnStop, warningDuration);
+                    StartCoroutine(TimerCountDown(warningDuration, ChronoState.Frozen));
+                }
+                break;
+
+            case ChronoState.Ticking:
+                if (currentState != ChronoState.Ticking)
+                {
+                    StopAllCoroutines();
+                    if (useInternalRandomPacing)
+                        SelectNewProfile();
+                    TransitionTo(ChronoState.Ticking, currentMoveDuration);
+                }
+                break;
+
+            case ChronoState.WarnGo:
+                if (currentState == ChronoState.Frozen)
+                {
+                    TransitionTo(ChronoState.WarnGo, warningDuration);
+                    StartCoroutine(TimerCountDown(warningDuration, ChronoState.Ticking));
+                }
+                break;
+
+            case ChronoState.Frozen:
+                if (currentState != ChronoState.Frozen)
+                {
+                    StopAllCoroutines();
+                    TransitionTo(ChronoState.Frozen, currentMoveDuration);
+                }
+                break;
+        }
     }
 
     private void UpdateLevelTimer()
@@ -141,6 +206,7 @@ public class ChronoController : MonoBehaviour
                 TransitionTo(ChronoState.Frozen, currentStopDuration);
                 break;
             case ChronoState.Frozen:
+                if (GameEventBus.IsPaused) return;
                 TransitionTo(ChronoState.WarnGo, warningDuration);
                 break;
             case ChronoState.WarnGo:
@@ -197,7 +263,33 @@ public class ChronoController : MonoBehaviour
                 break;
 
             case ChronoState.WarnStop:
+                if (isMoving)
+                {
+                    graceTimer += Time.deltaTime;
+                    float normalizedGrace = Mathf.Clamp01(graceTimer / warnStopGracePeriod);
+                    GameEventBus.TriggerGracePeriodUpdated(normalizedGrace);
+                    if (graceTimer >= warnStopGracePeriod)
+                        TriggerGameOver(GameOverReason.MotionBomb);
+                }
+                else if (graceTimer > 0f)
+                {
+                    ResetGracePeriod();
+                }
+                break;
+
             case ChronoState.WarnGo:
+                if (!isMoving)
+                {
+                    graceTimer += Time.deltaTime;
+                    float normalizedGrace = Mathf.Clamp01(graceTimer / warnGoGracePeriod);
+                    GameEventBus.TriggerGracePeriodUpdated(normalizedGrace);
+                    if (graceTimer >= warnGoGracePeriod)
+                        TriggerGameOver(GameOverReason.IdleBomb);
+                }
+                else if (graceTimer > 0f)
+                {
+                    ResetGracePeriod();
+                }
                 break;
         }
     }

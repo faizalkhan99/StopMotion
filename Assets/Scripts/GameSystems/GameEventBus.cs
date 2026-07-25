@@ -27,7 +27,30 @@ public static class GameEventBus
     public static event Action<float> OnGracePeriodUpdated;
     public static void TriggerGracePeriodUpdated(float severity) => OnGracePeriodUpdated?.Invoke(severity);
 
+    #region Pause State
+    private static bool isPaused;
+    public static bool IsPaused => isPaused;
+    #endregion
 
+    #region Chrono Timer Convenience Methods
+    public static void StartTimer()
+    {
+        isPaused = false;
+        TriggerChronoStateChanged(ChronoState.Ticking);
+    }
+
+    public static void PauseTimer()
+    {
+        isPaused = true;
+        TriggerChronoStateChanged(ChronoState.WarnStop);
+    }
+
+    public static void ResumeTimer()
+    {
+        isPaused = false;
+        TriggerChronoStateChanged(ChronoState.WarnGo);
+    }
+    #endregion
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     public static void ResetAllListeners()
@@ -37,6 +60,7 @@ public static class GameEventBus
         OnGameOverTriggered = null;
         OnLevelTimerUpdated = null;
         OnGracePeriodUpdated = null;
+        isPaused = false;
     }
 }
 
@@ -44,7 +68,6 @@ public enum GameState
 {
     
     MainMenu,
-    Loading,
     Booting,
     Gameplay,
     Paused,

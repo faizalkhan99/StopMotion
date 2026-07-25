@@ -176,6 +176,7 @@ public class PlayerController : MonoBehaviour
         coyoteTimer = 0f;
     }
 
+
     #region Mobile Touch Interface (Public API)
 
     /// <summary>
@@ -219,7 +220,10 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
         }
     }
-
+    public void StopMovement()
+    {
+        horizontalInput = 0f;
+    }
     #endregion
 
     private void OnDrawGizmosSelected()

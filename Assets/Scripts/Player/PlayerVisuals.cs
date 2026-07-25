@@ -15,10 +15,16 @@ public class PlayerVisuals : MonoBehaviour
 
     [Header("Optional VFX References")]
     [SerializeField] private ParticleSystem confidentTrailVFX;
+    [SerializeField] private ParticleSystem destroyVFX;
 
     // Internal References & Caching
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rootRigidbody;
+    private PlayerController playerController;
+    private PlayerKeyboardInput playerKeyboardInput;
+
+    // Destroy State
+    private bool isDestroyed;
 
     // Zero-GC State Tracking
     private Vector3 initialLocalPosition;
@@ -38,6 +44,8 @@ public class PlayerVisuals : MonoBehaviour
         // We only need the parent Rigidbody to read horizontal velocity for flipping.
         // No ChronoController reference is required anymore!
         rootRigidbody = GetComponentInParent<Rigidbody2D>();
+        playerController = GetComponentInParent<PlayerController>();
+        playerKeyboardInput = GetComponentInParent<PlayerKeyboardInput>();
 
         if (rootRigidbody == null)
         {
@@ -63,11 +71,14 @@ public class PlayerVisuals : MonoBehaviour
 
     private void Update()
     {
+        if (isDestroyed) return;
+
         // Halt visual updates if the game is paused or over
         if (currentGameState == GameState.Paused) return;
 
         HandleDirectionalFacing();
         ApplyJuiceEffects();
+        CheckFrozenViolation();
     }
 
     /// <summary>
@@ -162,6 +173,39 @@ public class PlayerVisuals : MonoBehaviour
             {
                 spriteRenderer.color = Color.Lerp(spriteRenderer.color, originalColor, Time.deltaTime * recoverySpeed);
             }
+        }
+    }
+
+    /// <summary>
+    /// Triggers the destroy VFX, hides the player visuals, and disables input/control.
+    /// </summary>
+    public void TriggerDestroy()
+    {
+        if (isDestroyed) return;
+        isDestroyed = true;
+
+        if (destroyVFX != null) destroyVFX.Play();
+        spriteRenderer.enabled = false;
+
+        if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
+        if (playerController != null) playerController.StopMovement();
+
+        // TODO: After destroy VFX finishes, call GameEventBus.TriggerGameOver(GameOverReason.MotionBomb)
+    }
+
+    /// <summary>
+    /// Checks if the player moves while in the Frozen state and triggers destruction.
+    /// </summary>
+    private void CheckFrozenViolation()
+    {
+        if (currentChronoState != ChronoState.Frozen) return;
+        if (rootRigidbody == null) return;
+
+        float velocityX = rootRigidbody.linearVelocity.x;
+        float velocityY = rootRigidbody.linearVelocity.y;
+        if (Mathf.Abs(velocityX) > 0.05f || Mathf.Abs(velocityY) > 0.05f)
+        {
+            TriggerDestroy();
         }
     }
 }

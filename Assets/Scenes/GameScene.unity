@@ -578,9 +578,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChronoController
   levelCountdownTimer: 60
-  warningDuration: 0.75
+  warningDuration: 0.5
   minMoveSpeed: 0.1
   idleGracePeriod: 0.3
+  warnStopGracePeriod: 0.3
+  warnGoGracePeriod: 0.3
   profiles:
   - name: The Sprint
     minMoveTime: 4
@@ -600,6 +602,7 @@ MonoBehaviour:
     minStopTime: 3
     maxStopTime: 4
     selectionWeight: 0.3
+  useInternalRandomPacing: 0
   currentState: 0
   currentGameState: 0
   currentProfileName: 
@@ -1394,6 +1397,7 @@ MonoBehaviour:
   shakeIntensity: 0.15
   recoverySpeed: 8
   confidentTrailVFX: {fileID: 0}
+  destroyVFX: {fileID: 0}
 --- !u!1 &619394800
 GameObject:
   m_ObjectHideFlags: 0
@@ -2237,7 +2241,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1891349125}
   - component: {fileID: 1891349124}
-  - component: {fileID: 1891349123}
+  - component: {fileID: 1891349126}
+  - component: {fileID: 1891349127}
   m_Layer: 0
   m_Name: TimerController
   m_TagString: Untagged
@@ -2245,20 +2250,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1891349123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1891349122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c3f1683748d14b72a62a6976c8e51ce, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovementInfluence
-  playerRb: {fileID: 209927718}
-  minMoveSpeed: 0.1
 --- !u!114 &1891349124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2288,6 +2279,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1891349126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891349122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b346cafbe208a45c9aad029fb2a06806, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AIEnemyInfluence
+  chronoProfile: {fileID: 11400000, guid: d44164f638b4c4d86a94e44681b8981b, type: 2}
+  allowKeyboardOverride: 0
+--- !u!114 &1891349127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1891349122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00365a9973c2f46e2af110f7d539e521, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Test
 --- !u!1 &1938172587
 GameObject:
   m_ObjectHideFlags: 0
