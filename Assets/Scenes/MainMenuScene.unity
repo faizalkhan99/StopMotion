@@ -752,6 +752,7 @@ GameObject:
   - component: {fileID: 380300232}
   - component: {fileID: 380300233}
   - component: {fileID: 380300234}
+  - component: {fileID: 380300235}
   m_Layer: 5
   m_Name: MainMenu_Panel
   m_TagString: Untagged
@@ -802,6 +803,21 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &380300235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380300231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ceb39b8e79eef54ebbe1068613c9f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIPanelAnimator
+  transitionStyle: 0
+  duration: 0.25
+  slideOffset: 800
 --- !u!1 &465057799
 GameObject:
   m_ObjectHideFlags: 0
@@ -1029,6 +1045,7 @@ GameObject:
   - component: {fileID: 717290999}
   - component: {fileID: 717290998}
   - component: {fileID: 717290997}
+  - component: {fileID: 717291000}
   m_Layer: 5
   m_Name: Credits_Panel
   m_TagString: Untagged
@@ -1076,6 +1093,21 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &717291000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717290996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ceb39b8e79eef54ebbe1068613c9f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIPanelAnimator
+  transitionStyle: 0
+  duration: 0.25
+  slideOffset: 800
 --- !u!1 &900006492
 GameObject:
   m_ObjectHideFlags: 0
@@ -1868,7 +1900,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Rotator
   _waitForSeconds: 3
-  _rotationSpeed: 20
+  _rotationSpeed: 15
   _rotationAxis: {x: 0, y: 0, z: 1}
 --- !u!4 &1123473840
 Transform:
@@ -3041,9 +3073,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuUIManager
   gameSceneName: GameScene
   backKey: 27
-  mainMenuPanel: {fileID: 380300234}
-  howToPlayPanel: {fileID: 1870023441}
-  creditsPanel: {fileID: 717290997}
+  mainMenuPanel: {fileID: 380300235}
+  howToPlayPanel: {fileID: 1870023442}
+  creditsPanel: {fileID: 717291000}
   playButton: {fileID: 1109598523}
   howToPlayButton: {fileID: 2058319748}
   creditsButton: {fileID: 958226819}
@@ -3059,6 +3091,7 @@ GameObject:
   - component: {fileID: 1870023439}
   - component: {fileID: 1870023440}
   - component: {fileID: 1870023441}
+  - component: {fileID: 1870023442}
   m_Layer: 5
   m_Name: Help_Panel
   m_TagString: Untagged
@@ -3106,6 +3139,21 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &1870023442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870023438}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ceb39b8e79eef54ebbe1068613c9f13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UIPanelAnimator
+  transitionStyle: 0
+  duration: 0.25
+  slideOffset: 800
 --- !u!1 &1969764671
 GameObject:
   m_ObjectHideFlags: 0

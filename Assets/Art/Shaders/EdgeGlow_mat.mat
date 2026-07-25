@@ -48,12 +48,16 @@ Material:
     - _Glossiness: 0.5
     - _GlowFalloff: 1.58
     - _GlowIntensity: 3.56
+    - _GlowWidth: 0.01
     - _Metallic: 0
+    - _SquareSize: 1
+    - _TrailLength: 0.75
+    - _TravelSpeed: 0.75
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EdgeColor: {r: 0, g: 1, b: 1, a: 4}
-    - _GlowColor: {r: 0.22758698, g: 0, b: 1, a: 4}
+    - _GlowColor: {r: 0, g: 1, b: 0.9372145, a: 4}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
