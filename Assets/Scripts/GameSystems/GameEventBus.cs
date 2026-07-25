@@ -22,10 +22,16 @@ public static class GameEventBus
     // Continuous Feedback & UI Events
     public static event Action<float> OnLevelTimerUpdated;
     public static void TriggerLevelTimerUpdated(float timeRemaining) => OnLevelTimerUpdated?.Invoke(timeRemaining);
+    public static event Action OnCameraShake;
+    public static void TriggerCameraShake() => OnCameraShake?.Invoke();
 
     /// <summary>Fires during a rule violation. Value is normalized 0.0 (safe) to 1.0 (explosion)[cite: 7].</summary>
     public static event Action<float> OnGracePeriodUpdated;
     public static void TriggerGracePeriodUpdated(float severity) => OnGracePeriodUpdated?.Invoke(severity);
+
+    // Audio Events
+    public static event Action<SoundID> OnPlaySFXCommand;
+    public static void TriggerPlaySFXCommand(SoundID id) => OnPlaySFXCommand?.Invoke(id);
 
     #region Pause State
     private static bool isPaused;
@@ -66,8 +72,9 @@ public static class GameEventBus
 
 public enum GameState
 {
-    
+
     MainMenu,
+    Loading,
     Booting,
     Gameplay,
     Paused,

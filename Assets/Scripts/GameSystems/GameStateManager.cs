@@ -89,11 +89,13 @@ public class GameStateManager : MonoBehaviour
                 break;
         }
     }
-
+    [SerializeField] private ParticleSystem _explosionPrefab;
+    [SerializeField] private Transform _playerTransform;
     private void HandleGameOver(GameOverReason reason)
     {
         Debug.Log($"<b><color=red>[GAME OVER]</color></b> Triggered by: {reason}");
         SetGameState(GameState.GameOver);
+        // Show the game over screen UI here.
     }
 
     #region Public UI Hookups

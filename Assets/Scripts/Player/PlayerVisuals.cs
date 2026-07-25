@@ -184,6 +184,7 @@ public class PlayerVisuals : MonoBehaviour
         if (isDestroyed) return;
         isDestroyed = true;
 
+        GameEventBus.TriggerCameraShake();
         if (destroyVFX != null) destroyVFX.Play();
         spriteRenderer.enabled = false;
 

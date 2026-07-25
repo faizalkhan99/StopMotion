@@ -48,10 +48,10 @@ Material:
     - _Glossiness: 0.5
     - _GlowFalloff: 1.58
     - _GlowIntensity: 3.56
-    - _GlowWidth: 0.01
+    - _GlowWidth: 0.1
     - _Metallic: 0
     - _SquareSize: 1
-    - _TrailLength: 0.75
+    - _TrailLength: 1
     - _TravelSpeed: 0.75
     - _ZWrite: 0
     m_Colors:

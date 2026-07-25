@@ -341,7 +341,7 @@ public class GameplayUIManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(actionKey))
+        if (Input.GetKeyDown(actionKey) || Input.GetKeyDown(KeyCode.Q)) // Added a hardcoded fallback for the 'Q' key
         {
             switch (currentGameState)
             {
