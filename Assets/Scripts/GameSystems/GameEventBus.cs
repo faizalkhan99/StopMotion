@@ -29,6 +29,31 @@ public static class GameEventBus
     public static void TriggerGracePeriodUpdated(float severity) => OnGracePeriodUpdated?.Invoke(severity);
     #endregion
 
+    #region Pause State
+    private static bool isPaused;
+    public static bool IsPaused => isPaused;
+    #endregion
+
+    #region Chrono Timer Convenience Methods
+    public static void StartTimer()
+    {
+        isPaused = false;
+        TriggerChronoStateChanged(ChronoState.Ticking);
+    }
+
+    public static void PauseTimer()
+    {
+        isPaused = true;
+        TriggerChronoStateChanged(ChronoState.WarnStop);
+    }
+
+    public static void ResumeTimer()
+    {
+        isPaused = false;
+        TriggerChronoStateChanged(ChronoState.WarnGo);
+    }
+    #endregion
+
     #region Bulletproof Initialization & Cleanup
     /// <summary>
     /// Automatically executes before any scene objects awake.
@@ -42,6 +67,7 @@ public static class GameEventBus
         OnGameOverTriggered = null;
         OnLevelTimerUpdated = null;
         OnGracePeriodUpdated = null;
+        isPaused = false;
     }
     #endregion
 }
