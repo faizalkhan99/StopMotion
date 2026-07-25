@@ -187,8 +187,8 @@ public class PlayerVisuals : MonoBehaviour
         if (destroyVFX != null) destroyVFX.Play();
         spriteRenderer.enabled = false;
 
-        if (playerController != null) playerController.enabled = false;
         if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
+        if (playerController != null) playerController.StopMovement();
 
         // TODO: After destroy VFX finishes, call GameEventBus.TriggerGameOver(GameOverReason.MotionBomb)
     }
