@@ -33,6 +33,13 @@ public class ChronoController : MonoBehaviour
     [Header("Dynamic Rhythm Engine (Weighted Profiles)")]
     [SerializeField] private PacingProfile[] profiles;
 
+    [Header("Pacing Source")]
+    [Tooltip("When true, ChronoController self-times Ticking/Frozen durations " +
+             "using weighted random profiles. When false, external calls via " +
+             "GameEventBus.PauseTimer()/ResumeTimer() drive the timing " +
+             "(for use with LevelChronoProfileSO on AIEnemyInfluence).")]
+    [SerializeField] private bool useInternalRandomPacing = true;
+
     [Header("Debug View (Read Only)")]
     [SerializeField] private ChronoState currentState;
     [SerializeField] private GameState currentGameState = GameState.Gameplay;
@@ -96,8 +103,11 @@ public class ChronoController : MonoBehaviour
 
     private void Start()
     {
-        SelectNewProfile();
-        TransitionTo(ChronoState.Ticking, currentMoveDuration);
+        if (useInternalRandomPacing)
+        {
+            SelectNewProfile();
+            TransitionTo(ChronoState.Ticking, currentMoveDuration);
+        }
     }
 
     // private void Update()
@@ -138,7 +148,8 @@ public class ChronoController : MonoBehaviour
                 if (currentState != ChronoState.Ticking)
                 {
                     StopAllCoroutines();
-                    // SelectNewProfile();
+                    if (useInternalRandomPacing)
+                        SelectNewProfile();
                     TransitionTo(ChronoState.Ticking, currentMoveDuration);
                 }
                 break;
