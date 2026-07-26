@@ -71,6 +71,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnChronoStateChanged += HandleChronoStateChanged;
         GameEventBus.OnGracePeriodUpdated += HandleGraceViolation;
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
+        GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
     }
 
     private void OnDisable()
@@ -79,6 +80,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnChronoStateChanged -= HandleChronoStateChanged;
         GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
+        GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
     }
 
     private void Update()
@@ -147,6 +149,19 @@ public class PlayerVisuals : MonoBehaviour
     private void HandleGameStateChanged(GameState newState)
     {
         currentGameState = newState;
+
+        if(currentGameState == GameState.LevelComplete)
+        {
+            StopPlayerMovement();
+        }
+    }
+
+    private void HandleGameOverTriggered(GameOverReason reason)
+    {
+        if (reason == GameOverReason.TimeExpired)
+        {
+            TriggerDestroy();
+        }
     }
 
     /// <summary>
@@ -200,12 +215,14 @@ public class PlayerVisuals : MonoBehaviour
         if (destroyVFX != null) destroyVFX.Play();
         spriteRenderer.enabled = false;
 
-        if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
-        if (playerController != null) playerController.StopMovement();
-
-        GameEventBus.TriggerGameOver(GameOverReason.MotionBomb);
+        StopPlayerMovement();
     }
 
+    private void StopPlayerMovement()
+    {
+        if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
+        if (playerController != null) playerController.StopMovement();
+    }
     /// <summary>
     /// Checks if the player moves while in the Frozen state and triggers destruction.
     /// </summary>
@@ -219,6 +236,7 @@ public class PlayerVisuals : MonoBehaviour
         if (Mathf.Abs(velocityX) > 0.05f || Mathf.Abs(velocityY) > 0.05f)
         {
             TriggerDestroy();
+            GameEventBus.TriggerGameOver(GameOverReason.MotionBomb);
         }
     }
 
