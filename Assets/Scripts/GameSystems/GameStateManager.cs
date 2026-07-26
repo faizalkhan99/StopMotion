@@ -119,15 +119,17 @@ public class GameStateManager : MonoBehaviour
     public void LoadNextLevel()
     {
         SetGameState(GameState.LevelComplete);
-        Time.timeScale = 1.0f;
-        AudioListener.pause = false;
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
 
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-            SceneManager.LoadScene(nextSceneIndex);
+        {
+            SceneLoader.Instance.LoadScene(nextSceneIndex, GameState.Gameplay);
+        }
         else
+        {
             Debug.LogWarning("<b>[GameStateManager]</b> No further scenes in Build Settings!");
             GameEventBus.TriggerGameStateChanged(GameState.GameComplete);
+        }
     }
     #endregion
 }

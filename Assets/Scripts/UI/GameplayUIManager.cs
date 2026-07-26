@@ -357,7 +357,7 @@ public class GameplayUIManager : MonoBehaviour
             }
         }
 
-        if (currentGameState == GameState.GameOver)
+        if (currentGameState == GameState.GameOver || currentGameState == GameState.GameComplete)
         {
             if (Input.GetKeyDown(KeyCode.R))
                 OnRestartClicked();

@@ -14,6 +14,9 @@ public static class GameEventBus
     {
         CurrentGameState = newState;
         OnGameStateChanged?.Invoke(newState);
+
+        if (newState == GameState.MainMenu)
+            ResetCachedState();
     }
 
     // Chrono Timer Micro-State Events
@@ -72,6 +75,13 @@ public static class GameEventBus
     }
     #endregion
 
+    private static void ResetCachedState()
+    {
+        CurrentGameState = GameState.MainMenu;
+        CurrentChronoState = ChronoState.Ticking;
+        isPaused = false;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     public static void ResetAllListeners()
     {
@@ -83,7 +93,7 @@ public static class GameEventBus
         OnLevelWon = null;
         OnCameraShake = null;
         OnPlaySFXCommand = null;
-        isPaused = false;
+        ResetCachedState();
     }
 }
 
