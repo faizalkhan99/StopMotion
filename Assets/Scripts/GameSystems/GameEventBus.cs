@@ -8,12 +8,25 @@ using UnityEngine;
 public static class GameEventBus
 {
     // Macro Game State Events
+    public static GameState CurrentGameState { get; private set; }
     public static event Action<GameState> OnGameStateChanged;
-    public static void TriggerGameStateChanged(GameState newState) => OnGameStateChanged?.Invoke(newState);
+    public static void TriggerGameStateChanged(GameState newState)
+    {
+        CurrentGameState = newState;
+        OnGameStateChanged?.Invoke(newState);
+
+        if (newState == GameState.MainMenu)
+            ResetCachedState();
+    }
 
     // Chrono Timer Micro-State Events
+    public static ChronoState CurrentChronoState { get; private set; }
     public static event Action<ChronoState> OnChronoStateChanged;
-    public static void TriggerChronoStateChanged(ChronoState newState) => OnChronoStateChanged?.Invoke(newState);
+    public static void TriggerChronoStateChanged(ChronoState newState)
+    {
+        CurrentChronoState = newState;
+        OnChronoStateChanged?.Invoke(newState);
+    }
 
     public static event Action<GameOverReason> OnGameOverTriggered;
     public static void TriggerGameOver(GameOverReason reason) => OnGameOverTriggered?.Invoke(reason);
@@ -32,6 +45,10 @@ public static class GameEventBus
     // Audio Events
     public static event Action<SoundID> OnPlaySFXCommand;
     public static void TriggerPlaySFXCommand(SoundID id) => OnPlaySFXCommand?.Invoke(id);
+
+    // Level Won Event
+    public static event Action OnLevelWon;
+    public static void TriggerLevelWon() => OnLevelWon?.Invoke();
 
     #region Pause State
     private static bool isPaused;
@@ -58,6 +75,13 @@ public static class GameEventBus
     }
     #endregion
 
+    private static void ResetCachedState()
+    {
+        CurrentGameState = GameState.MainMenu;
+        CurrentChronoState = ChronoState.Ticking;
+        isPaused = false;
+    }
+
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     public static void ResetAllListeners()
     {
@@ -66,7 +90,10 @@ public static class GameEventBus
         OnGameOverTriggered = null;
         OnLevelTimerUpdated = null;
         OnGracePeriodUpdated = null;
-        isPaused = false;
+        OnLevelWon = null;
+        OnCameraShake = null;
+        OnPlaySFXCommand = null;
+        ResetCachedState();
     }
 }
 
@@ -79,7 +106,8 @@ public enum GameState
     Gameplay,
     Paused,
     GameOver,
-    LevelComplete
+    LevelComplete,
+    GameComplete
 }
 
 public enum ChronoState
