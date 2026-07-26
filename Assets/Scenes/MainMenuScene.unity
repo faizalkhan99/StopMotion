@@ -769,7 +769,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: d4eae77b081b400478a0ba48b8d1a74a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1406,15 +1406,19 @@ MonoBehaviour:
   fadeDuration: 1.5
   _sfxLibrary:
   - id: 0
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: d4eae77b081b400478a0ba48b8d1a74a, type: 3}
   - id: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: d4eae77b081b400478a0ba48b8d1a74a, type: 3}
   - id: 2
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: ae6216af8319a5646a6aa3ecc42500bd, type: 3}
   - id: 3
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 5b5ff63809d833149bb5df3dcec36f28, type: 3}
   - id: 4
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 1fd265b945c41e846994f2f52cfc907e, type: 3}
+  - id: 7
+    clip: {fileID: 8300000, guid: e36c2d5e9423431499d9e4d6d1bf4b29, type: 3}
+  - id: 8
+    clip: {fileID: 8300000, guid: 96b1f674bb1a9014cbe962fe73f22c6e, type: 3}
 --- !u!4 &831769213
 Transform:
   m_ObjectHideFlags: 0
@@ -2205,7 +2209,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: d4eae77b081b400478a0ba48b8d1a74a, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -2687,12 +2691,23 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'GAME DESIGN | FAIZAL KHAN
+  m_text: 'A  GAME BY PROTON PRODUCTIONS
 
-    GAME PROGRAMMING | ABHI & FAIZAL KHAN
 
-    MUSIC
-    | PIXABAY'
+    GAME DESIGN | FAIZAL KHAN
+
+    GAME
+    PROGRAMMING | ABHI & FAIZAL KHAN
+
+    VISUALS | FAIZAL KHAN
+
+    BG MUSIC | LEEBERCH
+    (PIXABAY)
+
+    SFX | PIXABAY
+
+
+    THANK YOU FOR PLAYING !'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}
   m_sharedMaterial: {fileID: 7651303879435868247, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}
@@ -2727,7 +2742,7 @@ MonoBehaviour:
   m_fontSizeMax: 40
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_characterHorizontalScale: 1
@@ -3576,7 +3591,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "CREDITS\t"
+  m_text: CREDITS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}
   m_sharedMaterial: {fileID: 7651303879435868247, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}

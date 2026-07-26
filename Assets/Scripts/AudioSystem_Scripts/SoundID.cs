@@ -8,5 +8,6 @@ public enum SoundID
     Explosion,
     Damage,
     CoinCollect,
-    Beep
+    Beep,
+    Jump
 }

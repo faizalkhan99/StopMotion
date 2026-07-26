@@ -93,7 +93,7 @@ public class PlayerVisuals : MonoBehaviour
         // Tolerance check prevents rapid jittering when idle or micro-drifting
         if (Mathf.Abs(velocityX) > 0.05f)
         {
-            spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
+            //spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
         }
     }
 
@@ -185,7 +185,11 @@ public class PlayerVisuals : MonoBehaviour
         isDestroyed = true;
 
         GameEventBus.TriggerCameraShake();
-        if (destroyVFX != null) destroyVFX.Play();
+        if (destroyVFX != null)
+        {
+            destroyVFX.Play();
+            GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
+        }
         spriteRenderer.enabled = false;
 
         if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;

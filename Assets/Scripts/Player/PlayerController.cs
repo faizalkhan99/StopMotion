@@ -193,6 +193,7 @@ public class PlayerController : MonoBehaviour
     public void OnJumpButtonPressed()
     {
         jumpBufferTimer = jumpBufferTime;
+        GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
         // DIAGNOSTIC CHECK: Tell the developer exactly why the jump might fail
         // if (showDebugLogs)
         // {

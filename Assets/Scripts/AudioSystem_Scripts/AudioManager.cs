@@ -33,7 +33,14 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
-        // Absolute Decoupling: No Singletons. Just survive the scene load.
+        AudioManager[] managers = FindObjectsByType<AudioManager>(FindObjectsSortMode.None);
+
+        if (managers.Length > 1)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         DontDestroyOnLoad(gameObject);
 
         // Populate the Dictionary

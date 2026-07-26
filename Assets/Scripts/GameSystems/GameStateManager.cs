@@ -104,9 +104,13 @@ public class GameStateManager : MonoBehaviour
     public void TogglePause()
     {
         if (currentGameState == GameState.Gameplay)
+        {
             SetGameState(GameState.Paused);
+        }
         else if (currentGameState == GameState.Paused)
+        {
             SetGameState(GameState.Gameplay);
+        }
     }
 
     public void RetryLevel()
