@@ -1,4 +1,6 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerVisuals : MonoBehaviour
@@ -17,6 +19,11 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private ParticleSystem confidentTrailVFX;
     [SerializeField] private ParticleSystem destroyVFX;
 
+    [Header("Player's UI")]
+    [SerializeField] private CanvasGroup keyImage;
+    [SerializeField] private float keyFadeDuration = 0.35f;
+    public bool hasKey { get; private set; }
+
     // Internal References & Caching
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rootRigidbody;
@@ -25,6 +32,8 @@ public class PlayerVisuals : MonoBehaviour
 
     // Destroy State
     private bool isDestroyed;
+
+    private Coroutine keyFadeRoutine;
 
     // Zero-GC State Tracking
     private Vector3 initialLocalPosition;
@@ -52,7 +61,10 @@ public class PlayerVisuals : MonoBehaviour
             Debug.LogError("<b>[PlayerVisuals]</b> Could not find a Rigidbody2D on parent GameObject!");
         }
     }
-
+    private void Start()
+    {
+       keyFadeRoutine = null; 
+    }
     private void OnEnable()
     {
         // Subscribe directly to our centralized, zero-allocation switchboard
@@ -93,7 +105,7 @@ public class PlayerVisuals : MonoBehaviour
         // Tolerance check prevents rapid jittering when idle or micro-drifting
         if (Mathf.Abs(velocityX) > 0.05f)
         {
-            //spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
+            spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
         }
     }
 
@@ -185,11 +197,7 @@ public class PlayerVisuals : MonoBehaviour
         isDestroyed = true;
 
         GameEventBus.TriggerCameraShake();
-        if (destroyVFX != null)
-        {
-            destroyVFX.Play();
-            GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
-        }
+        if (destroyVFX != null) destroyVFX.Play();
         spriteRenderer.enabled = false;
 
         if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
@@ -212,5 +220,53 @@ public class PlayerVisuals : MonoBehaviour
         {
             TriggerDestroy();
         }
+    }
+
+    /// <summary>
+    /// Shows canvas in Player's UI
+    /// </summary>
+    public void ShowKeyInUI()
+    {
+        if (keyFadeRoutine != null) StopCoroutine(keyFadeRoutine);
+        keyFadeRoutine = StartCoroutine(FadeKeyImage(1f));
+        
+        hasKey = true;
+    }
+
+    /// <summary>
+    /// Hides Key Canvas in Player's UI only once
+    /// </summary>
+    public void HideKeyInUI()
+    {
+        if (keyFadeRoutine == null)
+        {
+           keyFadeRoutine = StartCoroutine(FadeKeyImage(0f)); 
+        }
+    }
+    /// <summary>
+    /// Hides Key Canvas in Player's UI
+    /// </summary>
+    public bool CheckForKey()
+    {
+        HideKeyInUI();
+        return hasKey;
+    }
+
+    private System.Collections.IEnumerator FadeKeyImage(float targetAlpha)
+    {
+        if (keyImage == null) yield break;
+
+        float startAlpha = keyImage.alpha;
+        float elapsed = 0f;
+
+        while (elapsed < keyFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            keyImage.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / keyFadeDuration);
+            yield return null;
+        }
+
+        keyImage.alpha = targetAlpha;
+        keyFadeRoutine = null;
     }
 }
