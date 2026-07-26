@@ -299,6 +299,7 @@
 
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 
@@ -309,10 +310,6 @@ using TMPro;
 [DisallowMultipleComponent]
 public class MainMenuUIManager : MonoBehaviour
 {
-    [Header("Scene Configuration")]
-    [Tooltip("The exact build name of your gameplay scene.")]
-    [SerializeField] private string gameSceneName = "GameScene";
-
     [Header("Input Settings")]
     [Tooltip("The keyboard key used to return to the main root panel from sub-menus.")]
     [SerializeField] private KeyCode backKey = KeyCode.Escape;
@@ -376,10 +373,10 @@ public class MainMenuUIManager : MonoBehaviour
         // Instantly hide all UI so nothing bleeds over the loading screen
         HideAllPanelsImmediate();
 
-        // FIXED: Using SceneLoader to match your Singleton declaration[cite: 7]
         if (SceneLoader.Instance != null)
         {
-            SceneLoader.Instance.LoadScene(gameSceneName, GameState.Gameplay);
+            int nextBuildIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            SceneLoader.Instance.LoadScene(nextBuildIndex, GameState.Gameplay);
         }
         else
         {

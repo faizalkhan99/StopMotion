@@ -8,7 +8,7 @@ public class Test : MonoBehaviour
         if(Keyboard.current.gKey.wasPressedThisFrame)
         {
             ChangeGameState();
-            Debug.Log(" GameState changed to Gameplaye");
+            Debug.Log(" GameState changed to Gameplay");
         }
     }
     private void ChangeGameState()

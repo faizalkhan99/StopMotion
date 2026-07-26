@@ -270,9 +270,6 @@ using TMPro;
 [DisallowMultipleComponent]
 public class GameplayUIManager : MonoBehaviour
 {
-    [Header("Scene Configuration")]
-    [SerializeField] private string mainMenuSceneName = "MainMenuScene";
-
     [Header("Input Settings")]
     [Tooltip("The keyboard key used to pause gameplay, resume from pause, or exit from Game Over[cite: 14].")]
     [SerializeField] private KeyCode actionKey = KeyCode.Q;
@@ -281,6 +278,7 @@ public class GameplayUIManager : MonoBehaviour
     [SerializeField] private UIPanelAnimator gameplayPanel;
     [SerializeField] private UIPanelAnimator pauseMenuPanel;
     [SerializeField] private UIPanelAnimator gameOverPanel;
+    [SerializeField] private UIPanelAnimator gameCompletePanel;
 
     [Header("HUD Elements")]
     [SerializeField] private TextMeshProUGUI timerText;
@@ -341,7 +339,7 @@ public class GameplayUIManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(actionKey) || Input.GetKeyDown(KeyCode.Q)) // Added a hardcoded fallback for the 'Q' key
+        if (Input.GetKeyDown(actionKey) || Input.GetKeyDown(KeyCode.Q))
         {
             switch (currentGameState)
             {
@@ -357,6 +355,14 @@ public class GameplayUIManager : MonoBehaviour
                     OnMainMenuClicked();
                     break;
             }
+        }
+
+        if (currentGameState == GameState.GameOver)
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+                OnRestartClicked();
+            else if (Input.GetKeyDown(KeyCode.M))
+                OnMainMenuClicked();
         }
     }
 
@@ -378,6 +384,10 @@ public class GameplayUIManager : MonoBehaviour
 
             case GameState.GameOver:
                 SwitchPanel(gameOverPanel);
+                break;
+
+            case GameState.GameComplete:
+                SwitchPanel(gameCompletePanel);
                 break;
         }
     }
@@ -428,16 +438,15 @@ public class GameplayUIManager : MonoBehaviour
         Time.timeScale = 1.0f;
         AudioListener.pause = false;
 
-        string currentSceneName = SceneManager.GetActiveScene().name;
+        int currentBuildIndex = SceneManager.GetActiveScene().buildIndex;
 
-        // FIXED: Using AsyncSceneLoader to match your Singleton declaration[cite: 7]
         if (SceneLoader.Instance != null)
         {
-            SceneLoader.Instance.LoadScene(currentSceneName, GameState.Gameplay);
+            SceneLoader.Instance.LoadScene(currentBuildIndex, GameState.Gameplay);
         }
         else
         {
-            SceneManager.LoadScene(currentSceneName);
+            SceneManager.LoadScene(currentBuildIndex);
         }
     }
 
@@ -448,11 +457,15 @@ public class GameplayUIManager : MonoBehaviour
 
         if (SceneLoader.Instance != null)
         {
-            SceneLoader.Instance.LoadScene(mainMenuSceneName, GameState.MainMenu);
+            SceneLoader.Instance.LoadScene(0, GameState.MainMenu);
         }
         else
         {
-            SceneManager.LoadScene(mainMenuSceneName);
+            int mainMenuIndex = 0;
+            if (mainMenuIndex < SceneManager.sceneCountInBuildSettings)
+                SceneManager.LoadScene(mainMenuIndex);
+            else
+                SceneManager.LoadScene("MainMenuScene");
         }
     }
 

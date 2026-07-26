@@ -43,12 +43,17 @@ public class SceneLoader : MonoBehaviour
     /// <summary>
     /// Initiates an asynchronous scene load with fade transitions.
     /// </summary>
-    public void LoadScene(string sceneName, GameState targetState)
+    public void LoadScene(int buildIndex, GameState targetState)
     {
-        StartCoroutine(LoadSceneRoutine(sceneName, targetState));
+        if (buildIndex < 0 || buildIndex >= SceneManager.sceneCountInBuildSettings)
+        {
+            Debug.LogError($"<b>[SceneLoader]</b> Build index {buildIndex} is out of range! (Total scenes: {SceneManager.sceneCountInBuildSettings})");
+            return;
+        }
+        StartCoroutine(LoadSceneRoutine(buildIndex, targetState));
     }
 
-    private IEnumerator LoadSceneRoutine(string sceneName, GameState targetState)
+    private IEnumerator LoadSceneRoutine(int buildIndex, GameState targetState)
     {
         // 1. Immediately switch state to Loading to freeze game loops and hide UI
         ChangeState(GameState.Loading);
@@ -58,7 +63,7 @@ public class SceneLoader : MonoBehaviour
 
         // 3. Begin Async Loading
         float startTime = Time.time;
-        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(sceneName);
+        AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(buildIndex);
         asyncOperation.allowSceneActivation = false;
 
         // 4. Track and display progress while loading

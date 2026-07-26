@@ -25,11 +25,13 @@ public class GameStateManager : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.OnGameOverTriggered += HandleGameOver;
+        GameEventBus.OnLevelWon += LoadNextLevel;
     }
 
     private void OnDisable()
     {
         GameEventBus.OnGameOverTriggered -= HandleGameOver;
+        GameEventBus.OnLevelWon -= LoadNextLevel;
         Time.timeScale = 1.0f;
     }
 
@@ -116,6 +118,7 @@ public class GameStateManager : MonoBehaviour
 
     public void LoadNextLevel()
     {
+        SetGameState(GameState.LevelComplete);
         Time.timeScale = 1.0f;
         AudioListener.pause = false;
         int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
@@ -124,6 +127,7 @@ public class GameStateManager : MonoBehaviour
             SceneManager.LoadScene(nextSceneIndex);
         else
             Debug.LogWarning("<b>[GameStateManager]</b> No further scenes in Build Settings!");
+            GameEventBus.TriggerGameStateChanged(GameState.GameComplete);
     }
     #endregion
 }
