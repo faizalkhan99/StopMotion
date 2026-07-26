@@ -89,7 +89,7 @@ public class AIEnemyInfluence : MonoBehaviour, ITimerInfluence
                 else
                     GameEventBus.PauseTimer();
 
-                yield return new WaitForSeconds(beat.duration);
+                yield return new WaitForSeconds(Random.Range(beat.minDuration, beat.maxDuration));
             }
         }
         while (chronoProfile.loopSequence);

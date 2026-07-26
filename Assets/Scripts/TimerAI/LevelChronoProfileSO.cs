@@ -6,9 +6,13 @@ public class LevelChronoProfileSO : ScriptableObject
     [System.Serializable]
     public struct ChronoBeat
     {
-        [Tooltip("How long this beat lasts, in seconds.")]
+        [Tooltip("Minimum duration of this beat, in seconds.")]
         [Min(0.05f)]
-        public float duration;
+        public float minDuration;
+
+        [Tooltip("Maximum duration of this beat, in seconds.")]
+        [Min(0.05f)]
+        public float maxDuration;
 
         [Tooltip("True = player must MOVE during this beat (drives Ticking). " +
                  "False = player must FREEZE during this beat (drives Frozen).")]
@@ -30,7 +34,7 @@ public class LevelChronoProfileSO : ScriptableObject
         if (beats == null) return 0f;
         foreach (var beat in beats)
         {
-            total += beat.duration;
+            total += Random.Range(beat.minDuration, beat.maxDuration);
         }
         return total;
     }

@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Test_ChronoProfile
   m_EditorClassIdentifier: Assembly-CSharp::LevelChronoProfileSO
   beats:
-  - duration: 4
+  - minDuration: 0.05
+    maxDuration: 2
     isMoveBeat: 1
-  - duration: 2
+  - minDuration: 2
+    maxDuration: 3
     isMoveBeat: 0
-  - duration: 5
+  - minDuration: 2
+    maxDuration: 4
     isMoveBeat: 1
-  - duration: 2
-    isMoveBeat: 0
   loopSequence: 1
