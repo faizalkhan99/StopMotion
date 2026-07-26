@@ -93,7 +93,7 @@ public class PlayerVisuals : MonoBehaviour
         // Tolerance check prevents rapid jittering when idle or micro-drifting
         if (Mathf.Abs(velocityX) > 0.05f)
         {
-            spriteRenderer.flipX = (velocityX < 0f);
+            spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
         }
     }
 
