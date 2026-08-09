@@ -84,7 +84,7 @@ namespace StopMotion.Debugging
         private void HandleToggleInput()
         {
             // Keyboard toggle (editor / desktop / Android with attached keyboard)
-            if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame)
+            if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
             {
                 _visible = !_visible;
                 return;

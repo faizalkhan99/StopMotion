@@ -478,8 +478,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
   currentGameState: 3
   targetFrameRate: 90
-  _explosionPrefab: {fileID: 0}
-  _playerTransform: {fileID: 0}
+  _explosionPrefab: {fileID: 1448934846}
+  _playerTransform: {fileID: 1448934845}
 --- !u!4 &559975677
 Transform:
   m_ObjectHideFlags: 0
@@ -989,6 +989,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+--- !u!4 &1448934845 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5984916387583639828, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+  m_PrefabInstance: {fileID: 1448934844}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &1448934846 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7773694717091486317, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+  m_PrefabInstance: {fileID: 1448934844}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1972946928
 GameObject:
   m_ObjectHideFlags: 0

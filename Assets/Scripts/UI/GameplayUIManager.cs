@@ -334,6 +334,10 @@ public class GameplayUIManager : MonoBehaviour
 
     [Header("Button Hooks")]
     [SerializeField] private Button pauseButton;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button restartButtonTwo;
+    [SerializeField] private Button mainMenuButtonTwo;
 
     private UIPanelAnimator currentActivePanel;
     private GameState currentGameState = GameState.Booting;
@@ -342,10 +346,18 @@ public class GameplayUIManager : MonoBehaviour
     {
         // Snap-hide all panels instantly on startup without playing closing animations
         HideAllPanelsImmediate();
-
+        ShowPanelAnimated(gameplayPanel);
         // Bind the single serialized button if assigned[cite: 16]
         if (pauseButton != null)
-            pauseButton.onClick.AddListener(OnPauseClicked);
+            pauseButton.onClick.AddListener(OnPauseButtonClicked);
+        if (restartButton != null)
+            restartButton.onClick.AddListener(OnRestartClicked);
+        if (mainMenuButton != null)
+            mainMenuButton.onClick.AddListener(OnMainMenuClicked);
+        if (restartButtonTwo != null)
+            restartButtonTwo.onClick.AddListener(OnRestartClicked);
+        if (mainMenuButtonTwo != null)
+            mainMenuButtonTwo.onClick.AddListener(OnMainMenuClicked);
     }
 
     private void OnEnable()
@@ -439,6 +451,13 @@ public class GameplayUIManager : MonoBehaviour
     #endregion
 
     #region Button & Input Actions (Public for Inspector Wiring)
+    public void OnPauseButtonClicked()
+    {
+        if (currentGameState == GameState.Gameplay)
+            OnPauseClicked();
+        else if (currentGameState == GameState.Paused)
+            OnResumeClicked();
+    }
 
     public void OnPauseClicked()
     {
