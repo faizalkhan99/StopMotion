@@ -6,7 +6,7 @@ public class TimerController : MonoBehaviour
     [SerializeField] private float totalTime = 60f;
     [SerializeField] private bool autoStart = true;
 
-    private float timeRemaining;
+    [SerializeField] private float timeRemaining;
     private bool isRunning;
     private ITimerInfluence influence;
 

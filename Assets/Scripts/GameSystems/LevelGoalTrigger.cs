@@ -31,12 +31,15 @@ public class LevelGoalTrigger : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         Debug.Log(" Player collision detected");
 
-        key = CheckPlayerForKey(other);
+        if(hasLock)
+        {
+            key = CheckPlayerForKey(other);
+        }
 
         if(!hasLock || key)
         {
-            ChronoState chrono = GameEventBus.CurrentChronoState;
-            if (chrono != ChronoState.Ticking && chrono != ChronoState.WarnStop && chrono != ChronoState.WarnGo) return;
+            // ChronoState chrono = GameEventBus.CurrentChronoState;
+            // if (chrono != ChronoState.Ticking && chrono != ChronoState.WarnStop && chrono != ChronoState.WarnGo) return;
 
             if (GameEventBus.CurrentGameState != GameState.Gameplay) return;
             Debug.Log(" Player collision detected : ALl states are correct");

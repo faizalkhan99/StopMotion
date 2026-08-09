@@ -327,6 +327,7 @@ public class GameplayUIManager : MonoBehaviour
     [SerializeField] private UIPanelAnimator gameplayPanel;
     [SerializeField] private UIPanelAnimator pauseMenuPanel;
     [SerializeField] private UIPanelAnimator gameOverPanel;
+    [SerializeField] private UIPanelAnimator gameCompletePanel;
 
     [Header("HUD Elements")]
     [SerializeField] private TextMeshProUGUI timerText;
@@ -341,7 +342,6 @@ public class GameplayUIManager : MonoBehaviour
     {
         // Snap-hide all panels instantly on startup without playing closing animations
         HideAllPanelsImmediate();
-        ShowPanelAnimated(gameplayPanel);
 
         // Bind the single serialized button if assigned[cite: 16]
         if (pauseButton != null)
@@ -385,14 +385,14 @@ public class GameplayUIManager : MonoBehaviour
         // 2. Restart Input (R) - Available during Gameplay, Pause, or Game Over[cite: 16]
         if (Input.GetKeyDown(restartKey))
         {
-            if (currentGameState == GameState.Gameplay || currentGameState == GameState.Paused || currentGameState == GameState.GameOver)
+            if (currentGameState == GameState.Gameplay || currentGameState == GameState.Paused || currentGameState == GameState.GameOver || currentGameState == GameState.GameComplete)
                 OnRestartClicked();
         }
 
         // 3. Main Menu Input (M) - Available during Gameplay, Pause, or Game Over[cite: 16]
         if (Input.GetKeyDown(mainMenuKey))
         {
-            if (currentGameState == GameState.Gameplay || currentGameState == GameState.Paused || currentGameState == GameState.GameOver)
+            if (currentGameState == GameState.Gameplay || currentGameState == GameState.Paused || currentGameState == GameState.GameOver || currentGameState == GameState.GameComplete)
                 OnMainMenuClicked();
         }
     }
@@ -418,6 +418,10 @@ public class GameplayUIManager : MonoBehaviour
             case GameState.GameOver:
                 SwitchPanel(gameOverPanel);
                 break;
+
+            case GameState.GameComplete:
+                SwitchPanel(gameCompletePanel);
+                break;
         }
     }
 
@@ -440,10 +444,10 @@ public class GameplayUIManager : MonoBehaviour
     {
         PlayButtonClickAudio();
 
-        var stateManager = FindFirstObjectByType<GameStateManager>();
-        if (stateManager != null)
-            stateManager.TogglePause();
-        else
+        // var stateManager = FindAnyObjectByType<GameStateManager>();
+        // if (stateManager != null)
+        //     stateManager.TogglePause();
+        // else
             GameEventBus.TriggerGameStateChanged(GameState.Paused);
     }
 
@@ -451,10 +455,10 @@ public class GameplayUIManager : MonoBehaviour
     {
         PlayButtonClickAudio();
 
-        var stateManager = FindFirstObjectByType<GameStateManager>();
-        if (stateManager != null)
-            stateManager.TogglePause();
-        else
+        // var stateManager = FindAnyObjectByType<GameStateManager>();
+        // if (stateManager != null)
+        //     stateManager.TogglePause();
+        // else
             GameEventBus.TriggerGameStateChanged(GameState.Gameplay);
     }
 
@@ -528,6 +532,7 @@ public class GameplayUIManager : MonoBehaviour
         HidePanel(gameplayPanel, immediate: true);
         HidePanel(pauseMenuPanel, immediate: true);
         HidePanel(gameOverPanel, immediate: true);
+        HidePanel(gameCompletePanel, immediate: true);
     }
 
     #endregion
