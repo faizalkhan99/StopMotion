@@ -1632,7 +1632,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -715, y: -244}
+  m_AnchoredPosition: {x: -575, y: -117}
   m_SizeDelta: {x: 1150, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &958226818
@@ -1648,7 +1648,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverMove
   axis: 0
-  distance: 290
+  distance: 150
   smoothTime: 0.1
 --- !u!114 &958226819
 MonoBehaviour:
@@ -2051,7 +2051,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -785, y: -394}
+  m_AnchoredPosition: {x: -575, y: -267}
   m_SizeDelta: {x: 1150, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1017578211
@@ -2149,7 +2149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverMove
   axis: 0
-  distance: 360
+  distance: 150
   smoothTime: 0.1
 --- !u!114 &1017578215
 MonoBehaviour:
@@ -2333,7 +2333,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -575, y: 56}
+  m_AnchoredPosition: {x: -575, y: 183}
   m_SizeDelta: {x: 1150, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1109598523
@@ -3030,9 +3030,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'WASD = Move
+  m_text: 'W & S : Move
 
-    SPACE = Jump'
+    SPACE : Jump
+
+    Q/ESCAPE : BACK
+
+    R : RESTART
+
+    M
+    : MENU'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}
   m_sharedMaterial: {fileID: 7651303879435868247, guid: f6a3be073f5dc7d4ab3324abbfcdd4f2, type: 2}
@@ -3098,7 +3105,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: 0, w: 146.95}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -3790,7 +3797,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd7af9baa17d81742b0e9563144e040d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuUIManager
-  gameSceneName: GameScene
   backKey: 27
   mainMenuPanel: {fileID: 380300235}
   howToPlayPanel: {fileID: 1870023442}
@@ -4397,7 +4403,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -645, y: -94}
+  m_AnchoredPosition: {x: -575, y: 33}
   m_SizeDelta: {x: 1150, y: 100}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2058319748
@@ -4495,7 +4501,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HoverMove
   axis: 0
-  distance: 220
+  distance: 150
   smoothTime: 0.1
 --- !u!114 &2058319752
 MonoBehaviour:

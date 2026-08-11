@@ -1649,7 +1649,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: 0df79b1cdbaaaef43afcff284e7f5bab, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2627,17 +2627,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d0989eb7a8c12744b63f946328a2ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameplayUIManager
-  actionKey: 27
+  mainMenuSceneName: MainMenuScene
+  pauseKey: 27
+  altPauseKey: 113
+  restartKey: 114
+  mainMenuKey: 109
   gameplayPanel: {fileID: 1431051437}
   pauseMenuPanel: {fileID: 1315204205}
   gameOverPanel: {fileID: 158010723}
-  gameCompletePanel: {fileID: 1953517272}
   timerText: {fileID: 340998455}
   pauseButton: {fileID: 0}
-  resumeButton: {fileID: 0}
-  restartButtons:
-  - {fileID: 0}
-  mainMenuButtons: []
 --- !u!225 &1078573961
 CanvasGroup:
   m_ObjectHideFlags: 0

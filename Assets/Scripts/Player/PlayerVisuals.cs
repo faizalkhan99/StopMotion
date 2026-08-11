@@ -213,6 +213,7 @@ public class PlayerVisuals : MonoBehaviour
 
         GameEventBus.TriggerCameraShake();
         if (destroyVFX != null) destroyVFX.Play();
+        GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
         spriteRenderer.enabled = false;
 
         StopPlayerMovement();

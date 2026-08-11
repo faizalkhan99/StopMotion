@@ -327,7 +327,7 @@ public class GameplayUIManager : MonoBehaviour
     [SerializeField] private UIPanelAnimator gameplayPanel;
     [SerializeField] private UIPanelAnimator pauseMenuPanel;
     [SerializeField] private UIPanelAnimator gameOverPanel;
-    [SerializeField] private UIPanelAnimator gameCompletePanel;
+    [SerializeField] private UIPanelAnimator gameWinPanel;
 
     [Header("HUD Elements")]
     [SerializeField] private TextMeshProUGUI timerText;
@@ -418,9 +418,8 @@ public class GameplayUIManager : MonoBehaviour
             case GameState.GameOver:
                 SwitchPanel(gameOverPanel);
                 break;
-
             case GameState.GameComplete:
-                SwitchPanel(gameCompletePanel);
+                SwitchPanel(gameWinPanel);
                 break;
         }
     }
@@ -532,7 +531,7 @@ public class GameplayUIManager : MonoBehaviour
         HidePanel(gameplayPanel, immediate: true);
         HidePanel(pauseMenuPanel, immediate: true);
         HidePanel(gameOverPanel, immediate: true);
-        HidePanel(gameCompletePanel, immediate: true);
+        HidePanel(gameWinPanel, immediate: true);
     }
 
     #endregion

@@ -36,7 +36,7 @@ Material:
     - _ColorSaturation: 0.85
     - _CoreRadius: 0.091
     - _EdgeSoftness: 0.2
-    - _GlowIntensity: 5
+    - _GlowIntensity: 2
     - _PortalRadius: 0.5
     - _SwirlSpeed: 1.5
     - _TwistStrength: 8
