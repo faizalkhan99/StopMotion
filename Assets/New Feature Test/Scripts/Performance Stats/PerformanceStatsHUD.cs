@@ -49,6 +49,14 @@ namespace StopMotion.Debugging
 
         private void Awake()
         {
+            GameObject existingObject = GameObject.FindWithTag(gameObject.tag);
+
+            if ( existingObject != null && existingObject != gameObject)
+            {
+                Destroy(gameObject);
+            }
+
+            DontDestroyOnLoad(this.gameObject);
             _visible = visibleOnStart;
         }
 

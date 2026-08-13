@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Vines
-  m_Shader: {fileID: 4800000, guid: 35e2d48378c034464a3ca4c3f89320cb, type: 3}
+  m_Name: V7_mat
+  m_Shader: {fileID: 4800000, guid: b3f584da34cb142aaa796efc38878413, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -41,26 +41,27 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AnimationSpeed: 3.58
-    - _EdgeJaggedness: 0
+    - _AnimationSpeed: 1
+    - _Duration: 60
+    - _EdgeJaggedness: 0.6
     - _EnableExternalAlpha: 0
-    - _GlowIntensity: 8
-    - _NoiseScale: 4.1
-    - _NoiseStrength: 1
-    - _Radius: 1
-    - _Softness: 0.4
-    - _TendrilCount: 16.8
-    - _TendrilLength: 0.445
+    - _GlowIntensity: 2.5
+    - _IsRunning: 0
+    - _NoiseScale: 6
+    - _NoiseStrength: 0.35
+    - _PausedGrowth: 0
+    - _Radius: 1.2
+    - _SoilAlpha: 1
+    - _SoilReach: 0.5
+    - _StartTime: 0
+    - _TendrilCount: 32
+    - _TendrilOvergrowth: 0.6
     - _Thickness: 0.2
-    - _ThornAmount: 1
-    - _ThornScale: 42.2
-    - _ThornSharpness: 3.48
     - _ZWrite: 0
     m_Colors:
-    - _Center: {r: 0.46, g: 0.5, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _DarkColor: {r: 0, g: 0, b: 0, a: 1}
-    - _GlowColor: {r: 0.8509804, g: 0.086297706, b: 0.035294104, a: 1}
+    - _GlowColor: {r: 1, g: 0.27999997, b: 0.059999965, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SoilColorA: {r: 0.049999982, g: 0.01, b: 0.01, a: 0.85}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

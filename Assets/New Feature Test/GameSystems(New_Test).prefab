@@ -74,8 +74,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -148,6 +148,7 @@ GameObject:
   - component: {fileID: 5616145662586252542}
   - component: {fileID: 4218778216569876444}
   - component: {fileID: 5873115277356254184}
+  - component: {fileID: 3411144341956621287}
   m_Layer: 5
   m_Name: Test_Vignette
   m_TagString: Untagged
@@ -194,9 +195,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 2100000, guid: 17bbc5678033b46d89bed34e6d6ab631, type: 2}
+  m_Material: {fileID: 2100000, guid: f10428ab855364237a4c5476dfa44414, type: 2}
   m_Color: {r: 0.028301895, g: 0.028301895, b: 0.028301895, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -212,6 +213,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3411144341956621287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407810262718672677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbd153c7c04094409a8bde2b2977cc59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopMotion.Visuals.VignetteCountdownController
+  targetImage: {fileID: 5873115277356254184}
+  startRadius: 0.2
+  endRadius: 0.05
+  duration: 60
 --- !u!1 &793419123343736286
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,8 +380,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1153,8 +1170,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1290,8 +1307,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1848,6 +1865,10 @@ PrefabInstance:
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3551548211989957727, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_Alpha
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5364258115995557921, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: timerText
       value: 
@@ -2001,6 +2022,7 @@ PrefabInstance:
     - {fileID: 5126132219367240753, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
     - {fileID: 5698319268101151295, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
     - {fileID: 7586897498527921061, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+    - {fileID: 7211948067979253878, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
     m_RemovedGameObjects:
     - {fileID: 8422706479656684479, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
     - {fileID: 7201262819115983311, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
@@ -2053,7 +2075,7 @@ MonoBehaviour:
   target: {fileID: 5984916387583639828}
   smoothSpeed: 5
   offset: {x: 0, y: 0, z: -27}
-  delayTime: 0.5
+  delayTime: 1
 --- !u!1 &5441502226698078347 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2931581210400342699, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}

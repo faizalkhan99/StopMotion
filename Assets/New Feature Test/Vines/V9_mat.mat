@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New
-  m_Shader: {fileID: 4800000, guid: 6def5518ea0bd4c7ebb193ecdddc8d3c, type: 3}
+  m_Name: V9_mat
+  m_Shader: {fileID: 4800000, guid: 6efc385b0e60049e394d0e73ce64537b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -42,26 +42,26 @@ Material:
     m_Ints: []
     m_Floats:
     - _AnimationSpeed: 1
-    - _EdgeJaggedness: 0
+    - _Duration: 60
+    - _EdgeJaggedness: 0.104
     - _EnableExternalAlpha: 0
-    - _GlowIntensity: 8
-    - _GrowthAmount: 1
-    - _NoiseScale: 8.3
-    - _NoiseStrength: 0.34
-    - _SoilCellScale: 9.4
-    - _SoilVeinWidth: 0.12
-    - _TendrilCount: 4.2
-    - _TendrilLength: 0.075
-    - _Thickness: 0.107
-    - _ThornAmount: 0.847
-    - _ThornScale: 29.7
-    - _ThornSharpness: 5.28
+    - _GlowIntensity: 2.5
+    - _IsRunning: 0
+    - _NoiseScale: 6
+    - _NoiseStrength: 0.35
+    - _PausedGrowth: 0
+    - _Radius: 1.013
+    - _SoilAlpha: 1
+    - _SoilReach: 0.5
+    - _StartTime: 0
+    - _TendrilCount: 19.3
+    - _TendrilOvergrowth: 0.6
+    - _Thickness: 0.2
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _GlowColor: {r: 1, g: 0.27999997, b: 0.059999965, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SoilColorA: {r: 0, g: 0, b: 0, a: 0.85}
-    - _SoilColorB: {r: 0, g: 0, b: 0, a: 0.95}
+    - _SoilColorA: {r: 0.049999982, g: 0.01, b: 0.01, a: 0.85}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

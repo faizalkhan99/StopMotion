@@ -1,14 +1,16 @@
-Shader "CityBuster/V4"
+Shader "CityBuster/V8"
 {
     // ----------------------------------------------------------------------
-    // Border-telegraph overlay: thorny vines grow INWARD from the four
-    // screen edges. The "soil" (mottled red/black cellular noise) sits
-    // flush against the border; tendrils root inside the soil and poke
-    // OUT beyond it, tapering to glowing points.
+    // Border-telegraph overlay: thorny vines grow INWARD from a single
+    // continuous ring wrapped around the screen (angle-based, no corner
+    // seams like a rect-edge approach would have). The ring sits near the
+    // screen boundary so it still reads as "growing in from the edges,"
+    // but converges as one smooth circle rather than four overlapping
+    // strips.
     //
-    // Soil reach and tendril overgrowth are separate controls: soil is
-    // the base material, tendrils are allowed to extend further than
-    // the soil itself. Growth driven externally via _GrowthAmount (0 =
+    // Soil (mottled red/black cellular noise) is the root material at the
+    // ring; tendrils root inside it and poke further inward, tapering to
+    // glowing points. Growth driven externally via _GrowthAmount (0 =
     // hidden, 1 = full), intended to be wired to
     // GameEventBus.OnChronoStateChanged / OnGracePeriodUpdated.
     // ----------------------------------------------------------------------
@@ -16,33 +18,28 @@ Shader "CityBuster/V4"
     Properties
     {
         [Header(Growth Control)]
-        _GrowthAmount       ("Growth Amount (0 hidden, 1 full)", Range(0.0, 1.0)) = 1.0
-        _SoilReach          ("Soil Reach (UV units)",            Range(0.01, 0.5)) = 0.12
+        _StartTime          ("Countdown Start Time (Time.y snapshot)", Float) = 0
+        _Duration           ("Level Duration (s)",                     Float) = 60
+        _PausedGrowth       ("Growth When Paused (0 hidden, 1 full)",  Range(0.0, 1.0)) = 0.0
+        _IsRunning          ("Is Ticking (0/1)",                       Range(0.0, 1.0)) = 0.0
+        _Radius             ("Ring Radius",                      Range(0.2, 1.2)) = 0.72
+        _SoilReach          ("Soil Reach (inward from ring)",    Range(0.01, 0.5)) = 0.12
         _TendrilOvergrowth  ("Tendril Overgrowth Length",        Range(0.0, 0.6))  = 0.25
-        _EdgeJaggedness     ("Edge Jaggedness",                  Range(0.0, 1.0))  = 0.6
+        _EdgeJaggedness     ("Ring Jaggedness",                  Range(0.0, 1.0))  = 0.6
 
         [Header(Tendril Shape)]
-        _TendrilCount    ("Tendrils Per Edge",   Range(2, 64))    = 18
+        _TendrilCount    ("Tendril Count",       Range(4, 96))    = 32
         _Thickness       ("Thickness",           Range(0.001, 0.2)) = 0.02
         _AnimationSpeed  ("Animation Speed",     Range(0.0, 5.0)) = 1.0
         _NoiseScale      ("Noise Scale",         Range(0.1, 20.0)) = 6.0
         _NoiseStrength   ("Noise Strength",      Range(0.0, 1.0)) = 0.35
-
-        [Header(Thorn Detail)]
-        _ThornAmount     ("Thorn Amount",     Range(0.0, 1.0))  = 0.7
-        _ThornSharpness  ("Thorn Sharpness",  Range(1.0, 12.0)) = 6.0
-        _ThornScale      ("Thorn Scale",      Range(1.0, 60.0)) = 26.0
-        _ThornAlpha      ("Thorn Alpha",      Range(0.0, 1.0))  = 1.0
 
         [Header(Glow Tip)]
         _GlowColor       ("Tip Glow Color", Color) = (1.0, 0.28, 0.06, 1)
         _GlowIntensity   ("Glow Intensity", Range(0.0, 8.0)) = 2.5
 
         [Header(Soil Root Mass)]
-        _SoilColorA      ("Soil Color A Base",  Color) = (0.05, 0.01, 0.01, 0.85)
-        _SoilColorB      ("Soil Color B Veins", Color) = (0.55, 0.05, 0.03, 0.95)
-        _SoilCellScale   ("Soil Cell Scale",    Range(1.0, 60.0)) = 18.0
-        _SoilVeinWidth   ("Soil Vein Width",    Range(0.0, 0.5))  = 0.12
+        _SoilColorA      ("Soil Color (Flat)",  Color) = (0.05, 0.01, 0.01, 0.85)
         _SoilAlpha       ("Soil Alpha",         Range(0.0, 1.0))  = 1.0
     }
 
@@ -76,7 +73,11 @@ Shader "CityBuster/V4"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
-                float  _GrowthAmount;
+                float  _StartTime;
+                float  _Duration;
+                float  _PausedGrowth;
+                float  _IsRunning;
+                float  _Radius;
                 float  _SoilReach;
                 float  _TendrilOvergrowth;
                 float  _EdgeJaggedness;
@@ -85,16 +86,9 @@ Shader "CityBuster/V4"
                 float  _AnimationSpeed;
                 float  _NoiseScale;
                 float  _NoiseStrength;
-                float  _ThornAmount;
-                float  _ThornSharpness;
-                float  _ThornScale;
-                float  _ThornAlpha;
                 half4  _GlowColor;
                 half   _GlowIntensity;
                 half4  _SoilColorA;
-                half4  _SoilColorB;
-                float  _SoilCellScale;
-                float  _SoilVeinWidth;
                 float  _SoilAlpha;
             CBUFFER_END
 
@@ -166,11 +160,24 @@ Shader "CityBuster/V4"
                 return sum;
             }
 
-            // Ridged noise: sharp thin peaks for thorn spikes.
-            float RidgedNoise(float2 p)
+            // Cheaper 2-octave variant for low-frequency, slow-changing
+            // uses (ring jaggedness, growth pulse) where the extra detail
+            // from octaves 3-4 is not perceptible but still costs 8 more
+            // Hash21 calls per pixel.
+            float FBM2(float2 p)
             {
-                float n = ValueNoise(p);
-                return 1.0 - abs(n * 2.0 - 1.0);
+                float sum  = 0.0;
+                float amp  = 0.5;
+                float freq = 1.0;
+
+                [unroll]
+                for (int i = 0; i < 2; i++)
+                {
+                    sum  += amp * ValueNoise(p * freq);
+                    freq *= 2.03;
+                    amp  *= 0.5;
+                }
+                return sum;
             }
 
             float Voronoi(float2 p)
@@ -202,29 +209,62 @@ Shader "CityBuster/V4"
                 float2 uv = IN.positionHCS.xy / _ScreenParams.xy;
                 uv.y = 1.0 - uv.y;
 
+                float aspect = _ScreenParams.x / max(_ScreenParams.y, 1.0);
+
+                // Aspect-corrected so the ring is a true circle regardless
+                // of screen aspect ratio, not a stretched oval.
+                float2 pos = uv - 0.5;
+                pos.x *= aspect;
+
+                float dist   = length(pos);
+                float angle  = atan2(pos.y, pos.x);
+                float angleN = (angle + PI) / (2.0 * PI);
+
                 float t = _Time.y * _AnimationSpeed;
 
-                // ---- distance to nearest screen edge + which edge/lane --
-                float dl = uv.x;
-                float dr = 1.0 - uv.x;
-                float db = uv.y;
-                float dt = 1.0 - uv.y;
+                // ---- growth amount computed from time, not a per-frame
+                // C# write. _StartTime/_Duration/_IsRunning are only sent
+                // once at level start + on Chrono state transitions.
+                float safeDuration = max(_Duration, 0.0001);
+                float runningGrowth = saturate((_Time.y - _StartTime) / safeDuration);
+                float growthAmt = lerp(_PausedGrowth, runningGrowth, saturate(_IsRunning));
 
-                float d = min(min(dl, dr), min(db, dt));
+                // Nothing to draw yet — skip the rest of the noise stack
+                // entirely. These are uniforms (same for every pixel), so
+                // this branch causes no warp divergence.
+                if (growthAmt <= 0.0005)
+                {
+                    return half4(0, 0, 0, 0);
+                }
 
-                float edgeId;
-                float lane;
-                if (d == dl)      { edgeId = 0.0; lane = uv.y; }
-                else if (d == dr) { edgeId = 1.0; lane = uv.y; }
-                else if (d == db) { edgeId = 2.0; lane = uv.x; }
-                else              { edgeId = 3.0; lane = uv.x; }
+                // ---- cheap coarse band gate --------------------------------
+                // Before paying for 3x FBM (12 ValueNoise calls) + Voronoi,
+                // work out the widest the ring band could possibly be using
+                // only uniforms + dist (no per-pixel noise yet), and bail
+                // for pixels nowhere near it. This is the majority of the
+                // screen (the empty center) once the effect is active.
+                // Spatially coherent across neighboring pixels -> real
+                // savings on tile-based mobile GPUs despite the branch.
+                float maxJagOffset    = _Radius * 0.35 * _EdgeJaggedness;
+                float maxSoilReach    = growthAmt * _SoilReach;
+                float maxOvergrow     = growthAmt * _TendrilOvergrowth;
+                float outerBoundGuess = _Radius + maxJagOffset + 0.02;
+                float innerBoundGuess = _Radius - maxJagOffset - maxSoilReach - maxOvergrow - 0.02;
+                if (dist > outerBoundGuess || dist < innerBoundGuess)
+                {
+                    return half4(0, 0, 0, 0);
+                }
 
-                float growthAmt = saturate(_GrowthAmount);
+                // ---- jagged ring boundary: warp the effective root
+                // radius per angle so it reads as a torn organic edge,
+                // not a perfect circle -------------------------------------
+                float rimNoise = FBM2(float2(angleN * 6.0, t * 0.06)) - 0.5;
+                float effectiveRadius = _Radius + rimNoise * _Radius * 0.35 * _EdgeJaggedness;
 
-                // ---- per-tendril lane identity ---------------------------
+                // ---- single continuous angular sweep: no seams --------
                 float tendrilCount = max(_TendrilCount, 1.0);
-                float sectorF    = lane * tendrilCount;
-                float sectorId   = floor(sectorF) + edgeId * 10000.0;
+                float sectorF    = angleN * tendrilCount;
+                float sectorId   = floor(sectorF);
                 float sectorFrac = frac(sectorF);
 
                 float rLen    = Hash11(sectorId * 13.17 + 1.7);
@@ -233,88 +273,61 @@ Shader "CityBuster/V4"
                 float rWidth  = Hash11(sectorId * 5.13  + 2.9);
                 float rCurve  = Hash11(sectorId * 9.77  + 6.1) * TWO_PI;
 
-                // ---- soil reach: base root-mass extent from the edge -----
-                float soilJag = FBM(float2(lane * 6.0 + edgeId * 3.0, t * 0.05)) - 0.5;
-                float soilReachBase = growthAmt * _SoilReach;
-                float soilReach = max(soilReachBase * (1.0 + soilJag * 0.35 * _EdgeJaggedness), 0.0001);
-                float soilCoverage = 1.0 - smoothstep(soilReach * 0.8, soilReach * 1.1, d);
+                // ---- ring position relative to the jagged root ring -----
+                // ringPos > 0 = inside the ring (growth zone), < 0 = outside
+                float ringPos = effectiveRadius - dist;
 
-                // ---- tendril length: soil reach + overgrowth beyond it ---
-                // Per-lane variation applies to the overgrowth portion, so
-                // every lane guarantees at least soilReachBase (rooted
-                // inside the soil) and typically extends well past it.
-                float growPulse = 0.5 + 0.5 * FBM(float2(sectorId * 0.37, t * (0.15 + 0.25 * rSpeed)));
+                float soilReachBase = growthAmt * _SoilReach;
+                float ringGate = smoothstep(-0.015, 0.015, ringPos);
+                float soilCoverage = ringGate * (1.0 - smoothstep(soilReachBase * 0.8, soilReachBase * 1.05 + 0.0001, ringPos));
+
+                float growPulse = 0.5 + 0.5 * FBM2(float2(sectorId * 0.37, t * (0.15 + 0.25 * rSpeed)));
                 float overgrow  = growthAmt * _TendrilOvergrowth * (0.35 + 0.85 * rLen) * (0.35 + 0.65 * growPulse);
                 float tendrilLen = max(soilReachBase + overgrow, 0.0001);
 
-                // root (d = 0, at the screen edge) -> tip (tNorm = 1)
-                float tNorm = d / tendrilLen;
-                float presence = 1.0 - smoothstep(0.85, 1.05, tNorm);
+                float tNorm = ringPos / tendrilLen;
+                float presence = ringGate * (1.0 - smoothstep(0.85, 1.05, tNorm));
 
                 // ---- sway + curl along the growth direction --------------
                 float sway = sin(t * (0.6 + 0.6 * rSpeed) + rPhase) * 0.10;
-                float curl = sin(d * 8.0 + t * (0.4 + 0.4 * rSpeed) + rCurve) * 0.05 * saturate(tNorm);
+                float curl = sin(dist * 8.0 + t * (0.4 + 0.4 * rSpeed) + rCurve) * 0.05 * saturate(tNorm);
 
                 float warpUV1 = sectorId * 0.53 + t * 0.2;
-                float n = FBM(float2(d * _NoiseScale, warpUV1)) - 0.5;
+                float n = FBM(float2(dist * _NoiseScale, warpUV1)) - 0.5;
 
-                float laneWidth = 1.0 / tendrilCount;
+                float sectorAngularWidth = (TWO_PI / tendrilCount);
                 float centerlineFrac = (sectorFrac - 0.5) + sway + curl + n * _NoiseStrength;
-                float laneOffset = centerlineFrac * laneWidth;
+                float arcOffset = centerlineFrac * sectorAngularWidth * max(dist, 0.001);
 
                 float width = _Thickness * (0.35 + 0.9 * rWidth) * pow(1.0 - saturate(tNorm), 1.6) + 0.0012;
-                float distFromCenterline = abs(laneOffset);
+                float distFromCenterline = abs(arcOffset);
 
                 // edge0 < edge1 (spec-legal smoothstep, was inverted originally)
                 float tendrilShape = 1.0 - smoothstep(width * 0.08, width, distFromCenterline);
                 float tendrilMask = saturate(tendrilShape * presence);
 
-                // ---- dense thorn cluster, thick near root, thin at tip --
-                float2 thornUV = float2(
-                    lane * tendrilCount * 5.0 + sectorId * 11.3,
-                    d * _ThornScale + t * 0.5 * (0.5 + rSpeed));
-                float ridged = pow(saturate(RidgedNoise(thornUV)), _ThornSharpness);
-
-                float rootBias = smoothstep(1.0, 0.0, tNorm); // 1 at root, 0 at tip
-                float thornMask = ridged * presence * lerp(0.25, 1.0, rootBias) * _ThornAmount;
-
-                float2 clumpUV = float2(lane * tendrilCount * 1.6 + sectorId * 4.1, d * 5.0 + t * 0.1);
-                float clump = smoothstep(0.35, 0.8, ValueNoise(clumpUV));
-                thornMask *= lerp(0.4, 1.0, clump);
-
-                // single point of control for thorn opacity, applied here
-                // so it scales both the color blend and the alpha below
-                thornMask *= _ThornAlpha;
-
                 // ---- glowing tip ------------------------------------------
-                float voronoiBreak = Voronoi(float2(sectorId * 1.7, d * _NoiseScale * 0.5 + t * 0.1));
+                float voronoiBreak = Voronoi(float2(sectorId * 1.7, dist * _NoiseScale * 0.5 + t * 0.1));
                 float tipCore = pow(saturate(tendrilShape), 3.0) * smoothstep(0.55, 1.0, tNorm) * presence;
                 float tipGlow = tipCore * (0.6 + 0.4 * (1.0 - voronoiBreak));
 
-                // ---- soil / root mass color: mottled cellular pattern ----
-                float2 soilUV = uv * _SoilCellScale + float2(t * 0.01, 0.0);
-                float cell = Voronoi(soilUV);
-                float veins = 1.0 - smoothstep(_SoilVeinWidth, _SoilVeinWidth + 0.05, cell);
+                // ---- soil / root mass color: flat, no per-pixel cell noise ----
+                half3 soilColor = _SoilColorA.rgb;
+                float soilAlpha = soilCoverage * _SoilColorA.a * _SoilAlpha;
 
-                half3 soilColor = lerp(_SoilColorA.rgb, _SoilColorB.rgb, veins);
-                float soilAlpha = soilCoverage * lerp(_SoilColorA.a, _SoilColorB.a, veins) * _SoilAlpha;
+                // keep the exact center clear regardless of parameters
+                float centerClear = smoothstep(0.05, 0.0, dist);
 
                 // ---- composite ---------------------------------------------
                 half3 col = soilColor * soilAlpha;
-
-                // tendril body fills in with soil-base tone where it
-                // reaches past the soil coverage area (out toward the tip)
                 col += _SoilColorA.rgb * tendrilMask * (1.0 - soilAlpha);
-
-                half3 thornTint = lerp(_SoilColorB.rgb * 1.3, _GlowColor.rgb, 0.15);
-                col += thornTint * thornMask * 0.5;
                 col += _GlowColor.rgb * _GlowIntensity * tipGlow;
+                col *= (1.0 - centerClear);
 
                 half outAlpha = saturate(
                     soilAlpha +
                     tendrilMask * 0.6 * (1.0 - soilAlpha) +
-                    tipGlow * 0.7 +
-                    thornMask * 0.25);
+                    tipGlow * 0.7) * (1.0 - centerClear);
 
                 return half4(col, outAlpha);
             }

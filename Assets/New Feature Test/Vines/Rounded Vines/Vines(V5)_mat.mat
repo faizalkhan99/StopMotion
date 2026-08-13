@@ -41,24 +41,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AnimationSpeed: 1
+    - _AnimationSpeed: 5
     - _EdgeJaggedness: 0.6
     - _EnableExternalAlpha: 0
-    - _GlowIntensity: 2.5
-    - _GrowthAmount: 0.93601733
-    - _NoiseScale: 6
-    - _NoiseStrength: 0.35
-    - _Radius: 0.971
+    - _GlowIntensity: 1.5
+    - _GrowthAmount: 0.68023944
+    - _NoiseScale: 0.1
+    - _NoiseStrength: 0
+    - _Radius: 1.2
     - _SoilAlpha: 0
-    - _SoilCellScale: 18
+    - _SoilCellScale: 1
     - _SoilReach: 0.5
-    - _SoilVeinWidth: 0.12
+    - _SoilVeinWidth: 0
     - _TendrilCount: 10
     - _TendrilOvergrowth: 0.6
     - _Thickness: 0.2
-    - _ThornAlpha: 0.507
-    - _ThornAmount: 1
-    - _ThornScale: 34.2
+    - _ThornAlpha: 1
+    - _ThornAmount: 0
+    - _ThornScale: 17.4
     - _ThornSharpness: 5
     - _ZWrite: 0
     m_Colors:

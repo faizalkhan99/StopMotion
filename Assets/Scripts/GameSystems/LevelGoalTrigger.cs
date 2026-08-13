@@ -1,5 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
-using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
@@ -29,7 +27,6 @@ public class LevelGoalTrigger : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
-        Debug.Log(" Player collision detected");
 
         if(hasLock)
         {
@@ -42,10 +39,8 @@ public class LevelGoalTrigger : MonoBehaviour
             // if (chrono != ChronoState.Ticking && chrono != ChronoState.WarnStop && chrono != ChronoState.WarnGo) return;
 
             if (GameEventBus.CurrentGameState != GameState.Gameplay) return;
-            Debug.Log(" Player collision detected : ALl states are correct");
 
             GameEventBus.TriggerLevelWon();
-            Debug.Log(" event sent ");
         }
     }
 

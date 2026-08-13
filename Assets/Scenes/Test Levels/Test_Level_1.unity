@@ -397,56 +397,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1196890528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &513922445
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 513922447}
-  - component: {fileID: 513922446}
-  m_Layer: 0
-  m_Name: DebugSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &513922446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 513922445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b75ecab298ef4f73b3b74efe4ce47f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StopMotion.Debugging.PerformanceStatsHUD
-  fpsUpdateInterval: 0.5
-  memorySampleEveryNFrames: 30
-  fontSize: 28
-  screenPadding: {x: 16, y: 16}
-  cornerTapZoneSize: 120
-  visibleOnStart: 1
---- !u!4 &513922447
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 513922445}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &559975675
 GameObject:
   m_ObjectHideFlags: 0
@@ -850,52 +800,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1196890528}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &996043799
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 996043801}
-  - component: {fileID: 996043802}
-  m_Layer: 0
-  m_Name: VinesGrowth
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &996043801
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 996043799}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &996043802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 996043799}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba6891117f6e84a3ba240d8bd2ad51b4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EdgeVinesGrowthController
-  edgeVinesMaterial: {fileID: 2100000, guid: 17bbc5678033b46d89bed34e6d6ab631, type: 2}
-  levelDuration: 60
 --- !u!1 &1196890527
 GameObject:
   m_ObjectHideFlags: 0
@@ -983,6 +887,86 @@ PrefabInstance:
     - target: {fileID: 1395581185716480173, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
       propertyPath: m_Name
       value: GameSystems(New_Test)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2104317025112344013, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2104317025112344013, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2104317025112344013, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2104317025112344013, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 2967833248738385127, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3187186048864631627, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3187186048864631627, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3187186048864631627, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3187186048864631627, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411144341956621287, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: startRadius
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5873115277356254184, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: 66ecc7529247f416f9439fa1e32214cf, type: 2}
+    - target: {fileID: 5936494922803480191, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8029799665602122221, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8029799665602122221, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8029799665602122221, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8029799665602122221, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262540452138722960, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262540452138722960, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262540452138722960, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262540452138722960, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1144,7 +1128,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 1448934844}
   - {fileID: 1196890528}
-  - {fileID: 996043801}
-  - {fileID: 513922447}
   - {fileID: 725982161}
   - {fileID: 559975677}
