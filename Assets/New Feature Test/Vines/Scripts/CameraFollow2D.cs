@@ -23,9 +23,10 @@ public class CameraFollow2D : MonoBehaviour
         {
             timeRemaining -= Time.deltaTime;
         }
-        else
+        else if(!canCamMove)
         {
             canCamMove = true;
+            GameEventBus.StartShaderTimer();
         }
 
         if (canCamMove)

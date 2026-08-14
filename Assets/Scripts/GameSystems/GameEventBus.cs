@@ -37,6 +37,8 @@ public static class GameEventBus
     public static void TriggerLevelTimerUpdated(float timeRemaining) => OnLevelTimerUpdated?.Invoke(timeRemaining);
     public static event Action OnCameraShake;
     public static void TriggerCameraShake() => OnCameraShake?.Invoke();
+    public static event Action OnDelayEnd;
+    public static void StartShaderTimer() => OnDelayEnd?.Invoke();
 
     /// <summary>Fires during a rule violation. Value is normalized 0.0 (safe) to 1.0 (explosion)[cite: 7].</summary>
     public static event Action<float> OnGracePeriodUpdated;

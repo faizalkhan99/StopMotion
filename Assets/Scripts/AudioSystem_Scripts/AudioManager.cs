@@ -33,12 +33,11 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
-        AudioManager[] managers = FindObjectsByType<AudioManager>(FindObjectsSortMode.None);
+        GameObject existingObject = GameObject.FindWithTag(gameObject.tag);
 
-        if (managers.Length > 1)
+        if ( existingObject != null && existingObject != gameObject)
         {
             Destroy(gameObject);
-            return;
         }
 
         DontDestroyOnLoad(gameObject);
