@@ -1,8 +1,11 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] PlayerDash playerDash;
+
     [Header("Movement")]
     [Tooltip("Maximum horizontal speed in units per second.")]
     [SerializeField] private float maxSpeed = 8f;
@@ -47,6 +50,7 @@ public class PlayerController : MonoBehaviour
     // Input State (Driven by public mobile methods)
     private float horizontalInput;
     private bool isGrounded;
+    public bool isDashing  { get; private set; } =  false;
 
     // Zero-GC Timers
     private float coyoteTimer;
@@ -74,6 +78,10 @@ public class PlayerController : MonoBehaviour
         groundFilter.useTriggers = false; // Ignore triggers so enemy/item zones don't count as ground
     }
 
+    private void Start()
+    {
+        playerDash.InitDash( maxSpeed, this );
+    }
     /// <summary>
     /// Prevents Unity's physics solver from calculating impact friction when hitting the floor.
     /// This stops the character from stuttering or halting for a frame upon landing.
@@ -135,24 +143,34 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        ApplyHorizontalMovement();
-        ApplyDynamicGravity();
+        if( !isDashing )
+        {
+            ApplyHorizontalMovement();
+            ApplyDynamicGravity();
+        }
+        else
+        {
+            StopGravity();
+        }
     }
 
     private void ApplyHorizontalMovement()
     {
-        // CACHING NATIVE CALLS: Read rb.linearVelocity ONCE into a local stack variable.
-        // Every time you call 'rb.linearVelocity', Unity crosses the C# to C++ Native boundary.
-        Vector2 currentVel = rb.linearVelocity;
+        // if( !isDashing )
+        // {
+            // CACHING NATIVE CALLS: Read rb.linearVelocity ONCE into a local stack variable.
+            // Every time you call 'rb.linearVelocity', Unity crosses the C# to C++ Native boundary.
+            Vector2 currentVel = rb.linearVelocity;
 
-        float targetSpeed = horizontalInput * maxSpeed;
-        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
+            float targetSpeed = horizontalInput * maxSpeed;
+            float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
 
-        // MoveTowards provides crisp, snappy changes without the floatiness of Lerp
-        float newVelocityX = Mathf.MoveTowards(currentVel.x, targetSpeed, accelRate * Time.fixedDeltaTime);
+            // MoveTowards provides crisp, snappy changes without the floatiness of Lerp
+            float newVelocityX = Mathf.MoveTowards(currentVel.x, targetSpeed, accelRate * Time.fixedDeltaTime);
 
-        // Write back to native property ONCE
-        rb.linearVelocity = new Vector2(newVelocityX, currentVel.y);
+            // Write back to native property ONCE
+            rb.linearVelocity = new Vector2(newVelocityX, currentVel.y);
+        // }
     }
 
     private void ApplyDynamicGravity()
@@ -168,6 +186,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void StopGravity()
+    {
+        rb.gravityScale = 0f;
+    }
     private void ExecuteJump()
     {
         // Apply vertical impulse and reset timers to prevent double-consuming the jump
@@ -224,6 +246,26 @@ public class PlayerController : MonoBehaviour
     public void StopMovement()
     {
         horizontalInput = 0f;
+    }
+
+    public void ApplyDash(float dashSpeed)
+    {
+        Vector2 currentVelocity = rb.linearVelocity;
+ 
+        if (currentVelocity.magnitude > 0.1f)
+        {
+            isDashing = true;
+            Vector2 direction = currentVelocity.normalized;
+            if(direction.y != 1)
+            {
+                rb.linearVelocity = dashSpeed * direction;
+            }
+        }
+    }
+
+    public void UnDash()
+    {
+        isDashing = false;
     }
     #endregion
 
