@@ -80,7 +80,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        playerDash.InitDash( maxSpeed, this );
+        playerDash.InitDash( this );
     }
     /// <summary>
     /// Prevents Unity's physics solver from calculating impact friction when hitting the floor.

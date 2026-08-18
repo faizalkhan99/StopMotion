@@ -1,4 +1,5 @@
 using System;
+using System.Dynamic;
 using UnityEngine;
 
 /// <summary>
@@ -75,6 +76,11 @@ public static class GameEventBus
         isPaused = false;
         TriggerChronoStateChanged(ChronoState.WarnGo);
     }
+    #endregion
+
+    #region Player Dash
+    public static event Action OnPlayerContactWithItem;
+    public static void TriggerPlayerContactWithItem() => OnPlayerContactWithItem?.Invoke();
     #endregion
 
     private static void ResetCachedState()

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class PlayerDash : MonoBehaviour
@@ -10,32 +11,34 @@ public class PlayerDash : MonoBehaviour
     [SerializeField] private bool canDash = false;
 
     [Header(" Dash Collectable ")]
-    [SerializeField] private readonly int maxDashCollectableCount = 3;
+    [SerializeField] private int maxDashCollectableCount = 3;
     [SerializeField] private int currentDashCollectableCount;
 
     private PlayerController playerController;
-    private float playerMaxSpeed;
-    private float dashCoolDownTimer;
     private float lastDashTime;
     private bool triggerDash = false;
+    private bool isInit = false;
 
 
-    public void InitDash(float playerMaxSpeed, PlayerController controller)
+    void OnEnable()
     {
-        playerController = controller;
+        currentDashCollectableCount = 0;
+        GameEventBus.OnPlayerContactWithItem += AddDashCount;
     }
-
-    public void TriggerDash()
+    void OnDisable()
     {
-        triggerDash = true;
+        GameEventBus.OnPlayerContactWithItem -= AddDashCount;
     }
     void OnTriggerEnter2D(Collider2D collision)
     {
-        
+        if( collision.TryGetComponent<ToDashItem>( out ToDashItem item ) )
+        {
+            item.TriggerFunction();
+        }
     }
     void Update()
     {
-        if( canDash )
+        if( canDash && isInit )
         {
             bool dashTimeElapsed = Time.time >= lastDashTime + dashDuration;
 
@@ -55,10 +58,32 @@ public class PlayerDash : MonoBehaviour
         }
     }
 
+    public void InitDash( PlayerController controller)
+    {
+        playerController = controller;
+        isInit = true;
+    }
+
+    public void TriggerDash()
+    {
+        if( currentDashCollectableCount > 0)
+        {
+            triggerDash = true;
+        }
+    }    
+
+    private void AddDashCount()
+    {
+        if( currentDashCollectableCount < maxDashCollectableCount)
+        {
+            currentDashCollectableCount++;
+        }
+    }
     private void PreformDash()
     {
         lastDashTime = Time.time;
         triggerDash = false;
+        currentDashCollectableCount--;
         playerController.ApplyDash( dashSpeed );
     }
 
