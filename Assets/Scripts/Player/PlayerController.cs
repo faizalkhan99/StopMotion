@@ -247,7 +247,9 @@ public class PlayerController : MonoBehaviour
     {
         horizontalInput = 0f;
     }
+#endregion
 
+#region Dash Effect
     public void ApplyDash(float dashSpeed)
     {
         Vector2 currentVelocity = rb.linearVelocity;
@@ -256,7 +258,7 @@ public class PlayerController : MonoBehaviour
         {
             isDashing = true;
             Vector2 direction = currentVelocity.normalized;
-            if(direction.y != 1)
+            if(direction.y != 1) // dont dash straight up!
             {
                 rb.linearVelocity = dashSpeed * direction;
             }
@@ -267,7 +269,17 @@ public class PlayerController : MonoBehaviour
     {
         isDashing = false;
     }
-    #endregion
+
+    public bool IsPlayerMoving()
+    {
+        if( rb.linearVelocity.sqrMagnitude > 0.1f)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+#endregion
 
     private void OnDrawGizmosSelected()
     {

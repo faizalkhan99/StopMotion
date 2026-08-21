@@ -1,5 +1,7 @@
+using System.Collections;
 using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public class PlayerDash : MonoBehaviour
 {
@@ -13,6 +15,15 @@ public class PlayerDash : MonoBehaviour
     [Header(" Dash Collectable ")]
     [SerializeField] private int maxDashCollectableCount = 3;
     [SerializeField] private int currentDashCollectableCount;
+
+    [Header(" Echo Effect ")]
+    [SerializeField] DashEchoEffect echoPrefab;
+    [SerializeField] Transform parentTransform;
+    [SerializeField] float echoSpawnInterval = 0.05f;
+    [SerializeField] int poolSize = 10;
+    // private int maxPoolSize;
+    ObjectPool<DashEchoEffect> echoPool;
+
 
     private PlayerController playerController;
     private float lastDashTime;
@@ -51,9 +62,10 @@ public class PlayerDash : MonoBehaviour
             }
 
             // Only start a new dash once the cooldown has actually cleared.
-            if (cooldownElapsed &&  triggerDash && currentDashCollectableCount > 0)
+            if (cooldownElapsed &&  triggerDash )
             {
-                PreformDash();
+                PerformDash();
+                TriggerDashEffect();
             }
         }
     }
@@ -61,12 +73,13 @@ public class PlayerDash : MonoBehaviour
     public void InitDash( PlayerController controller)
     {
         playerController = controller;
+        CreatePool();
         isInit = true;
     }
 
     public void TriggerDash()
     {
-        if( currentDashCollectableCount > 0)
+        if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving())
         {
             triggerDash = true;
         }
@@ -79,12 +92,93 @@ public class PlayerDash : MonoBehaviour
             currentDashCollectableCount++;
         }
     }
-    private void PreformDash()
+    private void PerformDash()
     {
         lastDashTime = Time.time;
         triggerDash = false;
         currentDashCollectableCount--;
+
         playerController.ApplyDash( dashSpeed );
     }
 
+#region Object Pool
+
+    private void TriggerDashEffect()
+    {
+        StartCoroutine(SpawnEchoTrail());
+    }
+ 
+    private IEnumerator SpawnEchoTrail()
+    {
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            DashEchoEffect echo = echoPool.Get();
+            echo.transform.position = playerController.transform.localPosition;
+ 
+            elapsed += echoSpawnInterval;
+            yield return new WaitForSeconds(echoSpawnInterval);
+        }
+    }
+    private void CreatePool()
+    {
+        echoPool = new ObjectPool<DashEchoEffect>(
+            CreatePooledObject,
+            OnTakeFromPool,
+            OnReturnToPool,
+            OnDestroyObject,
+            collectionCheck: true,
+            defaultCapacity: poolSize
+            // maxSize: maxPoolSize
+        );
+
+        // Prewarm: pull `poolSize` instances out (forcing CreatePooledObject
+        // to fire each time, since the stack is empty until we release),
+        // then hand them all back.
+        var warmupBuffer = new DashEchoEffect[poolSize];
+        for (int i = 0; i < poolSize; i++)
+        {
+            warmupBuffer[i] = echoPool.Get();
+        }
+        for (int i = 0; i < poolSize; i++)
+        {
+            echoPool.Release(warmupBuffer[i]);
+        }
+    }
+
+    private DashEchoEffect CreatePooledObject()
+    {
+
+        DashEchoEffect echo = Instantiate( echoPrefab, Vector3.zero, Quaternion.identity );
+        echo.transform.SetParent(parentTransform, true);
+        echo.ReturnToPool +=  ReturnObjectToPool;
+        echo.gameObject.SetActive(false);
+
+        return echo;
+    }
+
+    private void ReturnObjectToPool(DashEchoEffect echo)
+    {
+        echoPool.Release(echo);
+    }
+
+    private void OnTakeFromPool(DashEchoEffect Instance)
+    {
+        Instance.gameObject.SetActive(true);
+        // Instance.transform.SetParent(parentTransform, true);
+    }
+
+    private void OnReturnToPool(DashEchoEffect Instance)
+    {
+        Instance.gameObject.SetActive(false);
+    }
+
+    private void OnDestroyObject(DashEchoEffect Instance)
+    {
+        if( Instance != null )
+        {
+            Destroy(Instance.gameObject);
+        }
+    }
+#endregion
 }
