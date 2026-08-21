@@ -79,7 +79,9 @@ public class PlayerDash : MonoBehaviour
 
     public void TriggerDash()
     {
-        if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving())
+        bool cooldownElapsed = Time.time >= lastDashTime + dashCoolDownTime;
+
+        if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving() && cooldownElapsed )
         {
             triggerDash = true;
         }
@@ -114,7 +116,7 @@ public class PlayerDash : MonoBehaviour
         while (elapsed < dashDuration)
         {
             DashEchoEffect echo = echoPool.Get();
-            echo.transform.position = playerController.transform.localPosition;
+            echo.transform.position = playerController.transform.position;
  
             elapsed += echoSpawnInterval;
             yield return new WaitForSeconds(echoSpawnInterval);
