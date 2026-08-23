@@ -12306,6 +12306,7 @@ MonoBehaviour:
   destroyVFX: {fileID: 1221833427}
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
+  faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
 --- !u!212 &1191222675
 SpriteRenderer:
   serializedVersion: 3
@@ -34989,6 +34990,7 @@ MonoBehaviour:
   destroyVFX: {fileID: 7773694716960417480}
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
+  faceData: {fileID: 0}
 --- !u!1 &1972420098538205351
 GameObject:
   m_ObjectHideFlags: 0

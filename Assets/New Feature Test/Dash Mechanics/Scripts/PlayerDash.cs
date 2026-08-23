@@ -30,6 +30,12 @@ public class PlayerDash : MonoBehaviour
     private bool triggerDash = false;
     private bool isInit = false;
 
+#region Temp Code 
+void Start()
+{
+    currentDashCollectableCount = 5;
+}
+#endregion
 
     void OnEnable()
     {
@@ -59,6 +65,7 @@ public class PlayerDash : MonoBehaviour
             if (dashTimeElapsed && playerController.isDashing)
             {
                 playerController.UnDash();
+                GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
             }
 
             // Only start a new dash once the cooldown has actually cleared.
@@ -99,8 +106,9 @@ public class PlayerDash : MonoBehaviour
         lastDashTime = Time.time;
         triggerDash = false;
         currentDashCollectableCount--;
-
+        
         playerController.ApplyDash( dashSpeed );
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Dash);
     }
 
 #region Object Pool

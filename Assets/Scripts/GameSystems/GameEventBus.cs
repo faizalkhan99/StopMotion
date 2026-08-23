@@ -83,6 +83,10 @@ public static class GameEventBus
     public static void TriggerPlayerContactWithItem() => OnPlayerContactWithItem?.Invoke();
     #endregion
 
+    #region Player Face
+    public static event Action<Playerface> OnPlayerFaceChange;
+    public static void TriggerPlayerFaceChange(Playerface playerface) => OnPlayerFaceChange?.Invoke(playerface);
+    #endregion
     private static void ResetCachedState()
     {
         CurrentGameState = GameState.MainMenu;
@@ -131,4 +135,11 @@ public enum GameOverReason
     IdleBomb,
     MotionBomb,
     TimeExpired
+}
+
+public enum Playerface
+{
+    Idle,
+    Moving,
+    Dash
 }

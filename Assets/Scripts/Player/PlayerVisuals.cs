@@ -21,6 +21,9 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Player's UI")]
     [SerializeField] private CanvasGroup keyImage;
     [SerializeField] private float keyFadeDuration = 0.35f;
+
+    [Header("Player's Face Data")]
+    [SerializeField] private FaceChangeMechanic faceData;
     public bool hasKey { get; private set; }
 
     // Internal References & Caching
@@ -28,6 +31,7 @@ public class PlayerVisuals : MonoBehaviour
     private Rigidbody2D rootRigidbody;
     private PlayerController playerController;
     private PlayerKeyboardInput playerKeyboardInput;
+    private Playerface currentPlayerFace;
 
     // Destroy State
     private bool isDestroyed;
@@ -71,6 +75,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGracePeriodUpdated += HandleGraceViolation;
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
+        GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
     }
 
     private void OnDisable()
@@ -80,6 +85,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
+        GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;        
     }
 
     private void Update()
@@ -91,7 +97,8 @@ public class PlayerVisuals : MonoBehaviour
 
         HandleDirectionalFacing();
         ApplyJuiceEffects();
-        CheckFrozenViolation();
+        HandleUpdatedFace();
+        // CheckFrozenViolation();
     }
 
     /// <summary>
@@ -107,7 +114,12 @@ public class PlayerVisuals : MonoBehaviour
         if (Mathf.Abs(velocityX) > 0.05f)
         {
             spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
+            // UpdateFaceOnPlayer(Playerface.Moving);
         }
+        // else
+        // {
+        //     UpdateFaceOnPlayer(Playerface.Idle);
+        // }
     }
 
     /// <summary>
@@ -286,4 +298,35 @@ public class PlayerVisuals : MonoBehaviour
         keyImage.alpha = targetAlpha;
         keyFadeRoutine = null;
     }
+
+#region Face Changing
+
+    private void UpdateFaceOnPlayer(Playerface face)
+    {
+        if( currentPlayerFace == face) return;
+
+        var tempface = currentPlayerFace;
+        currentPlayerFace = face;
+
+        Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
+    }
+    private void HandleUpdatedFace()
+    {
+        switch (currentPlayerFace)
+        {
+            case Playerface.Moving :
+                spriteRenderer.sprite = faceData.moving;
+            break;
+
+            case Playerface.Dash :
+                spriteRenderer.sprite = faceData.dash;
+            break;
+
+            default:
+                spriteRenderer.sprite = faceData.idle;
+            break;
+        }
+    }
+
+#endregion
 }
