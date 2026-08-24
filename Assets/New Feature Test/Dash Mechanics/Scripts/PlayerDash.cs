@@ -27,6 +27,7 @@ public class PlayerDash : MonoBehaviour
 
 
     private PlayerController playerController;
+    private PlayerVisuals playerVisuals;
     private float lastDashTime;
     private bool triggerDash = false;
     private bool isInit = false;
@@ -104,19 +105,23 @@ void Start()
     }
     private void PerformDash()
     {
+        if( playerController == null) return;
+
         lastDashTime = Time.time;
         triggerDash = false;
         currentDashCollectableCount--;
         
         playerController.ApplyDash( dashSpeed );
-        GameEventBus.TriggerPlayerFaceChange(Playerface.Dash);
     }
 
 #region Object Pool
 
     private void TriggerDashEffect()
     {
+        GameEventBus.TriggerPlayerDash();
         StartCoroutine(SpawnEchoTrail());
+        // GameEventBus.TriggerPlayerFaceChange(Playerface.Dash);
+        // playerVisuals.TriggerSquashEffect();
     }
  
     private IEnumerator SpawnEchoTrail()

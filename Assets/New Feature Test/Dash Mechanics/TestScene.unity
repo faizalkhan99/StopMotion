@@ -12287,6 +12287,7 @@ MonoBehaviour:
   parentTransform: {fileID: 553084910}
   echoSpawnInterval: 0.04
   poolSize: 5
+  playerVisuals: {fileID: 1191222674}
 --- !u!114 &1191222674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12308,6 +12309,8 @@ MonoBehaviour:
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
+  squashAmount: 0.9
+  squashDuration: 0.2
 --- !u!212 &1191222675
 SpriteRenderer:
   serializedVersion: 3
@@ -34992,6 +34995,8 @@ MonoBehaviour:
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 0}
+  squashAmount: 0
+  squashDuration: 0
 --- !u!1 &1972420098538205351
 GameObject:
   m_ObjectHideFlags: 0
@@ -42928,6 +42933,7 @@ MonoBehaviour:
   parentTransform: {fileID: 374396303}
   echoSpawnInterval: 0.04
   poolSize: 5
+  playerVisuals: {fileID: 0}
 --- !u!199 &8192197764962441449
 ParticleSystemRenderer:
   serializedVersion: 7

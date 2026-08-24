@@ -81,6 +81,8 @@ public static class GameEventBus
     #region Player Dash
     public static event Action OnPlayerContactWithItem;
     public static void TriggerPlayerContactWithItem() => OnPlayerContactWithItem?.Invoke();
+    public static event Action OnPlayerDash;
+    public static void TriggerPlayerDash() => OnPlayerDash?.Invoke();
     #endregion
 
     #region Player Face

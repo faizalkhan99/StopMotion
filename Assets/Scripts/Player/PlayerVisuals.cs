@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +25,11 @@ public class PlayerVisuals : MonoBehaviour
 
     [Header("Player's Face Data")]
     [SerializeField] private FaceChangeMechanic faceData;
+
+    [Header("Player Squash Config")]
+    [SerializeField] private float squashAmount;
+    [SerializeField] private float squashDuration;
+
     public bool hasKey { get; private set; }
 
     // Internal References & Caching
@@ -76,6 +82,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
+        GameEventBus.OnPlayerDash += HandleDashEffects;
     }
 
     private void OnDisable()
@@ -85,7 +92,8 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
-        GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;        
+        GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
+        GameEventBus.OnPlayerDash -= HandleDashEffects;
     }
 
     private void Update()
@@ -328,5 +336,22 @@ public class PlayerVisuals : MonoBehaviour
         }
     }
 
+#endregion
+
+#region Dashing
+
+    private void HandleDashEffects()
+    {
+        SquashPlayer( squashAmount, squashDuration );
+        UpdateFaceOnPlayer(Playerface.Dash);
+    }
+    private void SquashPlayer(float amount, float duration)
+    {
+        transform.DOScaleY(amount, duration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+                transform.DOScaleY(1f, duration)
+            );
+    }
 #endregion
 }
