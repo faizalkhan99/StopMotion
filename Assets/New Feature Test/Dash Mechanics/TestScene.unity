@@ -12278,10 +12278,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDash
   dashCoolDownTime: 1
   dashDuration: 0.2
+  testDashCount: 10
   dashSpeed: 20
   canDash: 1
   maxDashCollectableCount: 3
-  currentDashCollectableCount: 3
+  currentDashCollectableCount: 10
   echoPrefab: {fileID: 8810775629018990540, guid: 82c3da09b139c4c66bb176f161e51c13, type: 3}
   parentTransform: {fileID: 553084910}
   echoSpawnInterval: 0.04
@@ -42918,6 +42919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDash
   dashCoolDownTime: 1
   dashDuration: 0.2
+  testDashCount: 0
   dashSpeed: 20
   canDash: 1
   maxDashCollectableCount: 3

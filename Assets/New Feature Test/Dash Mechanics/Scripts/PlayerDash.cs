@@ -8,6 +8,7 @@ public class PlayerDash : MonoBehaviour
     [Header(" Dash Settings ")]
     [SerializeField] private float dashCoolDownTime;
     [SerializeField] private float dashDuration;
+    [SerializeField] private int testDashCount;
 
     [SerializeField] private float dashSpeed = 20f;
     [SerializeField] private bool canDash = false;
@@ -33,7 +34,7 @@ public class PlayerDash : MonoBehaviour
 #region Temp Code 
 void Start()
 {
-    currentDashCollectableCount = 5;
+    currentDashCollectableCount = testDashCount;
 }
 #endregion
 

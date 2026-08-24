@@ -257,10 +257,15 @@ public class PlayerController : MonoBehaviour
         if (currentVelocity.magnitude > 0.1f)
         {
             isDashing = true;
-            Vector2 direction = currentVelocity.normalized;
-            if(direction.y != 1) // dont dash straight up!
+            Vector2 lastKnowDir = currentVelocity.normalized;
+            
+            if(lastKnowDir.x > 0) 
             {
-                rb.linearVelocity = dashSpeed * direction;
+                rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
+            }
+            else if (lastKnowDir.x < 0)
+            {
+                rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f );
             }
         }
     }
