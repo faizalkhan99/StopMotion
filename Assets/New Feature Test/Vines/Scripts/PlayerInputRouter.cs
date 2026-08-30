@@ -1,4 +1,5 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
@@ -179,10 +180,17 @@ public class PlayerInputRouter : MonoBehaviour
     // ---------------------------------------------------------------
     // Keyboard: Space is an immediate jump, no debounce/dash on desktop
     // ---------------------------------------------------------------
-
+    public float squashAmount;
+    public float squashDuration;
     private void OnKeyboardJumpPressed(InputAction.CallbackContext context)
     {
-        playerController.OnJumpButtonPressed();
+        transform.DOScaleY( squashAmount ,  squashDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                transform.DOScaleY(1f, squashDuration);
+                playerController.OnJumpButtonPressed(); 
+            }); 
     }
 
     private void OnKeyboardJumpReleased(InputAction.CallbackContext context)

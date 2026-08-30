@@ -550,6 +550,8 @@ MonoBehaviour:
       m_Action: Dash
       m_Flags: 0
     m_Flags: 0
+  squashAmount: 0.8
+  squashDuration: 0.5
 --- !u!61 &240217173
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -653,6 +655,9 @@ MonoBehaviour:
   showDebugLogs: 1
   isGroundedDebugView: 0
   idleDelay: 0.5
+  detectJump: 0
+  hasStartedDescending: 0
+  previousY: 0
 --- !u!1 &264302580
 GameObject:
   m_ObjectHideFlags: 0
@@ -12311,8 +12316,8 @@ MonoBehaviour:
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
   squashAmount: 0.9
   squashDuration: 0.2
-  blinkDelay: 2
-  isBlinking: 0
+  blinkDelay: 4
+  blinkDuration: 0.5
 --- !u!212 &1191222675
 SpriteRenderer:
   serializedVersion: 3
@@ -35000,7 +35005,7 @@ MonoBehaviour:
   squashAmount: 0
   squashDuration: 0
   blinkDelay: 0
-  isBlinking: 0
+  blinkDuration: 0.15
 --- !u!1 &1972420098538205351
 GameObject:
   m_ObjectHideFlags: 0
@@ -35646,6 +35651,8 @@ MonoBehaviour:
       m_Action: Dash
       m_Flags: 0
     m_Flags: 0
+  squashAmount: 0
+  squashDuration: 0
 --- !u!222 &3120090593726091842
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -36573,6 +36580,9 @@ MonoBehaviour:
   showDebugLogs: 1
   isGroundedDebugView: 0
   idleDelay: 2
+  detectJump: 0
+  hasStartedDescending: 0
+  previousY: 0
 --- !u!222 &5331775394165171702
 CanvasRenderer:
   m_ObjectHideFlags: 0

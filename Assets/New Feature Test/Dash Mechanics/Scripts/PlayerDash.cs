@@ -67,7 +67,7 @@ void Start()
             if (dashTimeElapsed && playerController.isDashing)
             {
                 playerController.UnDash();
-                // GameEventBus.TriggerPlayerFaceChange(Playerface.Idle); 
+                GameEventBus.TriggerPlayerFaceChange(Playerface.Moving); 
             }
 
             // Only start a new dash once the cooldown has actually cleared.

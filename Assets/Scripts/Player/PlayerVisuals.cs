@@ -33,8 +33,12 @@ public class PlayerVisuals : MonoBehaviour
 
     [Header("Player's Animation")]
     [SerializeField] private float blinkDelay;
-    private float tempTimer;
-    public bool isBlinking = false;
+    [SerializeField] private float blinkDuration = 0.15f;
+    private float blinkDelayTimer;
+    private float blinkDurationTimer;
+    private bool isBlinking;
+    private Playerface gameplayFace;
+    private Playerface lastGameplayFace;
 
     public bool hasKey { get; private set; }
 
@@ -89,7 +93,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
-        GameEventBus.OnPlayerIdle += PlayAnimationWithDelay;
+        GameEventBus.OnPlayerIdle += OnIdleTick;
     }
 
     private void OnDisable()
@@ -101,7 +105,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
         GameEventBus.OnPlayerDash -= HandleDashEffects;
-        GameEventBus.OnPlayerIdle -= PlayAnimationWithDelay;
+        GameEventBus.OnPlayerIdle -= OnIdleTick;
     }
 
     private void Update()
@@ -112,7 +116,8 @@ public class PlayerVisuals : MonoBehaviour
         if (currentGameState == GameState.Paused) return;
 
         HandleDirectionalFacing();
-        ApplyJuiceEffects();
+        UpdateBlink();
+        // ApplyJuiceEffects();
         HandleUpdatedFace();
         // CheckFrozenViolation();
     }
@@ -329,40 +334,38 @@ public class PlayerVisuals : MonoBehaviour
         Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
     }
 
-    private void PlayAnimationWithDelay()
+    private void OnIdleTick()
     {
-        Debug.Log($" Idle Trigger ");
-        tempTimer += 1f;
+        blinkDelayTimer += 1f;
 
-        if (tempTimer >= blinkDelay)
+        if (blinkDelayTimer >= blinkDelay)
         {
-            tempTimer = 0f;
-            // PlayIdleAnimation
-            Debug.Log($" [PlayerVisuals] : playing Blink Anim ");
-            BlinkAnimation();
+            StartBlink();
         }
     }
-    private void BlinkAnimation()
+
+    private void StartBlink()
     {
-        if( !isBlinking )
-        {
-            Debug.Log($" [PlayerVisuals] : starting co rountine ");
-            StartCoroutine(BlinkRoutine());
-        }
-    }
-    private IEnumerator BlinkRoutine()
-    {
+        if (isBlinking) return;
+
+        // gameplayFace = lastGameplayFace;
         isBlinking = true;
+        currentPlayerFace = Playerface.Blink;
+        blinkDurationTimer = blinkDuration;
+        blinkDelayTimer = 0f;
+    }
 
-        // spriteRenderer.sprite = faceData.blink;
-        UpdateFaceOnPlayer(Playerface.Blink);
+    private void UpdateBlink()
+    {
+        if (!isBlinking) return;
 
-        yield return new WaitForSeconds( 2f );
+        blinkDurationTimer -= Time.deltaTime;
 
-        // spriteRenderer.sprite = faceData.idle;
-        UpdateFaceOnPlayer(Playerface.Idle);
-
-        isBlinking = false;
+        if (blinkDurationTimer <= 0f)
+        {
+            isBlinking = false;
+            currentPlayerFace = Playerface.Idle;
+        }
     }
     private void HandleUpdatedFace()
     {
@@ -397,7 +400,6 @@ public class PlayerVisuals : MonoBehaviour
             break;
 
             default:
-            Debug.Log($" default switch state (changing to idle face) ");
                 spriteRenderer.sprite = faceData.idle;
             break;
         }

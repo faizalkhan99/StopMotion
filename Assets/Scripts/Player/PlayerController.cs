@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using DG.Tweening;
 using UnityEditor.Rendering;
 using UnityEngine;
 
@@ -152,6 +154,10 @@ else
     idleTimer = 0f;
 }
 
+if( detectJump )
+{
+    CheckForJumpApex();
+}
         // 2. Update Timers
         if (isGrounded)
         {
@@ -247,6 +253,8 @@ else
         jumpBufferTimer = jumpBufferTime;
         GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
         GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
+
+        detectJump = true;
         // DIAGNOSTIC CHECK: Tell the developer exactly why the jump might fail
         // if (showDebugLogs)
         // {
@@ -274,16 +282,46 @@ else
             rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
         }
 
-        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown); // needs change this function call to detect when falling
+        // GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown); // needs change this function call to detect when falling
     }
     public void StopMovement()
     {
         horizontalInput = 0f;
     }
 
+    public bool detectJump = false;
+    public bool hasStartedDescending = false;
+    public float previousY;
+    private void CheckForJumpApex()
+    {
+        float currentY = transform.position.y;
+
+        if (!hasStartedDescending && currentY < previousY)
+        {
+            hasStartedDescending = true;
+
+            // Player has started descending
+            OnPlayerStartedDescending();
+        }
+
+        previousY = currentY;        
+    }
+    private void OnPlayerStartedDescending()
+    {
+        detectJump = false;
+        hasStartedDescending = false;
+        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
+    }
     private void GroundImpactDetection()
     {
         GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+
+        transform.DOScaleY( 0.7f ,  0.2f)
+            .SetEase(Ease.OutQuad).
+            OnComplete(()=>
+            transform.DOScaleY(1f, 0.2f)
+            );
+
     }
 
     private void TriggerIdle()
