@@ -1,3 +1,4 @@
+using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,6 +30,11 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Player Squash Config")]
     [SerializeField] private float squashAmount;
     [SerializeField] private float squashDuration;
+
+    [Header("Player's Animation")]
+    [SerializeField] private float blinkDelay;
+    private float tempTimer;
+    public bool isBlinking = false;
 
     public bool hasKey { get; private set; }
 
@@ -83,6 +89,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
+        GameEventBus.OnPlayerIdle += PlayAnimationWithDelay;
     }
 
     private void OnDisable()
@@ -94,6 +101,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
         GameEventBus.OnPlayerDash -= HandleDashEffects;
+        GameEventBus.OnPlayerIdle -= PlayAnimationWithDelay;
     }
 
     private void Update()
@@ -177,6 +185,8 @@ public class PlayerVisuals : MonoBehaviour
 
     private void HandleGameOverTriggered(GameOverReason reason)
     {
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Die);
+
         if (reason == GameOverReason.TimeExpired)
         {
             TriggerDestroy();
@@ -318,6 +328,42 @@ public class PlayerVisuals : MonoBehaviour
 
         Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
     }
+
+    private void PlayAnimationWithDelay()
+    {
+        Debug.Log($" Idle Trigger ");
+        tempTimer += 1f;
+
+        if (tempTimer >= blinkDelay)
+        {
+            tempTimer = 0f;
+            // PlayIdleAnimation
+            Debug.Log($" [PlayerVisuals] : playing Blink Anim ");
+            BlinkAnimation();
+        }
+    }
+    private void BlinkAnimation()
+    {
+        if( !isBlinking )
+        {
+            Debug.Log($" [PlayerVisuals] : starting co rountine ");
+            StartCoroutine(BlinkRoutine());
+        }
+    }
+    private IEnumerator BlinkRoutine()
+    {
+        isBlinking = true;
+
+        // spriteRenderer.sprite = faceData.blink;
+        UpdateFaceOnPlayer(Playerface.Blink);
+
+        yield return new WaitForSeconds( 2f );
+
+        // spriteRenderer.sprite = faceData.idle;
+        UpdateFaceOnPlayer(Playerface.Idle);
+
+        isBlinking = false;
+    }
     private void HandleUpdatedFace()
     {
         switch (currentPlayerFace)
@@ -330,7 +376,28 @@ public class PlayerVisuals : MonoBehaviour
                 spriteRenderer.sprite = faceData.dash;
             break;
 
+            case Playerface.JumpUp :
+                spriteRenderer.sprite = faceData.jumpUp;
+            break;
+
+            case Playerface.JumpDown :
+                spriteRenderer.sprite = faceData.jumpDown;
+            break;
+
+            case Playerface.FallDown_Impact :
+                spriteRenderer.sprite = faceData.fallDownImpact;
+            break;
+
+            case Playerface.Blink :
+                spriteRenderer.sprite = faceData.blink;
+            break;
+
+            case Playerface.Die :
+                spriteRenderer.sprite = faceData.die;
+            break;
+
             default:
+            Debug.Log($" default switch state (changing to idle face) ");
                 spriteRenderer.sprite = faceData.idle;
             break;
         }
@@ -338,7 +405,7 @@ public class PlayerVisuals : MonoBehaviour
 
 #endregion
 
-#region Dashing
+#region Dashing Effects
 
     private void HandleDashEffects()
     {

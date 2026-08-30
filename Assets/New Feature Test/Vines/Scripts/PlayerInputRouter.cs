@@ -61,6 +61,8 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnEnable()
     {
+        moveAction.performed += OnMove;
+        moveAction.canceled += OnMove;
         jumpAction.started += OnKeyboardJumpPressed;
         jumpAction.canceled += OnKeyboardJumpReleased;
         dashAction.started += OnKeyboardDashTriggered;
@@ -73,6 +75,7 @@ public class PlayerInputRouter : MonoBehaviour
         horizontalInput = 0f;
         anyMovementAnchorActive = false;
 
+        moveAction.canceled -= OnMove;
         jumpAction.started -= OnKeyboardJumpPressed;
         jumpAction.canceled -= OnKeyboardJumpReleased;
         dashAction.started -= OnKeyboardDashTriggered;
@@ -88,13 +91,29 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void Update()
     {
-        float keyboardX = moveAction.ReadValue<Vector2>().x;
-        float touchX = ReadLeftHalfDrag();
+        // float keyboardX = moveAction.ReadValue<Vector2>().x;
+        // float touchX = ReadLeftHalfDrag();
 
-        horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
+        // horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
+        // playerController.SetHorizontalInput(horizontalInput);
+    }
+    private void OnMove(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            float keyboardX = context.ReadValue<Vector2>().x;
+            horizontalInput = Mathf.Clamp(keyboardX, -1f, 1f);
+
+            GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
+        }
+        else if (context.canceled)
+        {
+            horizontalInput = 0f;
+            GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+        }
+
         playerController.SetHorizontalInput(horizontalInput);
     }
-
     private float ReadLeftHalfDrag()
     {
         bool touched = false;

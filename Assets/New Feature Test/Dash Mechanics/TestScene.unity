@@ -652,6 +652,7 @@ MonoBehaviour:
     m_Bits: 8
   showDebugLogs: 1
   isGroundedDebugView: 0
+  idleDelay: 0.5
 --- !u!1 &264302580
 GameObject:
   m_ObjectHideFlags: 0
@@ -12287,7 +12288,6 @@ MonoBehaviour:
   parentTransform: {fileID: 553084910}
   echoSpawnInterval: 0.04
   poolSize: 5
-  playerVisuals: {fileID: 1191222674}
 --- !u!114 &1191222674
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12311,6 +12311,8 @@ MonoBehaviour:
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
   squashAmount: 0.9
   squashDuration: 0.2
+  blinkDelay: 2
+  isBlinking: 0
 --- !u!212 &1191222675
 SpriteRenderer:
   serializedVersion: 3
@@ -34997,6 +34999,8 @@ MonoBehaviour:
   faceData: {fileID: 0}
   squashAmount: 0
   squashDuration: 0
+  blinkDelay: 0
+  isBlinking: 0
 --- !u!1 &1972420098538205351
 GameObject:
   m_ObjectHideFlags: 0
@@ -36568,6 +36572,7 @@ MonoBehaviour:
     m_Bits: 8
   showDebugLogs: 1
   isGroundedDebugView: 0
+  idleDelay: 2
 --- !u!222 &5331775394165171702
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -42933,7 +42938,6 @@ MonoBehaviour:
   parentTransform: {fileID: 374396303}
   echoSpawnInterval: 0.04
   poolSize: 5
-  playerVisuals: {fileID: 0}
 --- !u!199 &8192197764962441449
 ParticleSystemRenderer:
   serializedVersion: 7

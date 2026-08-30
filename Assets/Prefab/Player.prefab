@@ -51,6 +51,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1ff3da808aa22b499b4cdadd78f2320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  playerDash: {fileID: 0}
   maxSpeed: 8
   acceleration: 60
   deceleration: 15
@@ -354,6 +355,7 @@ GameObject:
   - component: {fileID: 4444195422854075089}
   - component: {fileID: 7004752124982718271}
   - component: {fileID: 4545973514848662330}
+  - component: {fileID: 285253952396674028}
   m_Layer: 0
   m_Name: PlayerVisuals
   m_TagString: Untagged
@@ -455,6 +457,34 @@ MonoBehaviour:
   recoverySpeed: 8
   confidentTrailVFX: {fileID: 0}
   destroyVFX: {fileID: 5824743965378667709}
+  keyImage: {fileID: 0}
+  keyFadeDuration: 0.35
+  faceData: {fileID: 0}
+  squashAmount: 0
+  squashDuration: 0
+--- !u!114 &285253952396674028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7497162806314674971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3750eb54d8a014a069f735b4a39decb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerDash
+  dashCoolDownTime: 0
+  dashDuration: 0
+  testDashCount: 0
+  dashSpeed: 20
+  canDash: 0
+  maxDashCollectableCount: 3
+  currentDashCollectableCount: 0
+  echoPrefab: {fileID: 0}
+  parentTransform: {fileID: 0}
+  echoSpawnInterval: 0.05
+  poolSize: 10
 --- !u!1001 &6741510156408239680
 PrefabInstance:
   m_ObjectHideFlags: 0

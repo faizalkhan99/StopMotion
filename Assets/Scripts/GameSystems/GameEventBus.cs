@@ -88,6 +88,8 @@ public static class GameEventBus
     #region Player Face
     public static event Action<Playerface> OnPlayerFaceChange;
     public static void TriggerPlayerFaceChange(Playerface playerface) => OnPlayerFaceChange?.Invoke(playerface);
+    public static event Action OnPlayerIdle;
+    public static void TriggerPlayerIdle() => OnPlayerIdle?.Invoke();
     #endregion
     private static void ResetCachedState()
     {
@@ -143,5 +145,11 @@ public enum Playerface
 {
     Idle,
     Moving,
-    Dash
+    Dash,
+    JumpUp,
+    JumpDown,
+    FallDown_Impact,
+    Die,
+    Blink
+
 }

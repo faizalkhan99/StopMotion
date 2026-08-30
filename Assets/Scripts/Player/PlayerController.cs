@@ -50,6 +50,9 @@ public class PlayerController : MonoBehaviour
     // Input State (Driven by public mobile methods)
     private float horizontalInput;
     private bool isGrounded;
+    private bool wasGrounded;
+    private float idleTimer;
+    [SerializeField] private float idleDelay = 2f;
     public bool isDashing  { get; private set; } =  false;
 
     // Zero-GC Timers
@@ -121,6 +124,33 @@ public class PlayerController : MonoBehaviour
         int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
         isGrounded = hitCount > 0;
         isGroundedDebugView = isGrounded; // Exposes state to your Inspector
+
+//Fall detection
+bool currentlyGrounded = isGrounded;
+
+if(currentlyGrounded && !wasGrounded)
+{
+    GroundImpactDetection();
+}
+wasGrounded = currentlyGrounded;
+
+//CheckFor Player Idle animation
+bool isIdle = isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
+
+if (isIdle)
+{
+    idleTimer += Time.deltaTime;
+
+    if (idleTimer >= idleDelay)
+    {
+        TriggerIdle();
+        idleTimer = 0f;
+    }
+}
+else
+{
+    idleTimer = 0f;
+}
 
         // 2. Update Timers
         if (isGrounded)
@@ -216,6 +246,7 @@ public class PlayerController : MonoBehaviour
     {
         jumpBufferTimer = jumpBufferTime;
         GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
+        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
         // DIAGNOSTIC CHECK: Tell the developer exactly why the jump might fail
         // if (showDebugLogs)
         // {
@@ -242,10 +273,22 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
         }
+
+        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown); // needs change this function call to detect when falling
     }
     public void StopMovement()
     {
         horizontalInput = 0f;
+    }
+
+    private void GroundImpactDetection()
+    {
+        GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+    }
+
+    private void TriggerIdle()
+    {
+        GameEventBus.TriggerPlayerIdle();
     }
 #endregion
 
