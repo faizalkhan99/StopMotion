@@ -1,5 +1,6 @@
 using System;
 using System.Dynamic;
+using NUnit.Framework;
 using UnityEngine;
 
 /// <summary>
@@ -85,11 +86,19 @@ public static class GameEventBus
     public static void TriggerPlayerDash() => OnPlayerDash?.Invoke();
     #endregion
 
+    // Jump squash start – called when the player presses Jump (keyboard) to show the anticipation squash
+    public static event Action<bool> OnPlayerJumpSquash;
+    public static void TriggerPlayerJumpSquash(bool isDescending) => OnPlayerJumpSquash?.Invoke(isDescending);
+
     #region Player Face
     public static event Action<Playerface> OnPlayerFaceChange;
     public static void TriggerPlayerFaceChange(Playerface playerface) => OnPlayerFaceChange?.Invoke(playerface);
     public static event Action OnPlayerIdle;
     public static void TriggerPlayerIdle() => OnPlayerIdle?.Invoke();
+
+    // Jump squash complete – fires after the jump‑anticipation squash animation ends
+    public static event Action OnPlayerJumpSquashComplete;
+    public static void TriggerPlayerJumpSquashComplete() => OnPlayerJumpSquashComplete?.Invoke();
     #endregion
     private static void ResetCachedState()
     {
@@ -109,6 +118,8 @@ public static class GameEventBus
         OnLevelWon = null;
         OnCameraShake = null;
         OnPlaySFXCommand = null;
+        OnPlayerJumpSquash = null;
+        OnPlayerJumpSquashComplete = null;
         ResetCachedState();
     }
 }

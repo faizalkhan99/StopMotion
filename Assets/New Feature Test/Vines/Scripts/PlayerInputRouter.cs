@@ -180,17 +180,10 @@ public class PlayerInputRouter : MonoBehaviour
     // ---------------------------------------------------------------
     // Keyboard: Space is an immediate jump, no debounce/dash on desktop
     // ---------------------------------------------------------------
-    public float squashAmount;
-    public float squashDuration;
+
     private void OnKeyboardJumpPressed(InputAction.CallbackContext context)
     {
-        transform.DOScaleY( squashAmount ,  squashDuration)
-            .SetEase(Ease.OutQuad)
-            .OnComplete(() =>
-            {
-                transform.DOScaleY(1f, squashDuration);
-                playerController.OnJumpButtonPressed(); 
-            }); 
+        GameEventBus.TriggerPlayerJumpSquash( true );
     }
 
     private void OnKeyboardJumpReleased(InputAction.CallbackContext context)

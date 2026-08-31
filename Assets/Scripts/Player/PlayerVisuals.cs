@@ -28,8 +28,10 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private FaceChangeMechanic faceData;
 
     [Header("Player Squash Config")]
-    [SerializeField] private float squashAmount;
-    [SerializeField] private float squashDuration;
+    [SerializeField] private float dashSquashAmount;
+    [SerializeField] private float dashSquashDuration;
+    [SerializeField] private float jumpSquashAmount;
+    [SerializeField] private float jumpSquashDuration;
 
     [Header("Player's Animation")]
     [SerializeField] private float blinkDelay;
@@ -93,6 +95,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
+        GameEventBus.OnPlayerJumpSquash += HandleJumpSquash;
         GameEventBus.OnPlayerIdle += OnIdleTick;
     }
 
@@ -105,6 +108,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
         GameEventBus.OnPlayerDash -= HandleDashEffects;
+        GameEventBus.OnPlayerJumpSquash -= HandleJumpSquash;
         GameEventBus.OnPlayerIdle -= OnIdleTick;
     }
 
@@ -411,7 +415,7 @@ public class PlayerVisuals : MonoBehaviour
 
     private void HandleDashEffects()
     {
-        SquashPlayer( squashAmount, squashDuration );
+        SquashPlayer( dashSquashAmount, dashSquashDuration );
         UpdateFaceOnPlayer(Playerface.Dash);
     }
     private void SquashPlayer(float amount, float duration)
@@ -423,4 +427,33 @@ public class PlayerVisuals : MonoBehaviour
             );
     }
 #endregion
+
+    // Handles the jump squash animation triggered via GameEventBus
+    private void HandleJumpSquash(bool isDescending)
+    {
+        // Cancel any prior squash tweens on this transform
+        transform.DOKill();
+
+        // First half: squash
+        transform.DOScaleY(jumpSquashAmount, jumpSquashDuration)
+            .SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                // Second half: restore scale
+                transform.DOScaleY(1f, jumpSquashDuration)
+                    .SetEase(Ease.OutQuad)
+                    .OnComplete(() =>
+                    {
+                        if( isDescending ) 
+                        {
+                            // Notify that the squash animation finished so the SFX can play
+                            GameEventBus.TriggerPlayerJumpSquashComplete();
+                        }
+                        else
+                        {
+                            GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+                        }
+                    });
+            });
+    }
 }

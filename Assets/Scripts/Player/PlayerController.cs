@@ -44,6 +44,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool showDebugLogs = true;
     [SerializeField] private bool isGroundedDebugView; // Read-only view in Inspector
 
+    // Jump Descending Detection
+    private bool detectJump = false;
+    private bool hasStartedDescending = false;
+    private float previousY;
+
     // Internal Physics & Mechanics
     private Rigidbody2D rb;
     private float baseGravityScale;
@@ -157,6 +162,7 @@ else
 if( detectJump )
 {
     CheckForJumpApex();
+    // GroundImpactDetection();
 }
         // 2. Update Timers
         if (isGrounded)
@@ -270,6 +276,18 @@ if( detectJump )
         // }
     }
 
+    // Called when the jump‑squash animation finishes – plays the SFX and activates the JumpUp face
+    private void HandleJumpSquashComplete()
+    {
+        // Buffer the jump so ExecuteJump() will fire on the next physics tick
+        jumpBufferTimer = jumpBufferTime;
+        GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
+        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
+        // Enable apex detection for JumpDown face later
+        detectJump = true;
+
+    }
+
     /// <summary>
     /// Call when the Mobile Jump Button is RELEASED (PointerUp). Enables Mario-style variable jump.
     /// </summary>
@@ -289,9 +307,7 @@ if( detectJump )
         horizontalInput = 0f;
     }
 
-    public bool detectJump = false;
-    public bool hasStartedDescending = false;
-    public float previousY;
+
     private void CheckForJumpApex()
     {
         float currentY = transform.position.y;
@@ -308,20 +324,20 @@ if( detectJump )
     }
     private void OnPlayerStartedDescending()
     {
-        detectJump = false;
+        // detectJump = false;
         hasStartedDescending = false;
-        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
+        // GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
+
+
     }
     private void GroundImpactDetection()
     {
-        GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
-
-        transform.DOScaleY( 0.7f ,  0.2f)
-            .SetEase(Ease.OutQuad).
-            OnComplete(()=>
-            transform.DOScaleY(1f, 0.2f)
-            );
-
+        if( detectJump )
+        {
+            detectJump = false;
+            GameEventBus.TriggerPlayerJumpSquash( false );
+            GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+        }
     }
 
     private void TriggerIdle()
@@ -366,6 +382,16 @@ if( detectJump )
         return false;
     }
 #endregion
+
+    private void OnEnable()
+    {
+        GameEventBus.OnPlayerJumpSquashComplete += HandleJumpSquashComplete;
+    }
+
+    private void OnDisable()
+    {
+        GameEventBus.OnPlayerJumpSquashComplete -= HandleJumpSquashComplete;
+    }
 
     private void OnDrawGizmosSelected()
     {

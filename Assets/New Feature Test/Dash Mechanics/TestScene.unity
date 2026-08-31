@@ -550,8 +550,6 @@ MonoBehaviour:
       m_Action: Dash
       m_Flags: 0
     m_Flags: 0
-  squashAmount: 0.8
-  squashDuration: 0.5
 --- !u!61 &240217173
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -12314,8 +12312,10 @@ MonoBehaviour:
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
-  squashAmount: 0.9
-  squashDuration: 0.2
+  dashSquashAmount: 0.5
+  dashSquashDuration: 0.2
+  jumpSquashAmount: 0.7
+  jumpSquashDuration: 0.2
   blinkDelay: 4
   blinkDuration: 0.5
 --- !u!212 &1191222675
@@ -35002,8 +35002,10 @@ MonoBehaviour:
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 0}
-  squashAmount: 0
-  squashDuration: 0
+  dashSquashAmount: 0
+  dashSquashDuration: 0
+  jumpSquashAmount: 0
+  jumpSquashDuration: 0
   blinkDelay: 0
   blinkDuration: 0.15
 --- !u!1 &1972420098538205351
@@ -35651,8 +35653,6 @@ MonoBehaviour:
       m_Action: Dash
       m_Flags: 0
     m_Flags: 0
-  squashAmount: 0
-  squashDuration: 0
 --- !u!222 &3120090593726091842
 CanvasRenderer:
   m_ObjectHideFlags: 0
