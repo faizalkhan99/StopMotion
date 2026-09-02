@@ -19,6 +19,7 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Optional VFX References")]
     [SerializeField] private ParticleSystem confidentTrailVFX;
     [SerializeField] private ParticleSystem destroyVFX;
+    [SerializeField] private ParticleSystem jumpUpTrailVFX;
 
     [Header("Player's UI")]
     [SerializeField] private CanvasGroup keyImage;
@@ -334,8 +335,15 @@ public class PlayerVisuals : MonoBehaviour
 
         var tempface = currentPlayerFace;
         currentPlayerFace = face;
-
-        Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
+        // Play jump trail when jumping up
+        if (face == Playerface.JumpUp)
+        {
+            if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
+            {
+                jumpUpTrailVFX.Play();
+            }
+        }        
+        // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
     }
 
     private void OnIdleTick()
@@ -401,6 +409,11 @@ public class PlayerVisuals : MonoBehaviour
 
             case Playerface.Die :
                 spriteRenderer.sprite = faceData.die;
+            break;
+
+            case Playerface.Idle :
+                spriteRenderer.sprite = faceData.idle;
+                // HandlePlayerStopped();
             break;
 
             default:

@@ -1,12 +1,11 @@
-using System.Runtime.CompilerServices;
 using DG.Tweening;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] PlayerDash playerDash;
+    [SerializeField] PlayerInputRouter playerInput;
 
     [Header("Movement")]
     [Tooltip("Maximum horizontal speed in units per second.")]
@@ -251,30 +250,7 @@ if( detectJump )
         horizontalInput = Mathf.Clamp(input, -1f, 1f);
     }
 
-    /// <summary>
-    /// Call when the Mobile Jump Button is pressed DOWN (PointerDown).
-    /// </summary>
-    public void OnJumpButtonPressed()
-    {
-        jumpBufferTimer = jumpBufferTime;
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
-        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
 
-        detectJump = true;
-        // DIAGNOSTIC CHECK: Tell the developer exactly why the jump might fail
-        // if (showDebugLogs)
-        // {
-        //     if (!isGrounded && coyoteTimer <= 0f)
-        //     {
-        //         Debug.LogWarning("<b><color=red>[JUMP FAILED]</color></b> Jump pressed, but Player is NOT grounded! " +
-        //                          "Check your 'Ground Layer' and ensure your GroundCheck Transform is at the bottom of the player's feet.");
-        //     }
-        //     else if (rb.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionY))
-        //     {
-        //         Debug.LogError("<b><color=red>[JUMP FAILED]</color></b> Your Rigidbody2D has 'Freeze Position Y' checked in its Constraints!");
-        //     }
-        // }
-    }
 
     // Called when the jump‑squash animation finishes – plays the SFX and activates the JumpUp face
     private void HandleJumpSquashComplete()
@@ -337,6 +313,8 @@ if( detectJump )
             detectJump = false;
             GameEventBus.TriggerPlayerJumpSquash( false );
             GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+            playerInput.SetIsJumpFalse();
+            // playerinput
         }
     }
 
@@ -400,5 +378,9 @@ if( detectJump )
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+    }
+    public bool IsGrounded()
+    {
+      return isGrounded || coyoteTimer > 0f;  
     }
 }

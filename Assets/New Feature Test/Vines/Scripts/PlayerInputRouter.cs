@@ -32,10 +32,16 @@ public class PlayerInputRouter : MonoBehaviour
 
     private float horizontalInput;
     private bool anyMovementAnchorActive;
+    private bool isJumping = false;
 
     // Tap-debounce state (right-half touch taps only)
     private int tapCount;
     private Coroutine tapWindowRoutine;
+
+    public void SetIsJumpFalse()
+    {
+        isJumping = false;
+    }
 
     private void Awake()
     {
@@ -169,7 +175,7 @@ public class PlayerInputRouter : MonoBehaviour
         }
         else
         {
-            playerController.OnJumpButtonPressed();
+            // Jump
             Debug.Log("Jump performed after tap delay!");
         }
 
@@ -183,7 +189,11 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnKeyboardJumpPressed(InputAction.CallbackContext context)
     {
-        GameEventBus.TriggerPlayerJumpSquash( true );
+        if ( playerController.IsGrounded() && !isJumping )
+        {
+            GameEventBus.TriggerPlayerJumpSquash( true );
+            isJumping = true;
+        }
     }
 
     private void OnKeyboardJumpReleased(InputAction.CallbackContext context)
@@ -195,6 +205,7 @@ public class PlayerInputRouter : MonoBehaviour
     {
         dashController.TriggerDash();
     }
+
     private void OnDestroy()
     {
         moveAction?.Disable();

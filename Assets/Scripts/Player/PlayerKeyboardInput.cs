@@ -25,7 +25,7 @@ public class PlayerKeyboardInput : MonoBehaviour
         playerController.SetHorizontalInput(horizontalInput);
 
         if (keyboard.spaceKey.wasPressedThisFrame)
-            playerController.OnJumpButtonPressed();
+            // playerController.OnJumpButtonPressed();
 
         if (keyboard.spaceKey.wasReleasedThisFrame)
             playerController.OnJumpButtonReleased();
