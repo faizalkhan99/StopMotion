@@ -2,6 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerVisuals : MonoBehaviour
@@ -31,8 +32,10 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Player Squash Config")]
     [SerializeField] private float dashSquashAmount;
     [SerializeField] private float dashSquashDuration;
-    [SerializeField] private float jumpSquashAmount;
-    [SerializeField] private float jumpSquashDuration;
+    [SerializeField] private float jumpUpSquashAmount;
+    [SerializeField] private float jumpUpSquashDuration;
+    [SerializeField] private float landSquashAmount;
+    [SerializeField] private float landSquashDuration;
 
     [Header("Player's Animation")]
     [SerializeField] private float blinkDelay;
@@ -96,7 +99,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
-        GameEventBus.OnPlayerJumpSquash += HandleJumpSquash;
+        GameEventBus.OnPlayerJumpSquash += HandlePlayerScale;
         GameEventBus.OnPlayerIdle += OnIdleTick;
     }
 
@@ -109,7 +112,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
         GameEventBus.OnPlayerDash -= HandleDashEffects;
-        GameEventBus.OnPlayerJumpSquash -= HandleJumpSquash;
+        GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
         GameEventBus.OnPlayerIdle -= OnIdleTick;
     }
 
@@ -441,19 +444,27 @@ public class PlayerVisuals : MonoBehaviour
     }
 #endregion
 
+    private void HandlePlayerScale(bool onAir)
+    {
+        if (onAir)
+            HandleJumpSquash(onAir, scaleAmount: jumpUpSquashAmount, scaleDuration: jumpUpSquashDuration);
+        else
+            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration);    
+    }
+
     // Handles the jump squash animation triggered via GameEventBus
-    private void HandleJumpSquash(bool isDescending)
+    private void HandleJumpSquash(bool isDescending, float scaleAmount, float scaleDuration)
     {
         // Cancel any prior squash tweens on this transform
         transform.DOKill();
 
         // First half: squash
-        transform.DOScaleY(jumpSquashAmount, jumpSquashDuration)
+        transform.DOScaleY(scaleAmount, scaleDuration)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
                 // Second half: restore scale
-                transform.DOScaleY(1f, jumpSquashDuration)
+                transform.DOScaleY(1f, scaleDuration)
                     .SetEase(Ease.OutQuad)
                     .OnComplete(() =>
                     {
@@ -464,6 +475,11 @@ public class PlayerVisuals : MonoBehaviour
                         }
                         else
                         {
+                            bool stillMoving = rootRigidbody != null && Mathf.Abs(rootRigidbody.linearVelocity.x) > 0.05f;
+                            
+                            if( stillMoving )  
+                            GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
+                            else
                             GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
                         }
                     });

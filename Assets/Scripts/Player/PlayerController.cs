@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
     // Jump Descending Detection
     private bool detectJump = false;
     private bool hasStartedDescending = false;
+    private bool hasTriggeredIdle = false;
     private float previousY;
 
     // Internal Physics & Mechanics
@@ -89,6 +90,7 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        wasGrounded = isGrounded;
         playerDash.InitDash( this );
     }
     /// <summary>
@@ -123,47 +125,13 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        // Keep filter synced in case you tweak LayerMasks in the Inspector during Play Mode!
-        groundFilter.layerMask = groundLayer;
-
-        // 1. Zero-GC Ground Check
-        int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
-        isGrounded = hitCount > 0;
-        isGroundedDebugView = isGrounded; // Exposes state to your Inspector
-
-//Fall detection
-bool currentlyGrounded = isGrounded;
-
-if(currentlyGrounded && !wasGrounded)
-{
-    GroundImpactDetection();
-}
-wasGrounded = currentlyGrounded;
-
-//CheckFor Player Idle animation
-bool isIdle = isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
-
-if (isIdle)
-{
-    idleTimer += Time.deltaTime;
-
-    if (idleTimer >= idleDelay)
-    {
-        TriggerIdle();
-        idleTimer = 0f;
+        UpdateGroundDetection();
+        UpdatePlayerState();
+        HandleJumpExecution();
     }
-}
-else
-{
-    idleTimer = 0f;
-}
 
-if( detectJump )
-{
-    CheckForJumpApex();
-    // GroundImpactDetection();
-}
-        // 2. Update Timers
+    private void HandleJumpExecution()
+    {
         if (isGrounded)
         {
             coyoteTimer = coyoteTime;
@@ -182,6 +150,45 @@ if( detectJump )
         }
     }
 
+    private void UpdateGroundDetection()
+    {
+        // Keep filter synced in case you tweak LayerMasks in the Inspector during Play Mode!
+        groundFilter.layerMask = groundLayer;
+
+        // 1. Zero-GC Ground Check
+        int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
+        isGrounded = hitCount > 0;
+        isGroundedDebugView = isGrounded; // Exposes state to your Inspector
+    }
+
+    private void UpdatePlayerState()
+    {
+        // Fall detection
+        if (isGrounded && !wasGrounded)
+        {
+            GroundImpactDetection();
+        }
+        wasGrounded = isGrounded;
+
+        // Check for Player Idle animation
+        bool isIdle = isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
+
+        if (!isIdle)
+        {
+            idleTimer = 0f;
+            hasTriggeredIdle = false;
+            return;
+        }
+
+        idleTimer += Time.deltaTime;
+
+        if (idleTimer >= idleDelay && !hasTriggeredIdle)
+        {
+            hasTriggeredIdle = true;
+            TriggerIdle();
+        }
+    }
+
     private void FixedUpdate()
     {
         if( !isDashing )
@@ -197,21 +204,18 @@ if( detectJump )
 
     private void ApplyHorizontalMovement()
     {
-        // if( !isDashing )
-        // {
-            // CACHING NATIVE CALLS: Read rb.linearVelocity ONCE into a local stack variable.
-            // Every time you call 'rb.linearVelocity', Unity crosses the C# to C++ Native boundary.
-            Vector2 currentVel = rb.linearVelocity;
+        // CACHING NATIVE CALLS: Read rb.linearVelocity ONCE into a local stack variable.
+        // Every time you call 'rb.linearVelocity', Unity crosses the C# to C++ Native boundary.
+        Vector2 currentVel = rb.linearVelocity;
 
-            float targetSpeed = horizontalInput * maxSpeed;
-            float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
+        float targetSpeed = horizontalInput * maxSpeed;
+        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
 
-            // MoveTowards provides crisp, snappy changes without the floatiness of Lerp
-            float newVelocityX = Mathf.MoveTowards(currentVel.x, targetSpeed, accelRate * Time.fixedDeltaTime);
+        // MoveTowards provides crisp, snappy changes without the floatiness of Lerp
+        float newVelocityX = Mathf.MoveTowards(currentVel.x, targetSpeed, accelRate * Time.fixedDeltaTime);
 
-            // Write back to native property ONCE
-            rb.linearVelocity = new Vector2(newVelocityX, currentVel.y);
-        // }
+        // Write back to native property ONCE
+        rb.linearVelocity = new Vector2(newVelocityX, currentVel.y);
     }
 
     private void ApplyDynamicGravity()
@@ -243,25 +247,16 @@ if( detectJump )
     #region Mobile Touch Interface (Public API)
 
     /// <summary>
-    /// Feed joystick or touch-button movement (-1.0 to 1.0). Call from UI EventTriggers.
+    /// Call when the jump input fires — keyboard press (routed directly, no longer gated
+    /// behind the squash animation) or mobile tap. Buffers the physics jump immediately
+    /// so the animation can never delay or eat the input.
     /// </summary>
-    public void SetHorizontalInput(float input)
+    public void OnJumpButtonPressed()
     {
-        horizontalInput = Mathf.Clamp(input, -1f, 1f);
-    }
-
-
-
-    // Called when the jump‑squash animation finishes – plays the SFX and activates the JumpUp face
-    private void HandleJumpSquashComplete()
-    {
-        // Buffer the jump so ExecuteJump() will fire on the next physics tick
         jumpBufferTimer = jumpBufferTime;
+        detectJump = true;
         GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
         GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
-        // Enable apex detection for JumpDown face later
-        detectJump = true;
-
     }
 
     /// <summary>
@@ -283,38 +278,23 @@ if( detectJump )
         horizontalInput = 0f;
     }
 
-
-    private void CheckForJumpApex()
+    /// <summary>
+    /// Feed joystick or touch-button movement (-1.0 to 1.0). Call from UI EventTriggers.
+    /// </summary>
+    public void SetHorizontalInput(float input)
     {
-        float currentY = transform.position.y;
-
-        if (!hasStartedDescending && currentY < previousY)
-        {
-            hasStartedDescending = true;
-
-            // Player has started descending
-            OnPlayerStartedDescending();
-        }
-
-        previousY = currentY;        
+        horizontalInput = Mathf.Clamp(input, -1f, 1f);
     }
-    private void OnPlayerStartedDescending()
-    {
-        // detectJump = false;
-        hasStartedDescending = false;
-        // GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
 
-
-    }
     private void GroundImpactDetection()
     {
         if( detectJump )
         {
             detectJump = false;
+            hasStartedDescending = false;
             GameEventBus.TriggerPlayerJumpSquash( false );
             GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
             playerInput.SetIsJumpFalse();
-            // playerinput
         }
     }
 
@@ -328,13 +308,13 @@ if( detectJump )
     public void ApplyDash(float dashSpeed)
     {
         Vector2 currentVelocity = rb.linearVelocity;
- 
+
         if (currentVelocity.magnitude > 0.1f)
         {
             isDashing = true;
             Vector2 lastKnowDir = currentVelocity.normalized;
-            
-            if(lastKnowDir.x > 0) 
+
+            if(lastKnowDir.x > 0)
             {
                 rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
             }
@@ -356,20 +336,10 @@ if( detectJump )
         {
             return true;
         }
-        
+
         return false;
     }
 #endregion
-
-    private void OnEnable()
-    {
-        GameEventBus.OnPlayerJumpSquashComplete += HandleJumpSquashComplete;
-    }
-
-    private void OnDisable()
-    {
-        GameEventBus.OnPlayerJumpSquashComplete -= HandleJumpSquashComplete;
-    }
 
     private void OnDrawGizmosSelected()
     {
@@ -381,6 +351,6 @@ if( detectJump )
     }
     public bool IsGrounded()
     {
-      return isGrounded || coyoteTimer > 0f;  
+      return isGrounded || coyoteTimer > 0f;
     }
 }

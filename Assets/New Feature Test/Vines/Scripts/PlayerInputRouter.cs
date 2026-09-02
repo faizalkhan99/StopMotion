@@ -28,7 +28,7 @@ public class PlayerInputRouter : MonoBehaviour
 
     [SerializeField] private InputAction moveAction;
     [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
-    [SerializeField] private InputAction dashAction; 
+    [SerializeField] private InputAction dashAction;
 
     private float horizontalInput;
     private bool anyMovementAnchorActive;
@@ -175,7 +175,7 @@ public class PlayerInputRouter : MonoBehaviour
         }
         else
         {
-            // Jump
+            playerController.OnJumpButtonPressed();
             Debug.Log("Jump performed after tap delay!");
         }
 
@@ -191,14 +191,25 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if ( playerController.IsGrounded() && !isJumping )
         {
-            GameEventBus.TriggerPlayerJumpSquash( true );
             isJumping = true;
+
+            // Buffer the real jump immediately — physics no longer waits on the
+            // squash animation, so a jump can never be silently eaten if the
+            // tween runs past the coyote window.
+            playerController.OnJumpButtonPressed();
+
+            // Squash is now purely cosmetic and can't block or delay the jump.
+            GameEventBus.TriggerPlayerJumpSquash( true );
         }
     }
 
     private void OnKeyboardJumpReleased(InputAction.CallbackContext context)
     {
         playerController.OnJumpButtonReleased();
+
+        // Reset on key release rather than only on landing, so a stuck grounded
+        // press can never wedge keyboard jump for the rest of the scene.
+        isJumping = false;
     }
 
     private void OnKeyboardDashTriggered(InputAction.CallbackContext context)

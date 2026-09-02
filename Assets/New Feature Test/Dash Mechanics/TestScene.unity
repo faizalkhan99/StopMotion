@@ -10751,12 +10751,32 @@ PrefabInstance:
     m_TransformParent: {fileID: 1363964755}
     m_Modifications:
     - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: jumpSquashAmount
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: landSquashAmount
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: confidentTrailVFX
       value: 
       objectReference: {fileID: 409868409}
     - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: dashSquashDuration
       value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: jumpUpSquashAmount
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: landSquashDuration
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: jumpUpSquashDuration
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 2405222261707796008, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: m_LocalPosition.x
