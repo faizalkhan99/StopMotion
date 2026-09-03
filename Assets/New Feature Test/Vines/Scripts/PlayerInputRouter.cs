@@ -22,21 +22,38 @@ public class PlayerInputRouter : MonoBehaviour
     [Tooltip("Horizontal drag distance (in screen pixels) that maps to full left/right movement.")]
     [SerializeField] private float maxDragDistance = 150f;
 
+    [Header("Upward Drag (right half)")]
+    [Tooltip("Normalized drag distance (0-1, as a fraction of maxDragDistance) the right-half finger must move upward before it counts as an upward-drag trigger.")]
+    [Range(0f, 1f)]
+    [SerializeField] private float upwardDragThreshold = 0.5f;
+
     [Header("Tap / Multi-Tap")]
     [Tooltip("How long to wait after a tap to see if a second tap arrives before committing to jump vs dash.")]
     [SerializeField] private float tapDelay = 0.2f;
 
     [SerializeField] private InputAction moveAction;
     [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
-    [SerializeField] private InputAction dashAction;
+    [SerializeField] private InputAction dashAction;  // Keyboard-only dash (Left Shift) — parity with touch double-tap
 
+    // Movement input, tracked separately so keyboard (event-driven) and touch
+    // (polled every frame) can be combined without either one stomping the other.
+    private float keyboardX;
+    private float touchX;
     private float horizontalInput;
     private bool anyMovementAnchorActive;
+    private bool anyJumpAnchorActive;
     private bool isJumping = false;
+
+    // Prevents the upward-drag trigger from firing every frame while the
+    // finger stays past the threshold. Clears when the right-half finger lifts.
+    private bool upwardDragConsumed;
 
     // Tap-debounce state (right-half touch taps only)
     private int tapCount;
     private Coroutine tapWindowRoutine;
+
+    private enum ScreenHalf { Left, Right }
+    private enum DragAxis { Horizontal, Vertical }
 
     public void SetIsJumpFalse()
     {
@@ -63,6 +80,12 @@ public class PlayerInputRouter : MonoBehaviour
         // Jump: Space only (desktop). Touch jump/dash is handled via EnhancedTouch below.
         jumpAction = new InputAction("Jump", InputActionType.Button, "<Keyboard>/space");
         jumpAction.Enable();
+
+        // Dash: Left Shift (desktop). Was previously Enable()'d without ever being
+        // constructed/bound — threw at runtime if the Inspector binding was missing.
+        // Touch dash does NOT go through this action; it's driven by the double-tap
+        // debounce in TapWindowRoutine() below.
+        dashAction = new InputAction("Dash", InputActionType.Button, "<Keyboard>/leftShift");
         dashAction.Enable();
     }
 
@@ -74,19 +97,26 @@ public class PlayerInputRouter : MonoBehaviour
         jumpAction.canceled += OnKeyboardJumpReleased;
         dashAction.started += OnKeyboardDashTriggered;
         // Touch.onFingerDown += HandleFingerDown;
+        Touch.onFingerUp += HandleFingerUp;
     }
 
     private void OnDisable()
     {
         playerController.StopMovement();
+        keyboardX = 0f;
+        touchX = 0f;
         horizontalInput = 0f;
         anyMovementAnchorActive = false;
+        anyJumpAnchorActive = false;
+        upwardDragConsumed = false;
 
+        moveAction.performed -= OnMove;
         moveAction.canceled -= OnMove;
         jumpAction.started -= OnKeyboardJumpPressed;
         jumpAction.canceled -= OnKeyboardJumpReleased;
         dashAction.started -= OnKeyboardDashTriggered;
         // Touch.onFingerDown -= HandleFingerDown;
+        Touch.onFingerUp -= HandleFingerUp;
 
         if (tapWindowRoutine != null)
         {
@@ -98,70 +128,125 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void Update()
     {
-        // float keyboardX = moveAction.ReadValue<Vector2>().x;
-        // float touchX = ReadLeftHalfDrag();
+        // Touch drag (left half) is polled every frame since EnhancedTouch has no
+        // "performed" callback equivalent for continuous drag. Keyboard input is
+        // event-driven via OnMove() and cached in keyboardX. Combine both here.
+        touchX = ReadHalfDrag(ScreenHalf.Left, DragAxis.Horizontal, out anyMovementAnchorActive);
 
-        // horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
-        // playerController.SetHorizontalInput(horizontalInput);
+        horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
+        playerController.SetHorizontalInput(horizontalInput);
+
+        // Face-change events dedupe on the receiving end (PlayerVisuals only reacts
+        // to actual state transitions), so it's safe to call this every frame.
+        bool isMovingInput = Mathf.Abs(horizontalInput) > 0.01f;
+        GameEventBus.TriggerPlayerFaceChange(isMovingInput ? Playerface.Moving : Playerface.Idle);
+
+        UpdateRightHalfUpwardDrag();
     }
+
     private void OnMove(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            float keyboardX = context.ReadValue<Vector2>().x;
-            horizontalInput = Mathf.Clamp(keyboardX, -1f, 1f);
-
-            GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
+            keyboardX = Mathf.Clamp(context.ReadValue<Vector2>().x, -1f, 1f);
         }
         else if (context.canceled)
         {
-            horizontalInput = 0f;
-            GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+            keyboardX = 0f;
         }
-
-        playerController.SetHorizontalInput(horizontalInput);
     }
-    private float ReadLeftHalfDrag()
+#region Touch Controls
+    // ---------------------------------------------------------------
+    // Shared drag reader — either half, either axis. Returns the clamped
+    // -1..1 drag value for the first finger found on that half, and reports
+    // via 'touched' whether any finger is currently anchoring that half.
+    // ---------------------------------------------------------------
+
+    private float ReadHalfDrag(ScreenHalf half, DragAxis axis, out bool touched)
     {
-        bool touched = false;
-        float dragX = 0f;
+        touched = false;
+        float dragValue = 0f;
 
         foreach (Touch touch in Touch.activeTouches)
         {
-            if (touch.screenPosition.x >= Screen.width * screenSplitRatio)
-                continue; // Right half belongs to jump/dash.
+            bool isLeftSide = touch.screenPosition.x < Screen.width * screenSplitRatio;
+
+            if (half == ScreenHalf.Left && !isLeftSide)
+                continue;
+            if (half == ScreenHalf.Right && isLeftSide)
+                continue;
 
             touched = true;
-            float delta = touch.screenPosition.x - touch.startScreenPosition.x;
-            dragX = Mathf.Clamp(delta / maxDragDistance, -1f, 1f);
-            break; // Use the first left-half finger.
+
+            float delta = axis == DragAxis.Horizontal
+                ? touch.screenPosition.x - touch.startScreenPosition.x
+                : touch.screenPosition.y - touch.startScreenPosition.y;
+
+            dragValue = Mathf.Clamp(delta / maxDragDistance, -1f, 1f);
+            break; // Use the first finger found on that half.
         }
 
-        if (touched)
-        {
-            anyMovementAnchorActive = true;
-            return dragX;
-        }
-
-        anyMovementAnchorActive = false;
-        return 0f;
+        return touched ? dragValue : 0f;
     }
 
     // ---------------------------------------------------------------
-    // Touch: right-half tap = jump, right-half double-tap = dash
+    // Right half: upward drag trigger (fires once per gesture, resets
+    // when the right-half finger lifts).
     // ---------------------------------------------------------------
 
+    private void UpdateRightHalfUpwardDrag()
+    {
+        float dragY = ReadHalfDrag(ScreenHalf.Right, DragAxis.Vertical, out anyJumpAnchorActive);
+
+        if (!anyJumpAnchorActive)
+        {
+            upwardDragConsumed = false;
+            return;
+        }
+
+        // Screen Y increases upward in Unity, so a positive dragY is already "up".
+        if (!upwardDragConsumed && dragY >= upwardDragThreshold)
+        {
+            upwardDragConsumed = true;
+            OnRightHalfUpwardDrag();
+        }
+    }
+    // ---------------------------------------------------------------
+    // Touch: right-half drag up  = jump
+    // ---------------------------------------------------------------
+    private void OnRightHalfUpwardDrag()
+    {
+        // TODO: hook up whatever the upward drag should do (jump, dash, etc.)
+        // Debug.Log("Upward drag detected on right half!");
+        TriggerTouchJump();
+    }
+
+    // ---------------------------------------------------------------
+    // Touch: right-half tap = dash
+    // ---------------------------------------------------------------
+
+    private void HandleFingerUp(Finger finger)
+    {
+        if (finger.screenPosition.x < Screen.width * screenSplitRatio)
+            return; // Left half is movement, not taps.    
+
+        if(!upwardDragConsumed)
+        {
+            dashController.TriggerDash();
+        }
+    }
     private void HandleFingerDown(Finger finger)
     {
         if (finger.screenPosition.x < Screen.width * screenSplitRatio)
             return; // Left half is movement, not taps.
 
-        tapCount++;
+        // dashController.TriggerDash();
+        // tapCount++;
 
-        if (tapWindowRoutine != null)
-            StopCoroutine(tapWindowRoutine);
+        // if (tapWindowRoutine != null)
+        //     StopCoroutine(tapWindowRoutine);
 
-        tapWindowRoutine = StartCoroutine(TapWindowRoutine());
+        // tapWindowRoutine = StartCoroutine(TapWindowRoutine());
     }
 
     private IEnumerator TapWindowRoutine()
@@ -170,19 +255,27 @@ public class PlayerInputRouter : MonoBehaviour
 
         if (tapCount >= 2)
         {
-            Debug.Log("Dash performed via MultiTap!");
+            // Debug.Log("Dash performed via MultiTap!");
             dashController.TriggerDash();
         }
-        else
+        else if (playerController.IsGrounded() && !isJumping)
         {
+            isJumping = true;
+
+            // Same buffered-jump + cosmetic-squash pattern as the keyboard path,
+            // so touch jump doesn't skip the squash animation or fire mid-air.
             playerController.OnJumpButtonPressed();
-            Debug.Log("Jump performed after tap delay!");
+            GameEventBus.TriggerPlayerJumpSquash(true);
+
+            // Debug.Log("Jump performed after tap delay!");
         }
 
         tapCount = 0;
         tapWindowRoutine = null;
     }
+#endregion
 
+#region Keyboard Controls
     // ---------------------------------------------------------------
     // Keyboard: Space is an immediate jump, no debounce/dash on desktop
     // ---------------------------------------------------------------
@@ -216,10 +309,24 @@ public class PlayerInputRouter : MonoBehaviour
     {
         dashController.TriggerDash();
     }
+#endregion
 
+    private void TriggerTouchJump()
+    {
+        if (!playerController.IsGrounded() || isJumping)
+            return;
+ 
+        isJumping = true;
+        playerController.OnJumpButtonPressed();
+        GameEventBus.TriggerPlayerJumpSquash(true);
+ 
+        // Debug.Log("Jump performed via swipe!");
+    }
     private void OnDestroy()
     {
         moveAction?.Disable();
         jumpAction?.Disable();
+        dashAction?.Disable();
+        EnhancedTouchSupport.Disable();
     }
 }

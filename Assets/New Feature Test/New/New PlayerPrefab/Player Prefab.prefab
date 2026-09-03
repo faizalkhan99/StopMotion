@@ -5084,6 +5084,7 @@ MonoBehaviour:
   dashController: {fileID: 5431188685860067188}
   screenSplitRatio: 0.5
   maxDragDistance: 150
+  upwardDragThreshold: 0.5
   tapDelay: 0.01
   moveAction:
     m_Name: Move
@@ -10307,8 +10308,8 @@ MonoBehaviour:
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
-  dashSquashAmount: 0.5
-  dashSquashDuration: 0.1
+  dashSquashAmount: 0.8
+  dashSquashDuration: 0.2
   jumpUpSquashAmount: 1.5
   jumpUpSquashDuration: 0.2
   landSquashAmount: 0.7
@@ -10421,9 +10422,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: JumpPuff_VFX
       objectReference: {fileID: 0}
+    - target: {fileID: 4999762460677937287, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6552921683171386937, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
       propertyPath: lengthInSec
-      value: 0.2
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6552921683171386937, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6552921683171386937, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
+      propertyPath: ShapeModule.m_Position.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

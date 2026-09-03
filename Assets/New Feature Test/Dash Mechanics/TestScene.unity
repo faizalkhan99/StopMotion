@@ -10800,8 +10800,44 @@ PrefabInstance:
       value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.angle
+      value: 1.2669746
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.arc.value
+      value: 17.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: ShapeModule.m_Scale.x
-      value: 2
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.m_Scale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.radius.mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.m_Position.y
+      value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.m_Rotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.radius.value
+      value: 0.5046794
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.radius.spread
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
