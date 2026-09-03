@@ -4977,6 +4977,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   playerDash: {fileID: 5431188685860067188}
+  playerInput: {fileID: 6013962473497615207}
   maxSpeed: 8
   acceleration: 60
   deceleration: 15
@@ -4985,7 +4986,7 @@ MonoBehaviour:
   fallGravityMultiplier: 3.5
   jumpCutMultiplier: 0.5
   coyoteTime: 0.1
-  jumpBufferTime: 0.1
+  jumpBufferTime: 0.2
   groundCheck: {fileID: 2215210576407454491}
   groundCheckRadius: 0.2
   groundLayer:
@@ -10302,15 +10303,16 @@ MonoBehaviour:
   recoverySpeed: 8
   confidentTrailVFX: {fileID: 0}
   destroyVFX: {fileID: 6884573141956384920}
-  playerTrailVFX: {fileID: 0}
   jumpUpTrailVFX: {fileID: 7551149457565287704}
   keyImage: {fileID: 0}
   keyFadeDuration: 0.35
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
   dashSquashAmount: 0.5
-  dashSquashDuration: 0.2
-  jumpSquashAmount: 0.7
-  jumpSquashDuration: 0.2
+  dashSquashDuration: 0.1
+  jumpUpSquashAmount: 1.5
+  jumpUpSquashDuration: 0.2
+  landSquashAmount: 0.7
+  landSquashDuration: 0.2
   blinkDelay: 4
   blinkDuration: 0.5
 --- !u!114 &5431188685860067188
@@ -10418,6 +10420,10 @@ PrefabInstance:
     - target: {fileID: 4311628596090616934, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
       propertyPath: m_Name
       value: JumpPuff_VFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 6552921683171386937, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
+      propertyPath: lengthInSec
+      value: 0.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -263,17 +263,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8192614990449641577, guid: f1821e4929c234270b100949513d5fea, type: 3}
   m_PrefabInstance: {fileID: 9210667044046201983}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &240217172 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6013962473497615207, guid: f1821e4929c234270b100949513d5fea, type: 3}
-  m_PrefabInstance: {fileID: 9210667044046201983}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: baa22d01be5624b88b55daf68a028b10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputRouter
 --- !u!1 &357144555
 GameObject:
   m_ObjectHideFlags: 0
@@ -10751,12 +10740,8 @@ PrefabInstance:
     m_TransformParent: {fileID: 1363964755}
     m_Modifications:
     - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: jumpSquashAmount
-      value: 1.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: landSquashAmount
-      value: 0.7
+      propertyPath: dashSquashAmount
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: confidentTrailVFX
@@ -10764,18 +10749,6 @@ PrefabInstance:
       objectReference: {fileID: 409868409}
     - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: dashSquashDuration
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: jumpUpSquashAmount
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: landSquashDuration
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 880036339882389749, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: jumpUpSquashDuration
       value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 2405222261707796008, guid: f1821e4929c234270b100949513d5fea, type: 3}
@@ -10818,21 +10791,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2642700810949302365, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: playerInput
-      value: 
-      objectReference: {fileID: 240217172}
-    - target: {fileID: 2642700810949302365, guid: f1821e4929c234270b100949513d5fea, type: 3}
-      propertyPath: jumpBufferTime
-      value: 0.2
-      objectReference: {fileID: 0}
     - target: {fileID: 4756600720172380380, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: m_Name
       value: Player Prefab
       objectReference: {fileID: 0}
     - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: lengthInSec
-      value: 0.2
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: ShapeModule.m_Scale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: EmissionModule.rateOverTime.scalar
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7551149457565287704, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: EmissionModule.m_Bursts.Array.data[0].countCurve.scalar
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 8599918802101615526, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

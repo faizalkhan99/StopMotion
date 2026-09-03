@@ -338,14 +338,16 @@ public class PlayerVisuals : MonoBehaviour
 
         var tempface = currentPlayerFace;
         currentPlayerFace = face;
+
+        HandleJumpVFX(face);
         // Play jump trail when jumping up
-        if (face == Playerface.JumpUp)
-        {
-            if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
-            {
-                jumpUpTrailVFX.Play();
-            }
-        }        
+        // if (face == Playerface.JumpUp)
+        // {
+        //     // if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
+        //     // {
+        //     //     jumpUpTrailVFX.Play();
+        //     // }
+        // }        
         // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
     }
 
@@ -425,6 +427,36 @@ public class PlayerVisuals : MonoBehaviour
         }
     }
 
+#endregion
+
+#region VFX
+
+    private void HandleJumpVFX(Playerface face)
+    {
+
+        switch (face)
+        {
+            case Playerface.JumpUp:
+
+                if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
+                {
+                    jumpUpTrailVFX.Play();
+                    // Debug.Log($"[VFX] :  Dust Playing ");
+                }
+                
+            break;
+
+            case Playerface.FallDown_Impact:
+
+                if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
+                {
+                    jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    // Debug.Log($"[VFX] :  Stopped Playing ");
+                }
+
+            break;
+        }
+    }
 #endregion
 
 #region Dashing Effects

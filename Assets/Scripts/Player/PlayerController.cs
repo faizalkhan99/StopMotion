@@ -293,11 +293,18 @@ public class PlayerController : MonoBehaviour
             detectJump = false;
             hasStartedDescending = false;
             GameEventBus.TriggerPlayerJumpSquash( false );
-            GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+
+            // Landing mid-dash: don't let the impact face stomp the dash face.
+            // isDashing is this component's own authoritative state — no lookup
+            // into another system needed. Fixes #14.
+            if (!isDashing)
+            {
+                GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+            }
+
             playerInput.SetIsJumpFalse();
         }
     }
-
     private void TriggerIdle()
     {
         GameEventBus.TriggerPlayerIdle();
