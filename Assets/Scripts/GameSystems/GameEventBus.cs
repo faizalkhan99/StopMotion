@@ -93,13 +93,18 @@ public static class GameEventBus
     #region Player Face
     public static event Action<Playerface> OnPlayerFaceChange;
     public static void TriggerPlayerFaceChange(Playerface playerface) => OnPlayerFaceChange?.Invoke(playerface);
-    public static event Action OnPlayerIdle;
-    public static void TriggerPlayerIdle() => OnPlayerIdle?.Invoke();
+    // OnPlayerIdle removed — idle is now visual-only polling via PlayerController.IsIdle in PlayerVisuals.LateUpdate()
+    public static event Action OnPlayerBlinkComplete;
+    public static void TriggerOnPlayerBlinkComplete() => OnPlayerBlinkComplete?.Invoke();
 
     // Jump squash complete – fires after the jump‑anticipation squash animation ends
     public static event Action OnPlayerJumpSquashComplete;
     public static void TriggerPlayerJumpSquashComplete() => OnPlayerJumpSquashComplete?.Invoke();
     #endregion
+#region  VFX
+    public static event Action<Vector2> OnPlayerGroundImpact;
+    public static void TriggerGroundImpact(Vector2 pos) => OnPlayerGroundImpact?.Invoke(pos);
+#endregion
     private static void ResetCachedState()
     {
         CurrentGameState = GameState.MainMenu;
@@ -120,6 +125,11 @@ public static class GameEventBus
         OnPlaySFXCommand = null;
         OnPlayerJumpSquash = null;
         OnPlayerJumpSquashComplete = null;
+        OnPlayerFaceChange = null;
+        OnPlayerBlinkComplete = null;
+        OnPlayerContactWithItem = null;
+        OnPlayerDash = null;
+        OnDelayEnd = null;
         ResetCachedState();
     }
 }

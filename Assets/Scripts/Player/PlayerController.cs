@@ -46,8 +46,6 @@ public class PlayerController : MonoBehaviour
     // Jump Descending Detection
     private bool detectJump = false;
     private bool hasStartedDescending = false;
-    private bool hasTriggeredIdle = false;
-    private float previousY;
 
     // Internal Physics & Mechanics
     private Rigidbody2D rb;
@@ -58,9 +56,11 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private bool isGrounded;
     private bool wasGrounded;
-    private float idleTimer;
-    [SerializeField] private float idleDelay = 2f;
     public bool isDashing  { get; private set; } =  false;
+
+    // Idle query - raw grounded (no coyote) for visual idle detection
+    public bool IsIdle => isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
+    public bool IsGroundedRaw => isGrounded;
 
     // Zero-GC Timers
     private float coyoteTimer;
@@ -126,8 +126,21 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         UpdateGroundDetection();
-        UpdatePlayerState();
+        CheckJumpApex();
         HandleJumpExecution();
+    }
+
+    private void CheckJumpApex()
+    {
+        // if (!detectJump) return;           // only for intentional jumps (not walk-off ledge)
+        if (isGrounded) return;
+        if (isDashing) return;             // dash freezes gravity/face — don't stomp dash face
+        if (hasStartedDescending) return;  // fire once per jump
+        if (rb.linearVelocity.y < -0.01f)  // apex crossed: rising → falling (same epsilon as ApplyDynamicGravity)
+        {
+            hasStartedDescending = true;
+            GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
+        }
     }
 
     private void HandleJumpExecution()
@@ -159,34 +172,13 @@ public class PlayerController : MonoBehaviour
         int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
         isGrounded = hitCount > 0;
         isGroundedDebugView = isGrounded; // Exposes state to your Inspector
-    }
 
-    private void UpdatePlayerState()
-    {
         // Fall detection
         if (isGrounded && !wasGrounded)
         {
             GroundImpactDetection();
         }
         wasGrounded = isGrounded;
-
-        // Check for Player Idle animation
-        bool isIdle = isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
-
-        if (!isIdle)
-        {
-            idleTimer = 0f;
-            hasTriggeredIdle = false;
-            return;
-        }
-
-        idleTimer += Time.deltaTime;
-
-        if (idleTimer >= idleDelay && !hasTriggeredIdle)
-        {
-            hasTriggeredIdle = true;
-            TriggerIdle();
-        }
     }
 
     private void FixedUpdate()
@@ -270,8 +262,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
         }
-
-        // GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown); // needs change this function call to detect when falling
+        // JumpDown face is now handled automatically by CheckJumpApex() when velocity crosses apex
     }
     public void StopMovement()
     {
@@ -288,11 +279,12 @@ public class PlayerController : MonoBehaviour
 
     private void GroundImpactDetection()
     {
-        if( detectJump )
-        {
-            detectJump = false;
+        // if( detectJump )
+        // {
+        //     detectJump = false;
             hasStartedDescending = false;
             GameEventBus.TriggerPlayerJumpSquash( false );
+            GameEventBus.TriggerGroundImpact(transform.position);
 
             // Landing mid-dash: don't let the impact face stomp the dash face.
             // isDashing is this component's own authoritative state — no lookup
@@ -303,11 +295,7 @@ public class PlayerController : MonoBehaviour
             }
 
             playerInput.SetIsJumpFalse();
-        }
-    }
-    private void TriggerIdle()
-    {
-        GameEventBus.TriggerPlayerIdle();
+        // }
     }
 #endregion
 

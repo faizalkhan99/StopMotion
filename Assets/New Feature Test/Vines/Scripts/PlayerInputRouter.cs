@@ -136,10 +136,6 @@ public class PlayerInputRouter : MonoBehaviour
         horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
         playerController.SetHorizontalInput(horizontalInput);
 
-        // Face-change events dedupe on the receiving end (PlayerVisuals only reacts
-        // to actual state transitions), so it's safe to call this every frame.
-        bool isMovingInput = Mathf.Abs(horizontalInput) > 0.01f;
-        GameEventBus.TriggerPlayerFaceChange(isMovingInput ? Playerface.Moving : Playerface.Idle);
 
         UpdateRightHalfUpwardDrag();
     }

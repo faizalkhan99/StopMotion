@@ -78,3 +78,6 @@ crashlytics-build.properties
 /AGENTS.md
 /PROJECT_DOCS.md
 /Assets/karsiori/
+
+# Review folder - private interview critique (do not commit)
+/Review/

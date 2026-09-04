@@ -20,7 +20,7 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Optional VFX References")]
     [SerializeField] private ParticleSystem confidentTrailVFX;
     [SerializeField] private ParticleSystem destroyVFX;
-    [SerializeField] private ParticleSystem jumpUpTrailVFX;
+    [SerializeField] private GameObject smokeVFX;
 
     [Header("Player's UI")]
     [SerializeField] private CanvasGroup keyImage;
@@ -40,8 +40,13 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Player's Animation")]
     [SerializeField] private float blinkDelay;
     [SerializeField] private float blinkDuration = 0.15f;
+    [SerializeField] private float idleDelay = 2f;
+
+    [Header("Optional VFX References")]
+    [SerializeField]  private Transform playerSquahTransform;
     private float blinkDelayTimer;
     private float blinkDurationTimer;
+    private float idleTimer;
     private bool isBlinking;
     private Playerface gameplayFace;
     private Playerface lastGameplayFace;
@@ -54,6 +59,8 @@ public class PlayerVisuals : MonoBehaviour
     private PlayerController playerController;
     private PlayerKeyboardInput playerKeyboardInput;
     private Playerface currentPlayerFace;
+    private ParticleSystem jumpUpTrailVFX;
+    private GameObject particleObject;
 
     // Destroy State
     private bool isDestroyed;
@@ -81,6 +88,19 @@ public class PlayerVisuals : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
         playerKeyboardInput = GetComponentInParent<PlayerKeyboardInput>();
 
+        CreataAChild();
+        if (particleObject.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
+        {
+            jumpUpTrailVFX = ps;
+
+            var main = ps.main;
+            main.stopAction = ParticleSystemStopAction.None;
+        }     
+        else
+        {
+            Debug.LogWarning(" NO Particle System Found! ");
+        }   
+
         if (rootRigidbody == null)
         {
             Debug.LogError("<b>[PlayerVisuals]</b> Could not find a Rigidbody2D on parent GameObject!");
@@ -100,7 +120,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash += HandlePlayerScale;
-        GameEventBus.OnPlayerIdle += OnIdleTick;
+        GameEventBus.OnPlayerGroundImpact += SpawnVfx;
     }
 
     private void OnDisable()
@@ -113,7 +133,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
         GameEventBus.OnPlayerDash -= HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
-        GameEventBus.OnPlayerIdle -= OnIdleTick;
+        GameEventBus.OnPlayerGroundImpact -= SpawnVfx;
     }
 
     private void Update()
@@ -128,6 +148,44 @@ public class PlayerVisuals : MonoBehaviour
         // ApplyJuiceEffects();
         HandleUpdatedFace();
         // CheckFrozenViolation();
+    }
+
+    private void LateUpdate()
+    {
+        if (isDestroyed) return;
+        if (currentGameState == GameState.Paused) return;
+
+        UpdateIdleState();
+    }
+
+    /// <summary>
+    /// Visual-only idle detection — polls PlayerController.IsIdle (raw grounded + no horizontal input).
+    /// Runs in LateUpdate so Controller.Update() has already refreshed isGrounded/horizontalInput.
+    /// After idleDelay, triggers repeated blinks every blinkDelay while idle persists.
+    /// </summary>
+    private void UpdateIdleState()
+    {
+        bool isIdle = playerController != null && playerController.IsIdle;
+
+        if (!isIdle)
+        {
+            idleTimer = 0f;
+            blinkDelayTimer = 0f;
+            return;
+        }
+
+        idleTimer += Time.deltaTime;
+        if (idleTimer < idleDelay) return;
+
+        // Already blinking — let UpdateBlink() finish duration before retriggering
+        if (isBlinking) return;
+
+        blinkDelayTimer += Time.deltaTime;
+        if (blinkDelayTimer >= blinkDelay)
+        {
+            StartBlink();
+            blinkDelayTimer = 0f;
+        }
     }
 
     /// <summary>
@@ -340,27 +398,11 @@ public class PlayerVisuals : MonoBehaviour
         currentPlayerFace = face;
 
         HandleJumpVFX(face);
-        // Play jump trail when jumping up
-        // if (face == Playerface.JumpUp)
-        // {
-        //     // if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
-        //     // {
-        //     //     jumpUpTrailVFX.Play();
-        //     // }
-        // }        
+
         // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
     }
 
-    private void OnIdleTick()
-    {
-        blinkDelayTimer += 1f;
-
-        if (blinkDelayTimer >= blinkDelay)
-        {
-            StartBlink();
-        }
-    }
-
+#region Eye Blinking
     private void StartBlink()
     {
         if (isBlinking) return;
@@ -370,6 +412,7 @@ public class PlayerVisuals : MonoBehaviour
         currentPlayerFace = Playerface.Blink;
         blinkDurationTimer = blinkDuration;
         blinkDelayTimer = 0f;
+        
     }
 
     private void UpdateBlink()
@@ -384,6 +427,7 @@ public class PlayerVisuals : MonoBehaviour
             currentPlayerFace = Playerface.Idle;
         }
     }
+#endregion
     private void HandleUpdatedFace()
     {
         switch (currentPlayerFace)
@@ -450,12 +494,19 @@ public class PlayerVisuals : MonoBehaviour
 
                 if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
                 {
-                    jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                     // Debug.Log($"[VFX] :  Stopped Playing ");
                 }
 
             break;
         }
+    }
+
+    private void SpawnVfx(Vector2 position)
+    {
+        GameObject vfx = Instantiate(smokeVFX);
+        vfx.transform.position = position;
+        vfx.GetComponent<ParticleSystem>().Play();
     }
 #endregion
 
@@ -479,30 +530,30 @@ public class PlayerVisuals : MonoBehaviour
     private void HandlePlayerScale(bool onAir)
     {
         if (onAir)
-            HandleJumpSquash(onAir, scaleAmount: jumpUpSquashAmount, scaleDuration: jumpUpSquashDuration);
+            HandleJumpSquash(onAir, scaleAmount: jumpUpSquashAmount, scaleDuration: jumpUpSquashDuration, squashableObj: transform);
         else
-            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration);    
+            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration, squashableObj: playerSquahTransform);    
     }
 
     // Handles the jump squash animation triggered via GameEventBus
-    private void HandleJumpSquash(bool isDescending, float scaleAmount, float scaleDuration)
+    private void HandleJumpSquash(bool isDescending, float scaleAmount, float scaleDuration, Transform squashableObj)
     {
         // Cancel any prior squash tweens on this transform
-        transform.DOKill();
+        squashableObj.DOKill();
 
         // First half: squash
-        transform.DOScaleY(scaleAmount, scaleDuration)
+        squashableObj.DOScaleY(scaleAmount, scaleDuration)
             .SetEase(Ease.OutQuad)
             .OnComplete(() =>
             {
                 // Second half: restore scale
-                transform.DOScaleY(1f, scaleDuration)
+                squashableObj.DOScaleY(1f, scaleDuration)
                     .SetEase(Ease.OutQuad)
                     .OnComplete(() =>
                     {
                         if( isDescending ) 
                         {
-                            // Notify that the squash animation finished so the SFX can play
+                            // Notify that the squash animation finished so the SFX can play || not used in the project
                             GameEventBus.TriggerPlayerJumpSquashComplete();
                         }
                         else
@@ -516,5 +567,16 @@ public class PlayerVisuals : MonoBehaviour
                         }
                     });
             });
+    }
+
+    private void CreataAChild()
+    {
+        particleObject = Instantiate(
+            smokeVFX,
+            transform
+        );
+
+        particleObject.transform.localPosition = Vector3.zero;
+        particleObject.transform.localRotation = Quaternion.identity;
     }
 }
