@@ -1,8 +1,12 @@
+using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] PlayerDash playerDash;
+    [SerializeField] PlayerInputRouter playerInput;
+
     [Header("Movement")]
     [Tooltip("Maximum horizontal speed in units per second.")]
     [SerializeField] private float maxSpeed = 8f;
@@ -39,6 +43,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool showDebugLogs = true;
     [SerializeField] private bool isGroundedDebugView; // Read-only view in Inspector
 
+    // Jump Descending Detection
+    private bool detectJump = false;
+    private bool hasStartedDescending = false;
+
     // Internal Physics & Mechanics
     private Rigidbody2D rb;
     private float baseGravityScale;
@@ -47,6 +55,12 @@ public class PlayerController : MonoBehaviour
     // Input State (Driven by public mobile methods)
     private float horizontalInput;
     private bool isGrounded;
+    private bool wasGrounded;
+    public bool isDashing  { get; private set; } =  false;
+
+    // Idle query - raw grounded (no coyote) for visual idle detection
+    public bool IsIdle => isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
+    public bool IsGroundedRaw => isGrounded;
 
     // Zero-GC Timers
     private float coyoteTimer;
@@ -74,6 +88,11 @@ public class PlayerController : MonoBehaviour
         groundFilter.useTriggers = false; // Ignore triggers so enemy/item zones don't count as ground
     }
 
+    private void Start()
+    {
+        wasGrounded = isGrounded;
+        playerDash.InitDash( this );
+    }
     /// <summary>
     /// Prevents Unity's physics solver from calculating impact friction when hitting the floor.
     /// This stops the character from stuttering or halting for a frame upon landing.
@@ -106,15 +125,26 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        // Keep filter synced in case you tweak LayerMasks in the Inspector during Play Mode!
-        groundFilter.layerMask = groundLayer;
+        UpdateGroundDetection();
+        CheckJumpApex();
+        HandleJumpExecution();
+    }
 
-        // 1. Zero-GC Ground Check
-        int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
-        isGrounded = hitCount > 0;
-        isGroundedDebugView = isGrounded; // Exposes state to your Inspector
+    private void CheckJumpApex()
+    {
+        // if (!detectJump) return;           // only for intentional jumps (not walk-off ledge)
+        if (isGrounded) return;
+        if (isDashing) return;             // dash freezes gravity/face — don't stomp dash face
+        if (hasStartedDescending) return;  // fire once per jump
+        if (rb.linearVelocity.y < -0.01f)  // apex crossed: rising → falling (same epsilon as ApplyDynamicGravity)
+        {
+            hasStartedDescending = true;
+            GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
+        }
+    }
 
-        // 2. Update Timers
+    private void HandleJumpExecution()
+    {
         if (isGrounded)
         {
             coyoteTimer = coyoteTime;
@@ -133,10 +163,35 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void UpdateGroundDetection()
+    {
+        // Keep filter synced in case you tweak LayerMasks in the Inspector during Play Mode!
+        groundFilter.layerMask = groundLayer;
+
+        // 1. Zero-GC Ground Check
+        int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
+        isGrounded = hitCount > 0;
+        isGroundedDebugView = isGrounded; // Exposes state to your Inspector
+
+        // Fall detection
+        if (isGrounded && !wasGrounded)
+        {
+            GroundImpactDetection();
+        }
+        wasGrounded = isGrounded;
+    }
+
     private void FixedUpdate()
     {
-        ApplyHorizontalMovement();
-        ApplyDynamicGravity();
+        if( !isDashing )
+        {
+            ApplyHorizontalMovement();
+            ApplyDynamicGravity();
+        }
+        else
+        {
+            StopGravity();
+        }
     }
 
     private void ApplyHorizontalMovement()
@@ -168,6 +223,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void StopGravity()
+    {
+        rb.gravityScale = 0f;
+    }
     private void ExecuteJump()
     {
         // Apply vertical impulse and reset timers to prevent double-consuming the jump
@@ -180,33 +239,16 @@ public class PlayerController : MonoBehaviour
     #region Mobile Touch Interface (Public API)
 
     /// <summary>
-    /// Feed joystick or touch-button movement (-1.0 to 1.0). Call from UI EventTriggers.
-    /// </summary>
-    public void SetHorizontalInput(float input)
-    {
-        horizontalInput = Mathf.Clamp(input, -1f, 1f);
-    }
-
-    /// <summary>
-    /// Call when the Mobile Jump Button is pressed DOWN (PointerDown).
+    /// Call when the jump input fires — keyboard press (routed directly, no longer gated
+    /// behind the squash animation) or mobile tap. Buffers the physics jump immediately
+    /// so the animation can never delay or eat the input.
     /// </summary>
     public void OnJumpButtonPressed()
     {
         jumpBufferTimer = jumpBufferTime;
+        detectJump = true;
         GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
-        // DIAGNOSTIC CHECK: Tell the developer exactly why the jump might fail
-        // if (showDebugLogs)
-        // {
-        //     if (!isGrounded && coyoteTimer <= 0f)
-        //     {
-        //         Debug.LogWarning("<b><color=red>[JUMP FAILED]</color></b> Jump pressed, but Player is NOT grounded! " +
-        //                          "Check your 'Ground Layer' and ensure your GroundCheck Transform is at the bottom of the player's feet.");
-        //     }
-        //     else if (rb.constraints.HasFlag(RigidbodyConstraints2D.FreezePositionY))
-        //     {
-        //         Debug.LogError("<b><color=red>[JUMP FAILED]</color></b> Your Rigidbody2D has 'Freeze Position Y' checked in its Constraints!");
-        //     }
-        // }
+        GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
     }
 
     /// <summary>
@@ -220,12 +262,79 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
         }
+        // JumpDown face is now handled automatically by CheckJumpApex() when velocity crosses apex
     }
     public void StopMovement()
     {
         horizontalInput = 0f;
     }
-    #endregion
+
+    /// <summary>
+    /// Feed joystick or touch-button movement (-1.0 to 1.0). Call from UI EventTriggers.
+    /// </summary>
+    public void SetHorizontalInput(float input)
+    {
+        horizontalInput = Mathf.Clamp(input, -1f, 1f);
+    }
+
+    private void GroundImpactDetection()
+    {
+        // if( detectJump )
+        // {
+        //     detectJump = false;
+            hasStartedDescending = false;
+            GameEventBus.TriggerPlayerJumpSquash( false );
+            GameEventBus.TriggerGroundImpact(transform.position);
+
+            // Landing mid-dash: don't let the impact face stomp the dash face.
+            // isDashing is this component's own authoritative state — no lookup
+            // into another system needed. Fixes #14.
+            if (!isDashing)
+            {
+                GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+            }
+
+            playerInput.SetIsJumpFalse();
+        // }
+    }
+#endregion
+
+#region Dash Effect
+    public void ApplyDash(float dashSpeed)
+    {
+        Vector2 currentVelocity = rb.linearVelocity;
+
+        if (currentVelocity.magnitude > 0.1f)
+        {
+            isDashing = true;
+            Vector2 lastKnowDir = currentVelocity.normalized;
+
+            if(lastKnowDir.x > 0)
+            {
+                rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
+            }
+            else if (lastKnowDir.x < 0)
+            {
+                rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f );
+            }
+        }
+    }
+
+    public void UnDash()
+    {
+        isDashing = false;
+    }
+
+    public bool IsPlayerMoving()
+    {
+        if( rb.linearVelocity.sqrMagnitude > 0.1f)
+        {
+            return true;
+        }
+
+        return false;
+    }
+#endregion
 
     private void OnDrawGizmosSelected()
     {
@@ -234,5 +343,9 @@ public class PlayerController : MonoBehaviour
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+    }
+    public bool IsGrounded()
+    {
+      return isGrounded || coyoteTimer > 0f;
     }
 }

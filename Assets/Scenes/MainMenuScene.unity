@@ -604,6 +604,56 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!1 &196343043
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 196343045}
+  - component: {fileID: 196343044}
+  m_Layer: 0
+  m_Name: DebugSystem
+  m_TagString: Stats
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &196343044
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 196343043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b75ecab298ef4f73b3b74efe4ce47f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StopMotion.Debugging.PerformanceStatsHUD
+  fpsUpdateInterval: 0.5
+  memorySampleEveryNFrames: 30
+  fontSize: 28
+  screenPadding: {x: 16, y: 16}
+  cornerTapZoneSize: 120
+  visibleOnStart: 1
+--- !u!4 &196343045
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 196343043}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &230497549
 GameObject:
   m_ObjectHideFlags: 0
@@ -1378,7 +1428,7 @@ GameObject:
   - component: {fileID: 831769212}
   m_Layer: 0
   m_Name: AudioSystem
-  m_TagString: Untagged
+  m_TagString: AudioSystem
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4531,3 +4581,4 @@ SceneRoots:
   - {fileID: 465057802}
   - {fileID: 1558751655}
   - {fileID: 831769213}
+  - {fileID: 196343045}
