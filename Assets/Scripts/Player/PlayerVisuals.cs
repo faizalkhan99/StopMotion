@@ -48,6 +48,7 @@ public class PlayerVisuals : MonoBehaviour
     private float blinkDurationTimer;
     private float idleTimer;
     private bool isBlinking;
+    private bool isLandingSquashActive;
     private Playerface gameplayFace;
     private Playerface lastGameplayFace;
 
@@ -134,6 +135,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnPlayerDash -= HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
         GameEventBus.OnPlayerGroundImpact -= SpawnVfx;
+        isLandingSquashActive = false;
     }
 
     private void Update()
@@ -156,6 +158,39 @@ public class PlayerVisuals : MonoBehaviour
         if (currentGameState == GameState.Paused) return;
 
         UpdateIdleState();
+        UpdateLocomotionFace();
+    }
+
+    /// <summary>
+    /// Grounded locomotion face driver — replaces Router per-frame spam.
+    /// Runs in LateUpdate after Controller.Update() refreshed isGrounded/horizontalInput.
+    /// Gating preserves JumpUp/JumpDown/FallDown_Impact/Dash/Blink and defers to land squash.
+    /// </summary>
+    private void UpdateLocomotionFace()
+    {
+        if (playerController == null) return;
+        // Airborne: keep JumpUp / JumpDown, don't show Moving/Idle
+        if (!playerController.IsGroundedRaw) return;
+        if (playerController.isDashing) return;
+        if (isBlinking) return;
+        if (isLandingSquashActive) return;
+
+        // Preserve airborne jump faces for the single frame where jump is buffered
+        // but physics hasn't left ground yet (LateUpdate runs after UpdateGroundDetection).
+        if (currentPlayerFace == Playerface.JumpUp || currentPlayerFace == Playerface.JumpDown)
+            return;
+        if (currentPlayerFace == Playerface.Dash || currentPlayerFace == Playerface.Die)
+            return;
+
+        // Use Controller.IsIdle (raw grounded + no horizontal input) — single threshold, matches blink logic.
+        // This is input-agnostic (Keyboard + Router left-drag both feed SetHorizontalInput).
+        bool wantsMoving = !playerController.IsIdle;
+        Playerface desired = wantsMoving ? Playerface.Moving : Playerface.Idle;
+
+        if (desired == currentPlayerFace) return;
+
+        // Transition-only: rely on UpdateFaceOnPlayer dedupe for bus spam, but early-out saves invoke.
+        GameEventBus.TriggerPlayerFaceChange(desired);
     }
 
     /// <summary>
@@ -538,6 +573,10 @@ public class PlayerVisuals : MonoBehaviour
     // Handles the jump squash animation triggered via GameEventBus
     private void HandleJumpSquash(bool isDescending, float scaleAmount, float scaleDuration, Transform squashableObj)
     {
+        // Track land squash so UpdateLocomotionFace() defers to this tween's stillMoving decision
+        if (!isDescending)
+            isLandingSquashActive = true;
+
         // Cancel any prior squash tweens on this transform
         squashableObj.DOKill();
 
@@ -558,6 +597,7 @@ public class PlayerVisuals : MonoBehaviour
                         }
                         else
                         {
+                            isLandingSquashActive = false;
                             bool stillMoving = rootRigidbody != null && Mathf.Abs(rootRigidbody.linearVelocity.x) > 0.05f;
                             
                             if( stillMoving )  

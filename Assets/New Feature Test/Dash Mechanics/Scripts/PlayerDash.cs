@@ -64,10 +64,11 @@ void Start()
             bool cooldownElapsed = Time.time >= lastDashTime + dashCoolDownTime;
     
             // End the current dash burst once its own (shorter) duration is up.
+            // Face revert now handled by PlayerVisuals.UpdateLocomotionFace() (LateUpdate)
+            // based on IsGroundedRaw + IsIdle, so no forced Moving here (fixes airborne Moving flicker).
             if (dashTimeElapsed && playerController.isDashing)
             {
                 playerController.UnDash();
-                GameEventBus.TriggerPlayerFaceChange(Playerface.Moving); 
             }
 
             // Only start a new dash once the cooldown has actually cleared.
