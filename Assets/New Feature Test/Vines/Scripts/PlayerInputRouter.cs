@@ -85,7 +85,6 @@ public class PlayerInputRouter : MonoBehaviour
         // constructed/bound — threw at runtime if the Inspector binding was missing.
         // Touch dash does NOT go through this action; it's driven by the double-tap
         // debounce in TapWindowRoutine() below.
-        dashAction = new InputAction("Dash", InputActionType.Button, "<Keyboard>/leftShift");
         dashAction.Enable();
     }
 
@@ -226,7 +225,7 @@ public class PlayerInputRouter : MonoBehaviour
         if (finger.screenPosition.x < Screen.width * screenSplitRatio)
             return; // Left half is movement, not taps.    
 
-        if(!upwardDragConsumed)
+        if( !upwardDragConsumed )
         {
             dashController.TriggerDash();
         }
@@ -302,7 +301,7 @@ public class PlayerInputRouter : MonoBehaviour
     }
 
     private void OnKeyboardDashTriggered(InputAction.CallbackContext context)
-    {
+    { 
         dashController.TriggerDash();
     }
 #endregion

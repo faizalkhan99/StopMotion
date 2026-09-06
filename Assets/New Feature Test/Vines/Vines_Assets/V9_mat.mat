@@ -43,18 +43,18 @@ Material:
     m_Floats:
     - _AnimationSpeed: 1
     - _Duration: 60
-    - _EdgeJaggedness: 0.104
+    - _EdgeJaggedness: 0
     - _EnableExternalAlpha: 0
-    - _GlowIntensity: 2.5
+    - _GlowIntensity: 8
     - _IsRunning: 0
-    - _NoiseScale: 6
-    - _NoiseStrength: 0.35
+    - _NoiseScale: 7.9
+    - _NoiseStrength: 1
     - _PausedGrowth: 0
-    - _Radius: 1.013
+    - _Radius: 1.2
     - _SoilAlpha: 1
     - _SoilReach: 0.5
     - _StartTime: 0
-    - _TendrilCount: 19.3
+    - _TendrilCount: 30.6
     - _TendrilOvergrowth: 0.6
     - _Thickness: 0.2
     - _ZWrite: 0

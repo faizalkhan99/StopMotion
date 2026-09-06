@@ -19,10 +19,19 @@ public class TimerController : MonoBehaviour
         influence = GetComponent<ITimerInfluence>();
         timeRemaining = totalTime;
     }
-
+    private void OnEnable()
+    {
+        GameEventBus.OnDelayEnd += StartTimer;
+    }
+    private void OnDisable()
+    {
+        GameEventBus.OnDelayEnd -= StartTimer;
+    }
     private void Start()
     {
         if (autoStart) StartTimer();
+
+        GameEventBus.TriggerLevelDurationUpdated(totalTime);
     }
 
     private void Update()
@@ -34,7 +43,7 @@ public class TimerController : MonoBehaviour
             timeRemaining -= Time.deltaTime;
         }
 
-        GameEventBus.TriggerLevelTimerUpdated(timeRemaining);
+        // GameEventBus.TriggerLevelTimerUpdated(timeRemaining);
 
         if (timeRemaining <= 0f)
         {

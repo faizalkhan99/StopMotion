@@ -45,14 +45,18 @@ namespace StopMotion.Visuals
         private void OnEnable()
         {
             GameEventBus.OnDelayEnd += Play;
+            GameEventBus.OnLevelDurationUpdated += SetLevelDuration;
+        }
+        private void OnDisable()
+        {
+            GameEventBus.OnDelayEnd -= Play;
+            GameEventBus.OnLevelDurationUpdated -= SetLevelDuration;
         }
         private void OnDestroy()
         {
             // Clean up the instanced material to avoid leaking it.
             if (_instancedMaterial != null)
                 Destroy(_instancedMaterial);
-
-            GameEventBus.OnDelayEnd -= Play;
         }
 
         /// <summary>Begin (or restart) the countdown shrink from scratch.</summary>
@@ -61,6 +65,12 @@ namespace StopMotion.Visuals
             _pausedElapsed = 0f;
             _instancedMaterial.SetFloat(StartTimeID, Time.time);
             _instancedMaterial.SetFloat(IsRunningID, 1f);
+        }
+
+        /// <summary>Init Level Duration</summary>
+        public void SetLevelDuration(float levelDuration)
+        {
+            _instancedMaterial.SetFloat(DurationID, levelDuration);
         }
 
         /// <summary>Resume after a Pause(), preserving elapsed progress.</summary>

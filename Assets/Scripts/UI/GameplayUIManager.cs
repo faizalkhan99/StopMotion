@@ -363,13 +363,11 @@ public class GameplayUIManager : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
-        GameEventBus.OnLevelTimerUpdated += HandleTimerUpdated;
     }
 
     private void OnDisable()
     {
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
-        GameEventBus.OnLevelTimerUpdated -= HandleTimerUpdated;
 
         if (pauseButton != null)
             pauseButton.onClick.RemoveAllListeners();

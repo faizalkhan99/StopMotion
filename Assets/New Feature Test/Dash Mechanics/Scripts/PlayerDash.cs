@@ -1,5 +1,4 @@
 using System.Collections;
-using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -48,13 +47,13 @@ void Start()
     {
         GameEventBus.OnPlayerContactWithItem -= AddDashCount;
     }
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if( collision.TryGetComponent<ToDashItem>( out ToDashItem item ) )
-        {
-            item.TriggerFunction();
-        }
-    }
+    // void OnTriggerEnter2D(Collider2D collision)
+    // {
+    //     if( collision.TryGetComponent<ToDashItem>( out ToDashItem item ) )
+    //     {
+    //         item.TriggerFunction();
+    //     }
+    // }
     void Update()
     {
         if( canDash && isInit )
@@ -74,8 +73,7 @@ void Start()
             // Only start a new dash once the cooldown has actually cleared.
             if (cooldownElapsed &&  triggerDash )
             {
-                PerformDash();
-                TriggerDashEffect();
+                CanPerformDash();
             }
         }
     }
@@ -89,9 +87,9 @@ void Start()
 
     public void TriggerDash()
     {
-        bool cooldownElapsed = Time.time >= lastDashTime + dashCoolDownTime;
+        // bool cooldownElapsed = Time.time >= lastDashTime + dashCoolDownTime;
 
-        if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving() && cooldownElapsed )
+        if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving() )
         {
             triggerDash = true;
         }
@@ -104,15 +102,18 @@ void Start()
             currentDashCollectableCount++;
         }
     }
-    private void PerformDash()
+    private void CanPerformDash()
     {
         if( playerController == null) return;
 
-        lastDashTime = Time.time;
-        triggerDash = false;
-        currentDashCollectableCount--;
-        
-        playerController.ApplyDash( dashSpeed );
+        if( playerController.CanDash( dashSpeed ) )
+        {
+            lastDashTime = Time.time;
+            currentDashCollectableCount--;
+
+            TriggerDashEffect();
+        }
+            triggerDash = false;
     }
 
 #region Object Pool

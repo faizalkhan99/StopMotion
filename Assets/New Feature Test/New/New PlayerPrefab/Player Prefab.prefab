@@ -10083,7 +10083,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7034762990874064005}
   m_Layer: 0
-  m_Name: fgh
+  m_Name: Visual Parent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10347,6 +10347,7 @@ MonoBehaviour:
   blinkDelay: 2
   blinkDuration: 0.5
   idleDelay: 2
+  playerSquahTransform: {fileID: 7034762990874064005}
 --- !u!114 &5431188685860067188
 MonoBehaviour:
   m_ObjectHideFlags: 0

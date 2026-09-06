@@ -7,15 +7,15 @@ using UnityEngine.UIElements;
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerVisuals : MonoBehaviour
 {
-    [Header("Visual Settings")]
-    [Tooltip("How fast the character tilts or smooth-flips when changing direction.")]
-    [SerializeField] private float turnSmoothness = 15f;
-    [Tooltip("The color the player flashes when violating a timer rule.")]
-    [SerializeField] private Color warningColor = Color.red;
-    [Tooltip("Intensity of the violent shake during the grace period.")]
-    [SerializeField] private float shakeIntensity = 0.15f;
-    [Tooltip("Speed at which the sprite recovers its original scale and color.")]
-    [SerializeField] private float recoverySpeed = 8f;
+    // [Header("Visual Settings")]
+    // [Tooltip("How fast the character tilts or smooth-flips when changing direction.")]
+    // [SerializeField] private float turnSmoothness = 15f;
+    // [Tooltip("The color the player flashes when violating a timer rule.")]
+    // [SerializeField] private Color warningColor = Color.red;
+    // [Tooltip("Intensity of the violent shake during the grace period.")]
+    // [SerializeField] private float shakeIntensity = 0.15f;
+    // [Tooltip("Speed at which the sprite recovers its original scale and color.")]
+    // [SerializeField] private float recoverySpeed = 8f;
 
     [Header("Optional VFX References")]
     [SerializeField] private ParticleSystem confidentTrailVFX;
@@ -300,45 +300,6 @@ public class PlayerVisuals : MonoBehaviour
     }
 
     /// <summary>
-    /// Applies procedural juice (shaking, flashing, squash/stretch) natively in Update.
-    /// </summary>
-    private void ApplyJuiceEffects()
-    {
-        if (currentViolationSeverity > 0f)
-        {
-            // 1. Violent Shake: Offset local position using random coordinates inside a circle
-            Vector2 randomOffset = Random.insideUnitCircle * (shakeIntensity * currentViolationSeverity);
-            transform.localPosition = initialLocalPosition + (Vector3)randomOffset;
-
-            // 2. Panic Stretch: Slightly flatten the cube as it gets closer to exploding
-            float stretchFactor = Mathf.Lerp(1f, 1.25f, currentViolationSeverity);
-            float squashFactor = Mathf.Lerp(1f, 0.8f, currentViolationSeverity);
-            transform.localScale = new Vector3(initialLocalScale.x * stretchFactor, initialLocalScale.y * squashFactor, 1f);
-
-            // 3. Color Shift: Flash warning color
-            spriteRenderer.color = Color.Lerp(originalColor, warningColor, currentViolationSeverity);
-        }
-        else
-        {
-            // Smoothly recover position, scale, and color when the player corrects their mistake
-            if (transform.localPosition != initialLocalPosition)
-            {
-                transform.localPosition = Vector3.MoveTowards(transform.localPosition, initialLocalPosition, Time.deltaTime * recoverySpeed);
-            }
-
-            if (transform.localScale != initialLocalScale)
-            {
-                transform.localScale = Vector3.MoveTowards(transform.localScale, initialLocalScale, Time.deltaTime * recoverySpeed);
-            }
-
-            if (spriteRenderer.color != originalColor)
-            {
-                spriteRenderer.color = Color.Lerp(spriteRenderer.color, originalColor, Time.deltaTime * recoverySpeed);
-            }
-        }
-    }
-
-    /// <summary>
     /// Triggers the destroy VFX, hides the player visuals, and disables input/control.
     /// </summary>
     public void TriggerDestroy()
@@ -359,22 +320,7 @@ public class PlayerVisuals : MonoBehaviour
         if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
         if (playerController != null) playerController.StopMovement();
     }
-    /// <summary>
-    /// Checks if the player moves while in the Frozen state and triggers destruction.
-    /// </summary>
-    private void CheckFrozenViolation()
-    {
-        if (currentChronoState != ChronoState.Frozen) return;
-        if (rootRigidbody == null) return;
 
-        float velocityX = rootRigidbody.linearVelocity.x;
-        float velocityY = rootRigidbody.linearVelocity.y;
-        if (Mathf.Abs(velocityX) > 0.05f || Mathf.Abs(velocityY) > 0.05f)
-        {
-            TriggerDestroy();
-            GameEventBus.TriggerGameOver(GameOverReason.MotionBomb);
-        }
-    }
 
     /// <summary>
     /// Shows canvas in Player's UI
@@ -435,7 +381,18 @@ public class PlayerVisuals : MonoBehaviour
 
         HandleJumpVFX(face);
 
+        if(face == Playerface.Idle)
+        UpdateFaceAfterAction();
         // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
+    }
+    private void UpdateFaceAfterAction()
+    {
+        bool stillMoving = rootRigidbody != null && Mathf.Abs(rootRigidbody.linearVelocity.x) > 0.05f;
+        
+        if( stillMoving )  
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
+        else
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
     }
 
 #region Eye Blinking
@@ -498,7 +455,6 @@ public class PlayerVisuals : MonoBehaviour
 
             case Playerface.Idle :
                 spriteRenderer.sprite = faceData.idle;
-                // HandlePlayerStopped();
             break;
 
             default:
@@ -599,12 +555,7 @@ public class PlayerVisuals : MonoBehaviour
                         else
                         {
                             isLandingSquashActive = false;
-                            bool stillMoving = rootRigidbody != null && Mathf.Abs(rootRigidbody.linearVelocity.x) > 0.05f;
-                            
-                            if( stillMoving )  
-                            GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
-                            else
-                            GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+                            UpdateFaceAfterAction();                        
                         }
                     });
             });

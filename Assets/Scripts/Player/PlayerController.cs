@@ -300,7 +300,7 @@ public class PlayerController : MonoBehaviour
 #endregion
 
 #region Dash Effect
-    public void ApplyDash(float dashSpeed)
+    public bool CanDash(float dashSpeed)
     {
         Vector2 currentVelocity = rb.linearVelocity;
 
@@ -312,17 +312,22 @@ public class PlayerController : MonoBehaviour
             if(lastKnowDir.x > 0)
             {
                 rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
+                return true;
             }
             else if (lastKnowDir.x < 0)
             {
                 rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f );
+                return true;
             }
+            return false;
         }
+        return false;
     }
 
     public void UnDash()
     {
         isDashing = false;
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
     }
 
     public bool IsPlayerMoving()

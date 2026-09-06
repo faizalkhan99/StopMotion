@@ -37,6 +37,8 @@ public static class GameEventBus
     // Continuous Feedback & UI Events
     public static event Action<float> OnLevelTimerUpdated;
     public static void TriggerLevelTimerUpdated(float timeRemaining) => OnLevelTimerUpdated?.Invoke(timeRemaining);
+    public static event Action<float> OnLevelDurationUpdated;
+    public static void TriggerLevelDurationUpdated(float timeRemaining) => OnLevelDurationUpdated?.Invoke(timeRemaining);
     public static event Action OnCameraShake;
     public static void TriggerCameraShake() => OnCameraShake?.Invoke();
     public static event Action OnDelayEnd;
