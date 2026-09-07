@@ -1890,6 +1890,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 619765261714819117, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: autoStart
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 619765261714819117, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: totalTime
       value: 60
       objectReference: {fileID: 0}
@@ -1972,7 +1976,7 @@ PrefabInstance:
     - target: {fileID: 5364258115995557921, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: gameWinPanel
       value: 
-      objectReference: {fileID: 2343639981387989670}
+      objectReference: {fileID: 3257174686976323143}
     - target: {fileID: 5364258115995557921, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: restartButton
       value: 
@@ -2176,17 +2180,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7148352984792685238, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
   m_PrefabInstance: {fileID: 7145815016729037344}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2343639981387989670 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4876625167486388358, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
-  m_PrefabInstance: {fileID: 7145815016729037344}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ceb39b8e79eef54ebbe1068613c9f13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UIPanelAnimator
 --- !u!224 &3296006648999493089 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5662938364286465985, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
