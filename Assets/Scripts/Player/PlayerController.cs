@@ -275,6 +275,7 @@ public class PlayerController : MonoBehaviour
     public void SetHorizontalInput(float input)
     {
         horizontalInput = Mathf.Clamp(input, -1f, 1f);
+        Debug.Log($"[PlayerController] : updated {horizontalInput}");
     }
 
     private void GroundImpactDetection()

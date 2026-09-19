@@ -14754,33 +14754,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 128314297490507624, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -7.52
-      objectReference: {fileID: 0}
-    - target: {fileID: 128314297490507624, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.64
-      objectReference: {fileID: 0}
     - target: {fileID: 1395581185716480173, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
       propertyPath: m_Name
       value: GameSystems(New_Test)
-      objectReference: {fileID: 0}
-    - target: {fileID: 2967833248738385127, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: m_Alpha
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3414242308579548415, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -7.11
-      objectReference: {fileID: 0}
-    - target: {fileID: 3414242308579548415, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.16
-      objectReference: {fileID: 0}
-    - target: {fileID: 7760495855205532173, guid: a836e4977a6e54663866e63b5a5ea9c6, type: 3}
-      propertyPath: totalTime
-      value: 60
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

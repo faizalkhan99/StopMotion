@@ -873,6 +873,8 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 8205938384188735489
       type: {class: WindowsPlatformSettings, ns: UnityEditor.WindowsStandalone, asm: UnityEditor.WindowsStandalone.Extensions}
       data:
@@ -911,7 +913,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEditor.dll::UnityEditor.Build.Profile.BuildProfileQualitySettings
   m_DefaultQualityLevel: Ultra
   m_QualityLevels:
-  - Very Low
+  - Level 0
   - Low
   - Medium
   - High

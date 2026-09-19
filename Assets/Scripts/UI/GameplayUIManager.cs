@@ -302,6 +302,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.Collections.Generic;
 
 /// <summary>
 /// Centralized switchboard for Gameplay UI. Mirrors the animated panel architecture of the Main Menu
@@ -335,9 +336,9 @@ public class GameplayUIManager : MonoBehaviour
     [Header("Button Hooks")]
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button restartButton;
-    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private List<Button> mainMenuButton;
     [SerializeField] private Button restartButtonTwo;
-    [SerializeField] private Button mainMenuButtonTwo;
+    // [SerializeField] private Button mainMenuButtonTwo;
 
     private UIPanelAnimator currentActivePanel;
     private GameState currentGameState = GameState.Booting;
@@ -352,12 +353,14 @@ public class GameplayUIManager : MonoBehaviour
             pauseButton.onClick.AddListener(OnPauseButtonClicked);
         if (restartButton != null)
             restartButton.onClick.AddListener(OnRestartClicked);
-        if (mainMenuButton != null)
-            mainMenuButton.onClick.AddListener(OnMainMenuClicked);
+        // if (mainMenuButton != null)
+        //     mainMenuButton.onClick.AddListener(OnMainMenuClicked);
         if (restartButtonTwo != null)
             restartButtonTwo.onClick.AddListener(OnRestartClicked);
-        if (mainMenuButtonTwo != null)
-            mainMenuButtonTwo.onClick.AddListener(OnMainMenuClicked);
+    //     if (mainMenuButtonTwo != null)
+    //         mainMenuButtonTwo.onClick.AddListener(OnMainMenuClicked);
+
+        AddOnClick(mainMenuButton);
     }
 
     private void OnEnable()
@@ -406,7 +409,13 @@ public class GameplayUIManager : MonoBehaviour
                 OnMainMenuClicked();
         }
     }
-
+    private void AddOnClick(List<Button> buttonList)
+    {
+        foreach (var item in buttonList)
+        {
+            item.onClick.AddListener(OnMainMenuClicked);
+        }
+    }
     #region Event Bus Receivers
 
     private void HandleGameStateChanged(GameState newState)
