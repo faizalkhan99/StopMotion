@@ -24,7 +24,7 @@ Shader "CityBuster/V9"
         _IsRunning          ("Is Ticking (0/1)",                       Range(0.0, 1.0)) = 0.0
         _Radius             ("Ring Radius",                      Range(0.2, 1.2)) = 0.72
         _SoilReach          ("Soil Reach (inward from ring)",    Range(0.01, 0.5)) = 0.12
-        _TendrilOvergrowth  ("Tendril Overgrowth Length",        Range(0.0, 1.5))  = 0.25
+        _TendrilOvergrowth  ("Tendril Overgrowth Length",        Range(0.0, 1.0))  = 0.25
         _EdgeJaggedness     ("Ring Jaggedness",                  Range(0.0, 1.0))  = 0.6
 
         [Header(Tendril Shape)]

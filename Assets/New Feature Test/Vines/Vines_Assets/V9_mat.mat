@@ -57,11 +57,19 @@ Material:
     - _TendrilCount: 30.6
     - _TendrilOvergrowth: 1.1
     - _Thickness: 0.496
+    - _Radius: 1
+    - _SoilAlpha: 1
+    - _SoilReach: 0.5
+    - _StartTime: 0
+    - _TendrilCount: 30.6
+    - _TendrilOvergrowth: 1
+    - _Thickness: 0.2
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _GlowColor: {r: 1, g: 0.23333335, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _SoilColorA: {r: 0, g: 0, b: 0, a: 0.85}
+    - _SoilColorA: {r: 0.049999967, g: 0.01, b: 0.01, a: 0.19607843}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
