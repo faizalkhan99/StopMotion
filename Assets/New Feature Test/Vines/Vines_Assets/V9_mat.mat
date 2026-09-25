@@ -47,21 +47,29 @@ Material:
     - _EnableExternalAlpha: 0
     - _GlowIntensity: 8
     - _IsRunning: 0
-    - _NoiseScale: 7.9
+    - _NoiseScale: 8.7
     - _NoiseStrength: 1
     - _PausedGrowth: 0
     - _Radius: 1.2
+    - _SoilAlpha: 0.251
+    - _SoilReach: 0.5
+    - _StartTime: 0
+    - _TendrilCount: 30.6
+    - _TendrilOvergrowth: 1.1
+    - _Thickness: 0.496
+    - _Radius: 1
     - _SoilAlpha: 1
     - _SoilReach: 0.5
     - _StartTime: 0
     - _TendrilCount: 30.6
-    - _TendrilOvergrowth: 0.6
+    - _TendrilOvergrowth: 1
     - _Thickness: 0.2
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _GlowColor: {r: 1, g: 0.27999997, b: 0.059999965, a: 1}
+    - _GlowColor: {r: 1, g: 0.23333335, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-    - _SoilColorA: {r: 0.049999982, g: 0.01, b: 0.01, a: 0.85}
+    - _SoilColorA: {r: 0, g: 0, b: 0, a: 0.85}
+    - _SoilColorA: {r: 0.049999967, g: 0.01, b: 0.01, a: 0.19607843}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

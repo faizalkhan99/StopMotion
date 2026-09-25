@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TimerController : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class TimerController : MonoBehaviour
 
     [SerializeField] private float timeRemaining;
     private bool isRunning;
+    private bool wasStarted = false;
     private ITimerInfluence influence;
 
     public float TimeRemaining => timeRemaining;
@@ -22,20 +24,31 @@ public class TimerController : MonoBehaviour
     private void OnEnable()
     {
         GameEventBus.OnDelayEnd += StartTimer;
+        GameEventBus.OnGameStateChanged += HandleGameStateChange;
+        GameEventBus.OnReverseVines += HandleReverseVines;
     }
     private void OnDisable()
     {
         GameEventBus.OnDelayEnd -= StartTimer;
+        GameEventBus.OnGameStateChanged -= HandleGameStateChange;
+        GameEventBus.OnReverseVines -= HandleReverseVines;
     }
     private void Start()
     {
-        if (autoStart) StartTimer();
+        // if (autoStart) StartTimer();
 
-        GameEventBus.TriggerLevelDurationUpdated(totalTime);
+        // GameEventBus.TriggerLevelDurationUpdated(totalTime);
     }
 
     private void Update()
     {
+#region Test
+
+        if(Keyboard.current.yKey.wasPressedThisFrame)
+        {
+            GameEventBus.TriggerReverseVines();
+        }
+#endregion        
         if (!isRunning) return;
 
         if (influence == null || influence.ShouldCountDown(Time.deltaTime))
@@ -62,4 +75,45 @@ public class TimerController : MonoBehaviour
         timeRemaining = totalTime;
         isRunning = false;
     }
+    /// <summary>
+    /// Rewinds the timer by a fraction of the time already elapsed.
+    /// ReverseTimer(0.3f) = undo 30% of the elapsed time.
+    /// </summary>
+    public void ReverseTimer(float percent)
+    {
+        if (timeRemaining <= 0f) return; // already expired, don't revive a finished run
+
+        percent = Mathf.Clamp01(percent);
+        float elapsed = totalTime - timeRemaining;
+
+        timeRemaining = Mathf.Min(totalTime, timeRemaining + elapsed * percent);
+    }
+    private void HandleReverseVines()
+    {
+        ReverseTimer( 0.18f );
+    }
+    private void HandleGameStateChange(GameState state)
+    {
+        switch (state)
+        {
+            case GameState.LevelComplete :
+                PauseTimer();
+            break;
+
+            case GameState.Gameplay :
+                if ( autoStart && !wasStarted) 
+                {
+                    StartTimer();
+                    GameEventBus.TriggerLevelDurationUpdated(totalTime);
+                    wasStarted = true;
+                }
+                else if(wasStarted)
+                {
+                    ResumeTimer();
+                }
+            Debug.Log($" [TimerController] State Changed event fired!! State:{state}");
+            break;
+        }
+    }
+
 }

@@ -32,6 +32,8 @@ public static class GameEventBus
 
     public static event Action<GameOverReason> OnGameOverTriggered;
     public static void TriggerGameOver(GameOverReason reason) => OnGameOverTriggered?.Invoke(reason);
+    public static event Action OnReverseVines;
+    public static void TriggerReverseVines() => OnReverseVines?.Invoke();
 
 
     // Continuous Feedback & UI Events

@@ -1,8 +1,15 @@
+using System.Data.Common;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
 public class CollisionDetection : MonoBehaviour
 {
+    [SerializeField] private InteractableItems item;
+    public enum InteractableItems
+    {
+        Key,
+        ReverseTimeAbility
+    }
     private SpriteRenderer spriteRenderer;
     private BoxCollider2D collider2D;
     private void Awake()
@@ -16,9 +23,18 @@ public class CollisionDetection : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
-        AddKeyToPlayer(other);
-        collider2D.enabled = false;
-        spriteRenderer.enabled = false;
+        switch (item)
+        {
+            case InteractableItems.Key:
+                AddKeyToPlayer(other);
+                TurnOffItem();
+            break;
+
+            case InteractableItems.ReverseTimeAbility:
+                GameEventBus.TriggerReverseVines();
+                TurnOffItem();
+            break;
+        }
     }
 
     private void AddKeyToPlayer(Collider2D other)
@@ -26,4 +42,10 @@ public class CollisionDetection : MonoBehaviour
         PlayerVisuals visuals = other.GetComponentInChildren<PlayerVisuals>();
         if(visuals != null) visuals.ShowKeyInUI();
     }
+    private void TurnOffItem()
+    {
+        collider2D.enabled = false;
+        spriteRenderer.enabled = false;
+    }
 }
+

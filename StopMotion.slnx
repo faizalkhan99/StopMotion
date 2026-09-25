@@ -1,4 +1,26 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="DOTween.Modules.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.2D.Editor.Overrides.csproj" />
+  <Project Path="Unity.InternalAPIEditorBridge.ShaderGraph.Editor.csproj" />
+  <Project Path="Unity.SurfaceCache.Runtime.csproj" />
+  <Project Path="Unity.2D.Sprite.Editor.csproj" />
+  <Project Path="Unity.InputSystem.DocCodeSamples.csproj" />
+  <Project Path="Unity.InputSystem.ForUI.csproj" />
+  <Project Path="Unity.Collections.CodeGen.csproj" />
+  <Project Path="Unity.PathTracing.Editor.csproj" />
+  <Project Path="UnityEditor.UI.Analytics.csproj" />
+  <Project Path="Unity.InputSystem.TestFramework.csproj" />
+  <Project Path="Unity.ShaderGraph.Utilities.csproj" />
+  <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.csproj" />
+  <Project Path="Unity.Pipeline.CodeGen.csproj" />
+  <Project Path="Unity.InternalAPIEngineBridge.RenderPipelines.Core.Editor.csproj" />
+  <Project Path="Unity.Rendering.LightTransport.Editor.csproj" />
+  <Project Path="Unity.Collections.Editor.csproj" />
+  <Project Path="Unity.Mathematics.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.Config.Runtime.csproj" />
+  <Project Path="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.ShaderLibrary.csproj" />
+  <Project Path="Unity.Pipeline.Attributes.csproj" />
+  <Project Path="Unity.RenderPipelines.Universal.Shaders.csproj" />
 </Solution>

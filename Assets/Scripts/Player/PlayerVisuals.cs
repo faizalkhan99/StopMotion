@@ -59,7 +59,9 @@ public class PlayerVisuals : MonoBehaviour
     private Rigidbody2D rootRigidbody;
     private PlayerController playerController;
     private PlayerKeyboardInput playerKeyboardInput;
-    private Playerface currentPlayerFace;
+
+    [Header("Player Test Var")]
+    public Playerface currentPlayerFace;
     private ParticleSystem jumpUpTrailVFX;
     private GameObject particleObject;
 
@@ -89,18 +91,18 @@ public class PlayerVisuals : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
         playerKeyboardInput = GetComponentInParent<PlayerKeyboardInput>();
 
-        CreataAChild();
-        if (particleObject.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
-        {
-            jumpUpTrailVFX = ps;
+        // CreataAChild();
+        // if (particleObject.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
+        // {
+        //     jumpUpTrailVFX = ps;
 
-            var main = ps.main;
-            main.stopAction = ParticleSystemStopAction.None;
-        }     
-        else
-        {
-            Debug.LogWarning(" NO Particle System Found! ");
-        }   
+        //     var main = ps.main;
+        //     main.stopAction = ParticleSystemStopAction.None;
+        // }     
+        // else
+        // {
+        //     Debug.LogWarning(" NO Particle System Found! ");
+        // }   
 
         if (rootRigidbody == null)
         {
@@ -474,21 +476,22 @@ public class PlayerVisuals : MonoBehaviour
         {
             case Playerface.JumpUp:
 
-                if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
-                {
-                    jumpUpTrailVFX.Play();
+                // if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
+                // {
+                    SpawnVfx(transform.position);
+                    // jumpUpTrailVFX.Play();
                     // Debug.Log($"[VFX] :  Dust Playing ");
-                }
+                // }
                 
             break;
 
             case Playerface.FallDown_Impact:
 
-                if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
-                {
-                    jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                // if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
+                // {
+                    // jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
                     // Debug.Log($"[VFX] :  Stopped Playing ");
-                }
+                // }
 
             break;
         }
@@ -496,6 +499,8 @@ public class PlayerVisuals : MonoBehaviour
 
     private void SpawnVfx(Vector2 position)
     {
+        if (smokeVFX == null) return;
+
         GameObject vfx = Instantiate(smokeVFX);
         vfx.transform.position = position;
         vfx.GetComponent<ParticleSystem>().Play();
