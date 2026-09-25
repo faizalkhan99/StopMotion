@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckWidth = 0.8f;
+    [SerializeField] private float groundCheckHeight = 0.1f;
 
     [Header("Debug & Diagnostics")]
     [Tooltip("Enable to see exact reasons why jumps fail in the Console.")]
@@ -169,7 +171,9 @@ public class PlayerController : MonoBehaviour
         groundFilter.layerMask = groundLayer;
 
         // 1. Zero-GC Ground Check
-        int hitCount = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundFilter, groundHitBuffer);
+        // Box matches foot width, catches edges even when only partially over ground
+        Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
+        int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
         isGrounded = hitCount > 0;
         isGroundedDebugView = isGrounded; // Exposes state to your Inspector
 
