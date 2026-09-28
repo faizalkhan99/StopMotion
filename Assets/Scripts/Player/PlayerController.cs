@@ -305,6 +305,9 @@ public class PlayerController : MonoBehaviour
 #endregion
 
 #region Dash Effect
+    /// <summary>Authoritative horizontal dash direction: +1 = right, -1 = left.</summary>
+    public float DashDirectionX { get; private set; } = 1f;
+
     public bool CanDash(float dashSpeed)
     {
         Vector2 currentVelocity = rb.linearVelocity;
@@ -316,11 +319,13 @@ public class PlayerController : MonoBehaviour
 
             if(lastKnowDir.x > 0)
             {
+                DashDirectionX = 1f;
                 rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
                 return true;
             }
             else if (lastKnowDir.x < 0)
             {
+                DashDirectionX = -1f;
                 rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f );
                 return true;
             }

@@ -111,28 +111,30 @@ void Start()
             lastDashTime = Time.time;
             currentDashCollectableCount--;
 
-            TriggerDashEffect();
+            TriggerDashEffect(playerController.DashDirectionX);
         }
             triggerDash = false;
     }
 
 #region Object Pool
 
-    private void TriggerDashEffect()
+    private void TriggerDashEffect(float dashDirectionX)
     {
         GameEventBus.TriggerPlayerDash();
-        StartCoroutine(SpawnEchoTrail());
+        StartCoroutine(SpawnEchoTrail(dashDirectionX));
         // GameEventBus.TriggerPlayerFaceChange(Playerface.Dash);
         // playerVisuals.TriggerSquashEffect();
     }
  
-    private IEnumerator SpawnEchoTrail()
+    private IEnumerator SpawnEchoTrail(float dashDirectionX)
     {
         float elapsed = 0f;
         while (elapsed < dashDuration)
         {
             DashEchoEffect echo = echoPool.Get();
+            echo.SetFacing(dashDirectionX);
             echo.transform.position = playerController.transform.position;
+            echo.transform.rotation = Quaternion.identity;
  
             elapsed += echoSpawnInterval;
             yield return new WaitForSeconds(echoSpawnInterval);
