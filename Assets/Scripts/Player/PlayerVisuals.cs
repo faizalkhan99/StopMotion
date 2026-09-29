@@ -43,7 +43,7 @@ public class PlayerVisuals : MonoBehaviour
     [SerializeField] private float idleDelay = 2f;
 
     [Header("Optional VFX References")]
-    [SerializeField]  private Transform playerSquahTransform;
+    [SerializeField] private Transform playerSquahTransform;
     private float blinkDelayTimer;
     private float blinkDurationTimer;
     private float idleTimer;
@@ -111,7 +111,7 @@ public class PlayerVisuals : MonoBehaviour
     }
     private void Start()
     {
-       keyFadeRoutine = null; 
+        keyFadeRoutine = null;
     }
     private void OnEnable()
     {
@@ -133,7 +133,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
-        GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;       
+        GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash -= HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
         GameEventBus.OnPlayerGroundImpact -= SpawnVfx;
@@ -285,7 +285,7 @@ public class PlayerVisuals : MonoBehaviour
     {
         currentGameState = newState;
 
-        if(currentGameState == GameState.LevelComplete)
+        if (currentGameState == GameState.LevelComplete)
         {
             StopPlayerMovement();
         }
@@ -294,7 +294,7 @@ public class PlayerVisuals : MonoBehaviour
     private void HandleGameOverTriggered(GameOverReason reason)
     {
         GameEventBus.TriggerPlayerFaceChange(Playerface.Die);
-
+        StopPlayerMovement(); //added
         if (reason == GameOverReason.TimeExpired)
         {
             TriggerDestroy();
@@ -304,15 +304,37 @@ public class PlayerVisuals : MonoBehaviour
     /// <summary>
     /// Triggers the destroy VFX, hides the player visuals, and disables input/control.
     /// </summary>
-    public void TriggerDestroy()
+    // public void TriggerDestroy()
+    // {
+    //     if (isDestroyed) return;
+    //     isDestroyed = true;
+
+    //     GameEventBus.TriggerCameraShake();
+    //     destroyVFX?.Play();
+    //     GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion); 
+    //     spriteRenderer.enabled = false;
+
+    //     StopPlayerMovement();
+    // }
+    public void TriggerDestroy() //added function
     {
         if (isDestroyed) return;
         isDestroyed = true;
 
+        // Stop any blink in progress so it can't overwrite the die face
+        isBlinking = false;
+
+        // Force the die face and apply the sprite right now,
+        // because Update() stops running once isDestroyed is true
+        GameEventBus.TriggerPlayerFaceChange(Playerface.Die);
+        currentPlayerFace = Playerface.Die;
+        HandleUpdatedFace();
+
         GameEventBus.TriggerCameraShake();
-        if (destroyVFX != null) destroyVFX.Play();
+        destroyVFX?.Play();
         GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
-        spriteRenderer.enabled = false;
+
+        // spriteRenderer.enabled = false;  // removed: player stays visible after the explosion
 
         StopPlayerMovement();
     }
@@ -331,7 +353,7 @@ public class PlayerVisuals : MonoBehaviour
     {
         if (keyFadeRoutine != null) StopCoroutine(keyFadeRoutine);
         keyFadeRoutine = StartCoroutine(FadeKeyImage(1f));
-        
+
         hasKey = true;
     }
 
@@ -342,7 +364,7 @@ public class PlayerVisuals : MonoBehaviour
     {
         if (keyFadeRoutine == null)
         {
-           keyFadeRoutine = StartCoroutine(FadeKeyImage(0f)); 
+            keyFadeRoutine = StartCoroutine(FadeKeyImage(0f));
         }
     }
     /// <summary>
@@ -372,42 +394,55 @@ public class PlayerVisuals : MonoBehaviour
         keyFadeRoutine = null;
     }
 
-#region Face Changing
+    #region Face Changing
 
-    private void UpdateFaceOnPlayer(Playerface face)
+    // private void UpdateFaceOnPlayer(Playerface face)
+    // {
+    //     if (currentPlayerFace == face) return;
+
+    //     var tempface = currentPlayerFace;
+    //     currentPlayerFace = face;
+
+    //     HandleJumpVFX(face);
+
+    //     if (face == Playerface.Idle)
+    //         UpdateFaceAfterAction();
+    //     // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
+    // }
+    private void UpdateFaceOnPlayer(Playerface face) //added function
     {
-        if( currentPlayerFace == face) return;
+        // Once dead, the face is locked to Die
+        if (currentPlayerFace == Playerface.Die && face != Playerface.Die) return;
+        if (currentPlayerFace == face) return;
 
-        var tempface = currentPlayerFace;
         currentPlayerFace = face;
 
         HandleJumpVFX(face);
 
-        if(face == Playerface.Idle)
-        UpdateFaceAfterAction();
-        // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
+        if (face == Playerface.Idle)
+            UpdateFaceAfterAction();
     }
     private void UpdateFaceAfterAction()
     {
         bool stillMoving = rootRigidbody != null && Mathf.Abs(rootRigidbody.linearVelocity.x) > 0.05f;
-        
-        if( stillMoving )  
-        GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
+
+        if (stillMoving)
+            GameEventBus.TriggerPlayerFaceChange(Playerface.Moving);
         else
-        GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+            GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
     }
 
-#region Eye Blinking
+    #region Eye Blinking
     private void StartBlink()
     {
-        if (isBlinking) return;
+        if (isBlinking || currentPlayerFace == Playerface.Die) return;
 
         // gameplayFace = lastGameplayFace;
         isBlinking = true;
         currentPlayerFace = Playerface.Blink;
         blinkDurationTimer = blinkDuration;
         blinkDelayTimer = 0f;
-        
+
     }
 
     private void UpdateBlink()
@@ -419,55 +454,56 @@ public class PlayerVisuals : MonoBehaviour
         if (blinkDurationTimer <= 0f)
         {
             isBlinking = false;
-            currentPlayerFace = Playerface.Idle;
+            if (currentPlayerFace != Playerface.Die) //added
+                currentPlayerFace = Playerface.Idle;
         }
     }
-#endregion
+    #endregion
     private void HandleUpdatedFace()
     {
         switch (currentPlayerFace)
         {
-            case Playerface.Moving :
+            case Playerface.Moving:
                 spriteRenderer.sprite = faceData.moving;
-            break;
+                break;
 
-            case Playerface.Dash :
+            case Playerface.Dash:
                 spriteRenderer.sprite = faceData.dash;
-            break;
+                break;
 
-            case Playerface.JumpUp :
+            case Playerface.JumpUp:
                 spriteRenderer.sprite = faceData.jumpUp;
-            break;
+                break;
 
-            case Playerface.JumpDown :
+            case Playerface.JumpDown:
                 spriteRenderer.sprite = faceData.jumpDown;
-            break;
+                break;
 
-            case Playerface.FallDown_Impact :
+            case Playerface.FallDown_Impact:
                 spriteRenderer.sprite = faceData.fallDownImpact;
-            break;
+                break;
 
-            case Playerface.Blink :
+            case Playerface.Blink:
                 spriteRenderer.sprite = faceData.blink;
-            break;
+                break;
 
-            case Playerface.Die :
+            case Playerface.Die:
                 spriteRenderer.sprite = faceData.die;
-            break;
+                break;
 
-            case Playerface.Idle :
+            case Playerface.Idle:
                 spriteRenderer.sprite = faceData.idle;
-            break;
+                break;
 
             default:
                 spriteRenderer.sprite = faceData.idle;
-            break;
+                break;
         }
     }
 
-#endregion
+    #endregion
 
-#region VFX
+    #region VFX
 
     private void HandleJumpVFX(Playerface face)
     {
@@ -478,22 +514,22 @@ public class PlayerVisuals : MonoBehaviour
 
                 // if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
                 // {
-                    SpawnVfx(transform.position);
-                    // jumpUpTrailVFX.Play();
-                    // Debug.Log($"[VFX] :  Dust Playing ");
+                SpawnVfx(transform.position);
+                // jumpUpTrailVFX.Play();
+                // Debug.Log($"[VFX] :  Dust Playing ");
                 // }
-                
-            break;
+
+                break;
 
             case Playerface.FallDown_Impact:
 
                 // if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
                 // {
-                    // jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                    // Debug.Log($"[VFX] :  Stopped Playing ");
+                // jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+                // Debug.Log($"[VFX] :  Stopped Playing ");
                 // }
 
-            break;
+                break;
         }
     }
 
@@ -505,13 +541,13 @@ public class PlayerVisuals : MonoBehaviour
         vfx.transform.position = position;
         vfx.GetComponent<ParticleSystem>().Play();
     }
-#endregion
+    #endregion
 
-#region Dashing Effects
+    #region Dashing Effects
 
     private void HandleDashEffects()
     {
-        SquashPlayer( dashSquashAmount, dashSquashDuration );
+        SquashPlayer(dashSquashAmount, dashSquashDuration);
         UpdateFaceOnPlayer(Playerface.Dash);
     }
     private void SquashPlayer(float amount, float duration)
@@ -522,14 +558,14 @@ public class PlayerVisuals : MonoBehaviour
                 transform.DOScaleY(1f, duration)
             );
     }
-#endregion
+    #endregion
 
     private void HandlePlayerScale(bool onAir)
     {
         if (onAir)
             HandleJumpSquash(onAir, scaleAmount: jumpUpSquashAmount, scaleDuration: jumpUpSquashDuration, squashableObj: transform);
         else
-            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration, squashableObj: playerSquahTransform);    
+            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration, squashableObj: playerSquahTransform);
     }
 
     // Handles the jump squash animation triggered via GameEventBus
@@ -552,7 +588,7 @@ public class PlayerVisuals : MonoBehaviour
                     .SetEase(Ease.OutQuad)
                     .OnComplete(() =>
                     {
-                        if( isDescending ) 
+                        if (isDescending)
                         {
                             // Notify that the squash animation finished so the SFX can play || not used in the project
                             GameEventBus.TriggerPlayerJumpSquashComplete();
@@ -560,7 +596,7 @@ public class PlayerVisuals : MonoBehaviour
                         else
                         {
                             isLandingSquashActive = false;
-                            UpdateFaceAfterAction();                        
+                            UpdateFaceAfterAction();
                         }
                     });
             });
