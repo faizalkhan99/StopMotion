@@ -355,17 +355,8 @@ public class PlayerVisuals : MonoBehaviour
     {
         if (keyFadeRoutine != null) StopCoroutine(keyFadeRoutine);
         keyFadeRoutine = StartCoroutine(FadeKeyImage(1f));
-    }
 
-    public void AddKey()
-    {
-        keysCollected++;
-        ShowKeyInUI();
-    }
-
-    public void ResetKeys()
-    {
-        keysCollected = 0;
+        hasKey = true;
     }
 
     /// <summary>
