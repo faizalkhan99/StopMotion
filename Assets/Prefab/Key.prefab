@@ -152,3 +152,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3de3d0e936ead4717859f61415addf39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CollisionDetection
+  item: 1

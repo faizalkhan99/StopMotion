@@ -1,10 +1,31 @@
 fileFormatVersion: 2
-guid: a7fdf33d53d7cd54291b9f1da839993e
+guid: 1f1c0ae23a824c848bbd50ed26ede3fb
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 240082585165699000
-    second: CAPE_0
+      213: 3849537246730981010
+    second: PlayerCharacterSheet_0
+  - first:
+      213: -4827891181140313291
+    second: PlayerCharacterSheet_1
+  - first:
+      213: -602246273085778039
+    second: PlayerCharacterSheet_2
+  - first:
+      213: -6618009717014214091
+    second: PlayerCharacterSheet_3
+  - first:
+      213: -4876071933746418450
+    second: PlayerCharacterSheet_4
+  - first:
+      213: -2793830176846869148
+    second: PlayerCharacterSheet_5
+  - first:
+      213: 6176143207748199585
+    second: PlayerCharacterSheet_6
+  - first:
+      213: 4138778151605182542
+    second: PlayerCharacterSheet_7
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +58,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 2
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -47,7 +68,7 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 50
   spriteMode: 2
-  spriteExtrude: 0
+  spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
@@ -113,155 +134,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CAPE_6
+      name: PlayerCharacterSheet_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 513
-        width: 337
-        height: 300
+        x: 0
+        y: 1123
+        width: 513
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: c89f5ddef1e2a3148ac00cea7f7d9b67
-      internalID: -1368450892
+      spriteID: 29e090deabd4c6530800000000000000
+      internalID: 3849537246730981010
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_8
+      name: PlayerCharacterSheet_1
       rect:
         serializedVersion: 2
-        x: 384
-        y: 513
-        width: 365
-        height: 300
+        x: 1123
+        y: 1123
+        width: 514
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 9486058a071e1744d98d22c9c67a875c
-      internalID: -406399104
+      spriteID: 53bf3edcc82effcb0800000000000000
+      internalID: -4827891181140313291
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_9
+      name: PlayerCharacterSheet_2
       rect:
         serializedVersion: 2
-        x: 763
-        y: 513
-        width: 351
-        height: 300
+        x: 2247
+        y: 1123
+        width: 514
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: d9eaeeb6957488e45822ec9dc4a3d2da
-      internalID: 2112094253
+      spriteID: 9875b69943464a7f0800000000000000
+      internalID: -602246273085778039
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_11
+      name: PlayerCharacterSheet_3
       rect:
         serializedVersion: 2
-        x: 1137
-        y: 513
-        width: 358
-        height: 300
+        x: 3371
+        y: 1123
+        width: 513
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 1e263aafb9a07034a883ea2dfad39154
-      internalID: 490305611
+      spriteID: 53ac841e93b1824a0800000000000000
+      internalID: -6618009717014214091
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_13
+      name: PlayerCharacterSheet_4
       rect:
         serializedVersion: 2
-        x: 241
-        y: 180
-        width: 349
-        height: 300
+        x: 0
+        y: 0
+        width: 513
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 2c4dda6a84735a043883b1ff22670fa7
-      internalID: 1748704375
+      spriteID: eeceac92966b45cb0800000000000000
+      internalID: -4876071933746418450
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_15
+      name: PlayerCharacterSheet_5
       rect:
         serializedVersion: 2
-        x: 645
-        y: 180
-        width: 355
-        height: 300
+        x: 1123
+        y: 0
+        width: 514
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 10b154a7c8b6f9342997af9dbeee6134
-      internalID: -1020957704
+      spriteID: 46d864aa1425a39d0800000000000000
+      internalID: -2793830176846869148
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: CAPE_16
+      name: PlayerCharacterSheet_6
       rect:
         serializedVersion: 2
-        x: 1068
-        y: 180
-        width: 153
-        height: 300
+        x: 2247
+        y: 0
+        width: 514
+        height: 513
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: f6986638c512ed242b0e2385dae56a83
-      internalID: 962684512
+      spriteID: 1a4e5cb568116b550800000000000000
+      internalID: 6176143207748199585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: PlayerCharacterSheet_7
+      rect:
+        serializedVersion: 2
+        x: 3371
+        y: 0
+        width: 513
+        height: 513
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e40239afcc4ef6930800000000000000
+      internalID: 4138778151605182542
       vertices: []
       indices: 
       edges: []
@@ -270,7 +313,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 0220790d7c57a0346b9ab1aa8c7b86fe
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -278,34 +321,16 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      CAPE_0: 240082585165699000
-      CAPE_1: 539118744
-      CAPE_10: 2038151978
-      CAPE_11: 490305611
-      CAPE_12: 1277404664
-      CAPE_13: 1748704375
-      CAPE_14: -266628692
-      CAPE_15: -1020957704
-      CAPE_16: 962684512
-      CAPE_17: -528011945
-      CAPE_18: -31650887
-      CAPE_19: -1393200714
-      CAPE_2: -353050316
-      CAPE_20: -354387070
-      CAPE_21: -1773969531
-      CAPE_22: 1306356528
-      CAPE_23: 1772066752
-      CAPE_3: 130536814
-      CAPE_4: -1289388771
-      CAPE_5: -1807661504
-      CAPE_6: -1368450892
-      CAPE_7: 1627910438
-      CAPE_8: -406399104
-      CAPE_9: 2112094253
+      PlayerCharacterSheet_0: 3849537246730981010
+      PlayerCharacterSheet_1: -4827891181140313291
+      PlayerCharacterSheet_2: -602246273085778039
+      PlayerCharacterSheet_3: -6618009717014214091
+      PlayerCharacterSheet_4: -4876071933746418450
+      PlayerCharacterSheet_5: -2793830176846869148
+      PlayerCharacterSheet_6: 6176143207748199585
+      PlayerCharacterSheet_7: 4138778151605182542
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

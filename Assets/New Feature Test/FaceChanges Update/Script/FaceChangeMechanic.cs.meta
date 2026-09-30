@@ -1,2 +1,19 @@
 fileFormatVersion: 2
 guid: 00e44e75623304d1e80666678052f81a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - idle: {fileID: 21300000, guid: 8a595f05df6d27a4c8bd6a9c40d0765f, type: 3}
+  - moving: {fileID: 21300000, guid: 4758ae516d7961b45b43c4e6a846b58e, type: 3}
+  - jumpUp: {instanceID: 0}
+  - jumpDown: {instanceID: 0}
+  - dash: {instanceID: 0}
+  - fallDownImpact: {instanceID: 0}
+  - die: {instanceID: 0}
+  - blink: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
