@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00e44e75623304d1e80666678052f81a, type: 3}
   m_Name: PlayerFaceSet
   m_EditorClassIdentifier: Assembly-CSharp::FaceChangeMechanic
-  idle: {fileID: 21300000, guid: 8a595f05df6d27a4c8bd6a9c40d0765f, type: 3}
-  moving: {fileID: 21300000, guid: 4758ae516d7961b45b43c4e6a846b58e, type: 3}
-  jumpUp: {fileID: 21300000, guid: 0acad2312169ad04fb814dbf5d1fc6a9, type: 3}
-  jumpDown: {fileID: 21300000, guid: 26855f0d228a0ed46b328ea5c9b571f4, type: 3}
-  dash: {fileID: 21300000, guid: 7595cdbafb3544f47806ad0cbdd0a28e, type: 3}
-  fallDownImpact: {fileID: 21300000, guid: 0238814c612d4494c939e76c3388e474, type: 3}
-  die: {fileID: 21300000, guid: 4f30541fa40b27e4fa57077239ad5a53, type: 3}
-  blink: {fileID: 21300000, guid: c43d4e417ce5ccc468b8bb4e6b675f9d, type: 3}
+  idle: {fileID: 2955995942652991041, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  moving: {fileID: 803377851, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  jumpUp: {fileID: 1753375166, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  jumpDown: {fileID: -1109085614, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  dash: {fileID: 620557515, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  fallDownImpact: {fileID: 978946313, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  die: {fileID: -374899254, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
+  blink: {fileID: -739512727, guid: 951d1d6877f76fa4ab264d0fae99a41d, type: 3}
