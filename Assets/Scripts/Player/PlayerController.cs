@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
     private float horizontalInput;
     private bool isGrounded;
     private bool wasGrounded;
-    public bool isDashing  { get; private set; } =  false;
+    public bool isDashing { get; private set; } = false;
 
     // Idle query - raw grounded (no coyote) for visual idle detection
     public bool IsIdle => isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         wasGrounded = isGrounded;
-        playerDash.InitDash( this );
+        playerDash.InitDash(this);
     }
     /// <summary>
     /// Prevents Unity's physics solver from calculating impact friction when hitting the floor.
@@ -187,7 +187,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if( !isDashing )
+        if (!isDashing)
         {
             ApplyHorizontalMovement();
             ApplyDynamicGravity();
@@ -279,7 +279,7 @@ public class PlayerController : MonoBehaviour
     public void SetHorizontalInput(float input)
     {
         horizontalInput = Mathf.Clamp(input, -1f, 1f);
-        Debug.Log($"[PlayerController] : updated {horizontalInput}");
+        //Debug.Log($"[PlayerController] : updated {horizontalInput}");
     }
 
     private void GroundImpactDetection()
@@ -287,24 +287,24 @@ public class PlayerController : MonoBehaviour
         // if( detectJump )
         // {
         //     detectJump = false;
-            hasStartedDescending = false;
-            GameEventBus.TriggerPlayerJumpSquash( false );
-            GameEventBus.TriggerGroundImpact(transform.position);
+        hasStartedDescending = false;
+        GameEventBus.TriggerPlayerJumpSquash(false);
+        GameEventBus.TriggerGroundImpact(transform.position);
 
-            // Landing mid-dash: don't let the impact face stomp the dash face.
-            // isDashing is this component's own authoritative state — no lookup
-            // into another system needed. Fixes #14.
-            if (!isDashing)
-            {
-                GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
-            }
+        // Landing mid-dash: don't let the impact face stomp the dash face.
+        // isDashing is this component's own authoritative state — no lookup
+        // into another system needed. Fixes #14.
+        if (!isDashing)
+        {
+            GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
+        }
 
-            playerInput.SetIsJumpFalse();
+        playerInput.SetIsJumpFalse();
         // }
     }
-#endregion
+    #endregion
 
-#region Dash Effect
+    #region Dash Effect
     /// <summary>Authoritative horizontal dash direction: +1 = right, -1 = left.</summary>
     public float DashDirectionX { get; private set; } = 1f;
 
@@ -317,16 +317,16 @@ public class PlayerController : MonoBehaviour
             isDashing = true;
             Vector2 lastKnowDir = currentVelocity.normalized;
 
-            if(lastKnowDir.x > 0)
+            if (lastKnowDir.x > 0)
             {
                 DashDirectionX = 1f;
-                rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f );
+                rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f);
                 return true;
             }
             else if (lastKnowDir.x < 0)
             {
                 DashDirectionX = -1f;
-                rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f );
+                rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f);
                 return true;
             }
             return false;
@@ -342,14 +342,14 @@ public class PlayerController : MonoBehaviour
 
     public bool IsPlayerMoving()
     {
-        if( rb.linearVelocity.sqrMagnitude > 0.1f)
+        if (rb.linearVelocity.sqrMagnitude > 0.1f)
         {
             return true;
         }
 
         return false;
     }
-#endregion
+    #endregion
 
     private void OnDrawGizmosSelected()
     {
@@ -361,6 +361,6 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-      return isGrounded || coyoteTimer > 0f;
+        return isGrounded || coyoteTimer > 0f;
     }
 }

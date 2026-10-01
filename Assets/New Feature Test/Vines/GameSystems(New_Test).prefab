@@ -226,9 +226,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StopMotion.Visuals.VignetteCountdownController
   targetImage: {fileID: 5873115277356254184}
-  startRadius: 0.2
-  endRadius: 0.05
   duration: 60
+  reverseDuration: 0.75
 --- !u!1 &793419123343736286
 GameObject:
   m_ObjectHideFlags: 0
@@ -614,7 +613,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2, y: -6.4000244}
+  m_AnchoredPosition: {x: -2, y: -6.3999023}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6863933557511913376
@@ -2119,6 +2118,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player Prefab
       objectReference: {fileID: 0}
+    - target: {fileID: 6072651288504764681, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: m_Size.x
+      value: 0.95
+      objectReference: {fileID: 0}
+    - target: {fileID: 6072651288504764681, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: m_Size.y
+      value: 0.95
+      objectReference: {fileID: 0}
     - target: {fileID: 8192614990449641577, guid: f1821e4929c234270b100949513d5fea, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.11
@@ -2127,6 +2134,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0.16
       objectReference: {fileID: 0}
+    - target: {fileID: 8437859864567539762, guid: f1821e4929c234270b100949513d5fea, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: f7674173f30e3f24589a4139308f0c46, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2157,15 +2168,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 62420596743793913, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_BackGroundColor.b
-      value: 0.11320752
+      value: 0.9490196
       objectReference: {fileID: 0}
     - target: {fileID: 62420596743793913, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_BackGroundColor.g
-      value: 0.11320752
+      value: 0.8666667
       objectReference: {fileID: 0}
     - target: {fileID: 62420596743793913, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_BackGroundColor.r
-      value: 0.11320752
+      value: 0.4745098
       objectReference: {fileID: 0}
     - target: {fileID: 619765261714819117, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: autoStart
@@ -2173,12 +2184,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 619765261714819117, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: totalTime
-      value: 120
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 1043983895316047844, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_text
       value: PRESS 'P' AGAIN TO RESUME THE GAME
       objectReference: {fileID: 0}
+    - target: {fileID: 2061534609518091904, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_VolumeTrigger
+      value: 
+      objectReference: {fileID: 332844626453176544}
     - target: {fileID: 2340742838001865158, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2203,6 +2218,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3114495227866949123, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -6.3999023
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361727262802390207, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: priority
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3361727262802390207, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: sharedProfile
+      value: 
+      objectReference: {fileID: 11400000, guid: df89f4fe749731546b324dd8e431c629, type: 2}
     - target: {fileID: 3469382890509241140, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -13.5
@@ -2234,6 +2261,10 @@ PrefabInstance:
     - target: {fileID: 4058641767373000411, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_SortingLayerID
       value: 1348903907
+      objectReference: {fileID: 0}
+    - target: {fileID: 4648676840395358836, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -6.3999023
       objectReference: {fileID: 0}
     - target: {fileID: 4969952049853713581, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_text
@@ -2333,7 +2364,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7148352984792685238, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -12
       objectReference: {fileID: 0}
     - target: {fileID: 7148352984792685238, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2480,6 +2511,11 @@ Transform:
 --- !u!224 &27143896971689284 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7154926639512057700, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+  m_PrefabInstance: {fileID: 7145815016729037344}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &332844626453176544 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7473029280225225408, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
   m_PrefabInstance: {fileID: 7145815016729037344}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &3296006648999493089 stripped

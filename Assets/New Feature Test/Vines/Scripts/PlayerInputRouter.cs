@@ -90,6 +90,7 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnEnable()
     {
+        GameEventBus.OnGameStateChanged += TempRouter;
         moveAction.performed += OnMove;
         moveAction.canceled += OnMove;
         jumpAction.started += OnKeyboardJumpPressed;
@@ -101,6 +102,7 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnDisable()
     {
+        GameEventBus.OnGameStateChanged -= TempRouter;
         playerController.StopMovement();
         keyboardX = 0f;
         touchX = 0f;
@@ -150,7 +152,7 @@ public class PlayerInputRouter : MonoBehaviour
             keyboardX = 0f;
         }
     }
-#region Touch Controls
+    #region Touch Controls
     // ---------------------------------------------------------------
     // Shared drag reader — either half, either axis. Returns the clamped
     // -1..1 drag value for the first finger found on that half, and reports
@@ -225,7 +227,7 @@ public class PlayerInputRouter : MonoBehaviour
         if (finger.screenPosition.x < Screen.width * screenSplitRatio)
             return; // Left half is movement, not taps.    
 
-        if( !upwardDragConsumed )
+        if (!upwardDragConsumed)
         {
             dashController.TriggerDash();
         }
@@ -268,16 +270,16 @@ public class PlayerInputRouter : MonoBehaviour
         tapCount = 0;
         tapWindowRoutine = null;
     }
-#endregion
+    #endregion
 
-#region Keyboard Controls
+    #region Keyboard Controls
     // ---------------------------------------------------------------
     // Keyboard: Space is an immediate jump, no debounce/dash on desktop
     // ---------------------------------------------------------------
 
     private void OnKeyboardJumpPressed(InputAction.CallbackContext context)
     {
-        if ( playerController.IsGrounded() && !isJumping )
+        if (playerController.IsGrounded() && !isJumping)
         {
             isJumping = true;
 
@@ -287,7 +289,7 @@ public class PlayerInputRouter : MonoBehaviour
             playerController.OnJumpButtonPressed();
 
             // Squash is now purely cosmetic and can't block or delay the jump.
-            GameEventBus.TriggerPlayerJumpSquash( true );
+            GameEventBus.TriggerPlayerJumpSquash(true);
         }
     }
 
@@ -301,20 +303,20 @@ public class PlayerInputRouter : MonoBehaviour
     }
 
     private void OnKeyboardDashTriggered(InputAction.CallbackContext context)
-    { 
+    {
         dashController.TriggerDash();
     }
-#endregion
+    #endregion
 
     private void TriggerTouchJump()
     {
         if (!playerController.IsGrounded() || isJumping)
             return;
- 
+
         isJumping = true;
         playerController.OnJumpButtonPressed();
         GameEventBus.TriggerPlayerJumpSquash(true);
- 
+
         // Debug.Log("Jump performed via swipe!");
     }
     private void OnDestroy()
@@ -323,5 +325,16 @@ public class PlayerInputRouter : MonoBehaviour
         jumpAction?.Disable();
         dashAction?.Disable();
         EnhancedTouchSupport.Disable();
+    }
+
+    private void TempRouter(GameState gamestate)
+    {
+        if (gamestate == GameState.LevelComplete || gamestate == GameState.GameOver)
+        {
+            moveAction?.Disable();
+            jumpAction?.Disable();
+            dashAction?.Disable();
+            EnhancedTouchSupport.Disable();
+        }
     }
 }
