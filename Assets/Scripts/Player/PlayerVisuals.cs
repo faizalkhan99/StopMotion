@@ -52,7 +52,8 @@ public class PlayerVisuals : MonoBehaviour
     private Playerface gameplayFace;
     private Playerface lastGameplayFace;
 
-    public bool hasKey { get; private set; }
+    // Key UI is view-only. The gate (LevelGoalTrigger) owns collected/total counts.
+    public int keysCollected { get; private set; }
 
     // Internal References & Caching
     private SpriteRenderer spriteRenderer;
@@ -84,6 +85,7 @@ public class PlayerVisuals : MonoBehaviour
         initialLocalPosition = transform.localPosition;
         initialLocalScale = transform.localScale;
         originalColor = spriteRenderer.color;
+        keysCollected = 0;
 
         // We only need the parent Rigidbody to read horizontal velocity for flipping.
         // No ChronoController reference is required anymore!
@@ -353,8 +355,17 @@ public class PlayerVisuals : MonoBehaviour
     {
         if (keyFadeRoutine != null) StopCoroutine(keyFadeRoutine);
         keyFadeRoutine = StartCoroutine(FadeKeyImage(1f));
+    }
 
-        hasKey = true;
+    public void AddKey()
+    {
+        keysCollected++;
+        ShowKeyInUI();
+    }
+
+    public void ResetKeys()
+    {
+        keysCollected = 0;
     }
 
     /// <summary>
@@ -366,14 +377,6 @@ public class PlayerVisuals : MonoBehaviour
         {
             keyFadeRoutine = StartCoroutine(FadeKeyImage(0f));
         }
-    }
-    /// <summary>
-    /// Hides Key Canvas in Player's UI
-    /// </summary>
-    public bool CheckForKey()
-    {
-        HideKeyInUI();
-        return hasKey;
     }
 
     private System.Collections.IEnumerator FadeKeyImage(float targetAlpha)
