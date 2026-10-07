@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56ac7b3aa7049b54ca83dd308b4d7cc0, type: 3}
+  m_Name: GlobalGameDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::GlobalGameDatabase
+  wallTilePrefab: {fileID: 3519084132371452380, guid: d300ac5e1f472ca4bae4615bed34c412, type: 3}
+  platformPrefab: {fileID: 1433050871025514325, guid: 349c7b20dd0458b48ae8cbbc61eea879, type: 3}
+  playerPrefab: {fileID: 4756600720172380380, guid: f1821e4929c234270b100949513d5fea, type: 3}
+  exitPortalPrefab: {fileID: 4946837443873458192, guid: 7e42927f33e7646508b2e9dd498fcf1b, type: 3}
+  spikePrefab: {fileID: 8017361991245159062, guid: 1883867295235824287782eab410dd55, type: 3}
+  keyPrefab: {fileID: 6261202626484877119, guid: 81a5bbcfb7dadf240a7cc7bd2f8c0d44, type: 3}
+  openTopRooms:
+  - {fileID: 11400000, guid: be36f0e409110ac4c9f12201fe77c21a, type: 2}
+  openBottomRooms:
+  - {fileID: 11400000, guid: b4e52255a479b6d4a86c36b001052ab8, type: 2}
+  openLeftRooms:
+  - {fileID: 11400000, guid: 1169c35497c58f4459d5a4c3023b4a31, type: 2}
+  openRightRooms:
+  - {fileID: 11400000, guid: 5120da9cda727b34ebe2757f95e787e9, type: 2}
+  topBottomRooms:
+  - {fileID: 11400000, guid: 0e4891c51a95f964388442cfff1423c6, type: 2}
+  leftRightRooms:
+  - {fileID: 11400000, guid: b9e6cae74bcfc9844b34fc220b65d574, type: 2}
+  bottomRightRooms:
+  - {fileID: 11400000, guid: b696245846be0524d994a4c7bacb6b4a, type: 2}
+  rightTopRooms:
+  - {fileID: 11400000, guid: ca3084c2b3e857b408b5bc2be550f9d4, type: 2}
+  topLeftRooms:
+  - {fileID: 11400000, guid: 1497555a14920cc4ca7b6e866daff25b, type: 2}
+  leftBottomRooms:
+  - {fileID: 11400000, guid: 75dd72632bb9f7f40a9d59645fb4d7e9, type: 2}
+  topBottomRightRooms: []
+  topBottomLeftRooms: []
+  topLeftRightRooms: []
+  bottomLeftRightRooms: []
+  allOpenRooms:
+  - {fileID: 11400000, guid: c079a397ae1d2f846850197c439a81e4, type: 2}
