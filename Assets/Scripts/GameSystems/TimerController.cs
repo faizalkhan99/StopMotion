@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityPipeline.Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public class TimerController : MonoBehaviour
 {
     [Header("Timer Settings")]
     [SerializeField] private float totalTime = 60f;
     [SerializeField] private bool autoStart = true;
-
     [SerializeField] private float timeRemaining;
+
+    [Header("Testing")]
+    [SerializeField] private bool TurnoffTimer = false;
     private bool isRunning;
     private bool wasStarted = false;
     private ITimerInfluence influence;
@@ -41,14 +44,7 @@ public class TimerController : MonoBehaviour
     }
 
     private void Update()
-    {
-#region Test
-
-        if(Keyboard.current.yKey.wasPressedThisFrame)
-        {
-            GameEventBus.TriggerReverseVines();
-        }
-#endregion        
+    {      
         if (!isRunning) return;
 
         if (influence == null || influence.ShouldCountDown(Time.deltaTime))
@@ -66,7 +62,13 @@ public class TimerController : MonoBehaviour
         }
     }
 
-    public void StartTimer() => isRunning = true;
+    public void StartTimer() 
+    { 
+        if(TurnoffTimer) return;
+
+        GameEventBus.TriggerLevelDurationUpdated(totalTime);
+        isRunning = true;
+    }
     public void PauseTimer() => isRunning = false;
     public void ResumeTimer() => isRunning = true;
     public void ResetTimer(float? newTotal = null)
@@ -101,17 +103,16 @@ public class TimerController : MonoBehaviour
             break;
 
             case GameState.Gameplay :
-                if ( autoStart && !wasStarted) 
+                if (autoStart && !wasStarted) 
                 {
                     StartTimer();
-                    GameEventBus.TriggerLevelDurationUpdated(totalTime);
+                    // GameEventBus.TriggerLevelDurationUpdated(totalTime);
                     wasStarted = true;
                 }
                 else if(wasStarted)
                 {
                     ResumeTimer();
                 }
-            Debug.Log($" [TimerController] State Changed event fired!! State:{state}");
             break;
         }
     }

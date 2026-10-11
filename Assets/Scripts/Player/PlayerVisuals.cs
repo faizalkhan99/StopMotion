@@ -126,6 +126,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnPlayerDash += HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash += HandlePlayerScale;
         GameEventBus.OnPlayerGroundImpact += SpawnVfx;
+        GameEventBus.OnPlayerRespawned += HandlePlayerRespawned;
     }
 
     private void OnDisable()
@@ -139,6 +140,7 @@ public class PlayerVisuals : MonoBehaviour
         GameEventBus.OnPlayerDash -= HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
         GameEventBus.OnPlayerGroundImpact -= SpawnVfx;
+        GameEventBus.OnPlayerRespawned -= HandlePlayerRespawned;
         isLandingSquashActive = false;
     }
 
@@ -297,10 +299,28 @@ public class PlayerVisuals : MonoBehaviour
     {
         GameEventBus.TriggerPlayerFaceChange(Playerface.Die);
         StopPlayerMovement(); //added
-        if (reason == GameOverReason.TimeExpired)
+        if (reason == GameOverReason.TimeExpired || reason == GameOverReason.Hazard)
         {
             TriggerDestroy();
         }
+    }
+
+    /// <summary>
+    /// Respawn reset: clears the destroyed lock so the player animates again.
+    /// Only fires on non-final deaths (lives remain). Final Hazard depletion
+    /// goes through HandleGameOverTriggered above and stays dead.
+    /// </summary>
+    private void HandlePlayerRespawned()
+    {
+        isDestroyed = false;
+        isBlinking = false;
+        isLandingSquashActive = false;
+        currentViolationSeverity = 0f;
+        currentPlayerFace = Playerface.Idle;
+        HandleUpdatedFace();
+        if (spriteRenderer != null) spriteRenderer.enabled = true;
+        if (playerKeyboardInput != null) playerKeyboardInput.enabled = true;
+        transform.localScale = initialLocalScale;
     }
 
     /// <summary>
