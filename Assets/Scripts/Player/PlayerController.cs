@@ -349,6 +349,30 @@ public class PlayerController : MonoBehaviour
 
         return false;
     }
+
+    /// <summary>
+    /// Instantly relocates the player (checkpoint respawn). Zeroes velocity,
+    /// clears dash/jump buffers so no stale input leaks into the new life.
+    /// </summary>
+    public void TeleportTo(Vector2 target)
+    {
+        StopMovement();
+        isDashing = false;
+        DashDirectionX = 1f;
+        coyoteTimer = 0f;
+        jumpBufferTimer = 0f;
+        hasStartedDescending = false;
+        detectJump = false;
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            rb.MovePosition(target);
+        }
+        transform.position = new Vector3(target.x, target.y, transform.position.z);
+        rb.gravityScale = baseGravityScale;
+    }
     #endregion
 
     private void OnDrawGizmosSelected()

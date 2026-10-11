@@ -82,3 +82,7 @@ crashlytics-build.properties
 
 # Review folder - private interview critique (do not commit)
 /Review/
+StopMotion.slnx
+.vscode/settings.json
+Packages/packages-lock.json
+Packages/manifest.json

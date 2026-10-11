@@ -58,6 +58,32 @@ public static class GameEventBus
     public static event Action OnLevelWon;
     public static void TriggerLevelWon() => OnLevelWon?.Invoke();
 
+    #region Lives & Checkpoints
+    public static int CurrentLives { get; private set; } = 3;
+    public static event Action<int> OnLivesChanged;
+    public static void TriggerLivesChanged(int lives)
+    {
+        CurrentLives = lives;
+        OnLivesChanged?.Invoke(lives);
+    }
+    public static event Action<Vector3> OnCheckpointReached;
+    public static void TriggerCheckpointReached(Vector3 pos) => OnCheckpointReached?.Invoke(pos);
+    public static event Action OnPlayerRespawnStarted;
+    public static void TriggerPlayerRespawnStarted() => OnPlayerRespawnStarted?.Invoke();
+    public static event Action OnPlayerRespawned;
+    public static void TriggerPlayerRespawned() => OnPlayerRespawned?.Invoke();
+    /// <summary>Fired when a hazard or fall should cost a life. LivesManager consumes it.</summary>
+    public static event Action OnHazardHit;
+    public static void TriggerHazardHit() => OnHazardHit?.Invoke();
+    /// <summary>Fired by LivesManager when lives remain. RespawnManager consumes it.</summary>
+    public static event Action OnRespawnRequested;
+    public static void TriggerRespawnRequested() => OnRespawnRequested?.Invoke();
+    /// <summary>Fired by RespawnManager when post-respawn i-frames end.</summary>
+    public static event Action OnPlayerVulnerable;
+    public static void TriggerPlayerVulnerable() => OnPlayerVulnerable?.Invoke();
+
+    #endregion
+
     #region Pause State
     private static bool isPaused;
     public static bool IsPaused => isPaused;
@@ -113,6 +139,7 @@ public static class GameEventBus
     {
         CurrentGameState = GameState.MainMenu;
         CurrentChronoState = ChronoState.Ticking;
+        CurrentLives = 3;
         isPaused = false;
     }
 
@@ -134,6 +161,15 @@ public static class GameEventBus
         OnPlayerContactWithItem = null;
         OnPlayerDash = null;
         OnDelayEnd = null;
+        OnReverseVines = null;
+        OnLevelDurationUpdated = null;
+        OnLivesChanged = null;
+        OnCheckpointReached = null;
+        OnPlayerRespawnStarted = null;
+        OnPlayerRespawned = null;
+        OnHazardHit = null;
+        OnRespawnRequested = null;
+        OnPlayerVulnerable = null;
         ResetCachedState();
     }
 }
@@ -163,7 +199,8 @@ public enum GameOverReason
 {
     IdleBomb,
     MotionBomb,
-    TimeExpired
+    TimeExpired,
+    Hazard
 }
 
 public enum Playerface

@@ -118,7 +118,13 @@ public class GameStateManager : MonoBehaviour
     {
         Time.timeScale = 1.0f;
         AudioListener.pause = false;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // Prefer SceneLoader (fade + state broadcast); fall back to direct load.
+        // Scene reload recreates LivesManager/RespawnManager, resetting lives to 3.
+        int current = SceneManager.GetActiveScene().buildIndex;
+        if (SceneLoader.Instance != null)
+            SceneLoader.Instance.LoadScene(current, GameState.Gameplay);
+        else
+            SceneManager.LoadScene(current);
     }
 
     public void LoadNextLevel()
