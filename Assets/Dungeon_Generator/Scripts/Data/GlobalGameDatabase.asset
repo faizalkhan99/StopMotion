@@ -38,9 +38,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1497555a14920cc4ca7b6e866daff25b, type: 2}
   leftBottomRooms:
   - {fileID: 11400000, guid: 75dd72632bb9f7f40a9d59645fb4d7e9, type: 2}
-  topBottomRightRooms: []
-  topBottomLeftRooms: []
-  topLeftRightRooms: []
-  bottomLeftRightRooms: []
+  topBottomRightRooms:
+  - {fileID: 11400000, guid: 629e6a9c30b21d248b9d3a60adc6f276, type: 2}
+  topBottomLeftRooms:
+  - {fileID: 11400000, guid: 4c11371f9854bc74bb6fb932569b9ee6, type: 2}
+  topLeftRightRooms:
+  - {fileID: 11400000, guid: b73b95a293e60844e862abad1bb8cfca, type: 2}
+  bottomLeftRightRooms:
+  - {fileID: 11400000, guid: 1d0e9ff809681a14680e34ec3034802a, type: 2}
   allOpenRooms:
   - {fileID: 11400000, guid: c079a397ae1d2f846850197c439a81e4, type: 2}

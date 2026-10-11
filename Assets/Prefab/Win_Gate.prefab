@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2904487526873329749}
   - component: {fileID: 5803045413907732622}
   - component: {fileID: 143619958738559269}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Win_Gate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -154,3 +154,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelGoalTrigger
   hasLock: 1
   _lockedGateRadius: 0
+  _openGateRadius: 0.5
