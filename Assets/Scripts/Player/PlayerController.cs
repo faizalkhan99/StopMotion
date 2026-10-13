@@ -1,4 +1,3 @@
-using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -67,6 +66,10 @@ public class PlayerController : MonoBehaviour
     // Zero-GC Timers
     private float coyoteTimer;
     private float jumpBufferTimer;
+
+    [Tooltip("Min continuous airtime before a re-ground counts as a landing. Filters 1-frame separation flicker on moving platforms.")]
+    [SerializeField, Range(0.03f, 1f)] private float landingMinAirTime = 0.1f;
+    private float airborneTimer;
 
     // Zero-GC Physics Buffer (Pre-allocated array prevents runtime garbage)
     private readonly Collider2D[] groundHitBuffer = new Collider2D[1];
@@ -171,16 +174,33 @@ public class PlayerController : MonoBehaviour
         groundFilter.layerMask = groundLayer;
 
         // 1. Zero-GC Ground Check
-        // Box matches foot width, catches edges even when only partially over ground
-        Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
-        int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
-        isGrounded = hitCount > 0;
+        // Box matches foot width, catches edges even when only partially over ground.
+        // Trust the ride: while carried by a moving platform, the parenting IS the
+        // ground truth — skip the geometric query so solver/teleport desync can't flicker it.
+        if (transform.parent != null && transform.parent.TryGetComponent<MoveableComponent>(out _))
+        {
+            isGrounded = true;
+        }
+        else
+        {
+            Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
+            int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
+            isGrounded = hitCount > 0;
+        }
         isGroundedDebugView = isGrounded; // Exposes state to your Inspector
 
-        // Fall detection
-        if (isGrounded && !wasGrounded)
+        // Track continuous airtime so 1-frame separation flicker (e.g. riding a
+        // transform-moved platform) never counts as a landing on its own.
+        if (!isGrounded)
+        {
+            airborneTimer += Time.deltaTime;
+        }
+
+        // Fall detection — only after genuine airtime, not contact flicker.
+        if (isGrounded && !wasGrounded && airborneTimer >= landingMinAirTime)
         {
             GroundImpactDetection();
+            airborneTimer = 0f;
         }
         wasGrounded = isGrounded;
     }
@@ -284,6 +304,7 @@ public class PlayerController : MonoBehaviour
 
     private void GroundImpactDetection()
     {
+        Debug.Log($" jump down efx ");
         // if( detectJump )
         // {
         //     detectJump = false;
@@ -356,6 +377,9 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void TeleportTo(Vector2 target)
     {
+        // Detach from moving platforms first: while parented, a world-space
+        // target would be interpreted as a local offset under the moved platform.
+        transform.SetParent(null, true);
         StopMovement();
         isDashing = false;
         DashDirectionX = 1f;

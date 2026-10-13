@@ -86,7 +86,6 @@ namespace StopMotion.Visuals
 
         void StartVineVisuals(float duration)
         {
-            Debug.Log("hi");
             SetLevelDuration(duration);
             Play();
         }
