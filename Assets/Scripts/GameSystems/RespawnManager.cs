@@ -140,10 +140,6 @@ public class RespawnManager : MonoBehaviour
     {
         if (playerTransform == null) return;
 
-        // Detach from moving platforms first (covers the no-PlayerController fallback
-        // paths below; the PlayerController path detaches again inside TeleportTo).
-        playerTransform.SetParent(null, true);
-
         if (playerController != null)
         {
             playerController.TeleportTo(target);

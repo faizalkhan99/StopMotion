@@ -118,56 +118,9 @@ public class MoveableComponent : MonoBehaviour
         return -1;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Player")) return;
-
-        // Top-only: ignore side brushes so the player is never glued to walls.
-        // Landing only parents the rider — it never starts the route (auto-start only).
-        if (!IsLandingOnTop(collision)) return;
-
-        collision.transform.SetParent(transform, true);
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Player")) return;
-        if (collision.transform.parent == transform)
-            collision.transform.SetParent(null, true);
-    }
-
-    // NOTE: DetachRider() is intentionally NOT called from OnDisable. Unity forbids
-    // SetParent while this GameObject is activating/deactivating, so detaching there
-    // only spams "Cannot set the parent..." errors. Anything that deactivates this
-    // platform must call DetachRider() first.
-
-    /// <summary>
-    /// Releases the player if this platform is currently carrying them.
-    /// Called on exit/reset, and safe to call before teleports.
-    /// </summary>
-    public void DetachRider()
-    {
-        // Single-rider case: tag lookup + parent-equality check, no cached reference needed.
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null && player.transform.parent == transform)
-            player.transform.SetParent(null, true);
-    }
-
-    private bool IsLandingOnTop(Collision2D collision)
-    {
-        for (int i = 0; i < collision.contactCount; i++)
-        {
-            // Normal points from player toward platform here (~-1 when player is above).
-            if (collision.GetContact(i).normal.y < -0.5f)
-                return true;
-        }
-        return false;
-    }
-
     /// <summary>
     /// Starts (or resumes) the waypoint route. Restarts from the first waypoint
     /// if the route already finished. Safe to call from other scripts or UnityEvents.
-    /// Landing on the platform does NOT call this — it only parents the rider.
     /// </summary>
     public void StartMovement()
     {
@@ -194,7 +147,6 @@ public class MoveableComponent : MonoBehaviour
 
     public void ResetPlatform()
     {
-        DetachRider();
         isMoving = false;
         pauseTimer = 0f;
 
