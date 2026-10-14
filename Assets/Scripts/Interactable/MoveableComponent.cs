@@ -1,48 +1,54 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D), typeof(Rigidbody2D))]
 public class MoveableComponent : MonoBehaviour
 {
-    public enum MoveAxis
-    {
-        X,
-        Y
-    }
-
-    [Header("Movement")]
-    [Tooltip("Axis to move along. X = horizontal, Y = vertical.")]
-    [SerializeField] private MoveAxis direction = MoveAxis.X;
-    [Tooltip("Movement speed in units per second.")]
+    [Header("Route")]
+    [Tooltip("Ordered stops: index 0 = start, last = finish. Assign scene Transforms in travel order.")]
+    [SerializeField] private List<Transform> waypoints = new();
+    [Tooltip("Travel speed in units per second, constant across all legs.")]
     [SerializeField, Min(0.01f)] private float speed = 2f;
-    [Tooltip("How far to travel. Signed: + moves along +X/+Y, - moves along -X/-Y.")]
-    [SerializeField] private float distance = 3f;
+    [Tooltip("Seconds to wait on each arrival. 0 = constant motion, no stopping.")]
+    [SerializeField, Min(0f)] private float waypointPause = 0f;
 
     [Header("Behaviour")]
-    [Tooltip("If true, movement starts automatically in Start(). Combine with IsTwoWay for a continuous loop from load.")]
+    [Tooltip("If true, snaps to the first waypoint and starts the route automatically in Start().")]
     [SerializeField] private bool moveOnStart = false;
-    [Tooltip("True = two-way (ping-pong between start and target, loops). False = one-way (go once and stop).")]
-    [SerializeField] private bool isTwoWay = false;
+    [Tooltip("True = after the finish, travel back to waypoint 0 and repeat. False = stop at the finish.")]
+    [SerializeField] private bool loopRoute = false;
 
     private Rigidbody2D rb;
-    private Vector2 startPos;
-    private Vector2 targetPos;
-    private Vector2 currentTarget;
+    private int currentIndex = -1;
     private bool isMoving;
+    private float pauseTimer;
+
+    private const float ArrivalTolerance = 0.05f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         SetRbConfig();
-
     }
 
     private void Start()
     {
-        if (moveOnStart)
+        int first = NextValidIndex(0);
+        if (first < 0)
         {
-            StartMovement();
+            Debug.LogWarning($"[MoveableComponent] {name} has no valid waypoints — platform stays idle.", this);
+            return;
+        }
+
+        rb.position = waypoints[first].position;
+        currentIndex = NextValidIndex(first + 1);
+
+        if (moveOnStart && currentIndex >= 0)
+        {
+            isMoving = true;
         }
     }
+
     void SetRbConfig()
     {
         rb.bodyType = RigidbodyType2D.Kinematic;
@@ -52,29 +58,64 @@ public class MoveableComponent : MonoBehaviour
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = 0f;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-        startPos = rb.position;
     }
 
     private void FixedUpdate()
     {
-        if (!isMoving) return;
+        if (!isMoving || currentIndex < 0) return;
 
-        // Physics-driven move: the solver carries contacts (and the rider)
-        // instead of teleporting a static collider through the player.
-        Vector2 next = Vector2.MoveTowards(rb.position, currentTarget, speed * Time.fixedDeltaTime);
+        if (pauseTimer > 0f)
+        {
+            pauseTimer -= Time.fixedDeltaTime;
+            return;
+        }
+
+        Transform target = waypoints[currentIndex];
+        if (target == null)
+        {
+            Advance();
+            return;
+        }
+
+        // Read live each step so the route follows moving waypoints.
+        Vector2 goal = target.position;
+        Vector2 next = Vector2.MoveTowards(rb.position, goal, speed * Time.fixedDeltaTime);
         rb.MovePosition(next);
 
-        if (next == currentTarget)
+        if (next == goal || Vector2.Distance(next, goal) <= ArrivalTolerance)
         {
-            if (isTwoWay)
-            {
-                currentTarget = (currentTarget == targetPos) ? startPos : targetPos;
-            }
-            else
-            {
-                isMoving = false;
-            }
+            pauseTimer = waypointPause;
+            Advance();
         }
+    }
+
+    private void Advance()
+    {
+        int next = currentIndex >= 0 ? NextValidIndex(currentIndex + 1) : NextValidIndex(0);
+        if (next >= 0)
+        {
+            currentIndex = next;
+            return;
+        }
+
+        if (loopRoute)
+        {
+            currentIndex = NextValidIndex(0);
+            if (currentIndex >= 0) return;
+        }
+
+        currentIndex = -1;
+        isMoving = false;
+    }
+
+    private int NextValidIndex(int from)
+    {
+        if (waypoints == null) return -1;
+        for (int i = from; i < waypoints.Count; i++)
+        {
+            if (waypoints[i] != null) return i;
+        }
+        return -1;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -82,17 +123,10 @@ public class MoveableComponent : MonoBehaviour
         if (!collision.gameObject.CompareTag("Player")) return;
 
         // Top-only: ignore side brushes so the player is never glued to walls.
+        // Landing only parents the rider — it never starts the route (auto-start only).
         if (!IsLandingOnTop(collision)) return;
 
         collision.transform.SetParent(transform, true);
-
-        if (isMoving) return;
-
-        // One-way platforms stay at the target after one trip — ignore repeat touches.
-        if (!isTwoWay && Vector2.Distance(rb.position, targetPos) < 0.01f && targetPos != startPos)
-            return;
-
-        StartMovement();
     }
 
     private void OnCollisionExit2D(Collision2D collision)
@@ -109,7 +143,7 @@ public class MoveableComponent : MonoBehaviour
 
     /// <summary>
     /// Releases the player if this platform is currently carrying them.
-    /// Called on exit/disable, and safe to call before teleports.
+    /// Called on exit/reset, and safe to call before teleports.
     /// </summary>
     public void DetachRider()
     {
@@ -129,17 +163,27 @@ public class MoveableComponent : MonoBehaviour
         }
         return false;
     }
+
     /// <summary>
-    /// Starts movement from the current position toward start + axis * distance.
-    /// Safe to call from other scripts, UnityEvents, or OnCollisionEnter2D.
+    /// Starts (or resumes) the waypoint route. Restarts from the first waypoint
+    /// if the route already finished. Safe to call from other scripts or UnityEvents.
+    /// Landing on the platform does NOT call this — it only parents the rider.
     /// </summary>
     public void StartMovement()
     {
-        if (Mathf.Approximately(distance, 0f) || speed <= 0f) return;
+        if (speed <= 0f) return;
+        if (NextValidIndex(0) < 0)
+        {
+            Debug.LogWarning($"[MoveableComponent] {name} has no valid waypoints — ignoring StartMovement.", this);
+            return;
+        }
 
-        startPos = rb.position;
-        targetPos = startPos + GetAxisVector() * distance;
-        currentTarget = targetPos;
+        if (currentIndex < 0 || currentIndex >= waypoints.Count || waypoints[currentIndex] == null)
+        {
+            currentIndex = NextValidIndex(0);
+        }
+
+        pauseTimer = 0f;
         isMoving = true;
     }
 
@@ -152,20 +196,42 @@ public class MoveableComponent : MonoBehaviour
     {
         DetachRider();
         isMoving = false;
-        rb.position = startPos;
-    }
+        pauseTimer = 0f;
 
-    private Vector2 GetAxisVector()
-    {
-        return direction == MoveAxis.X ? Vector2.right : Vector2.up;
+        int first = NextValidIndex(0);
+        if (first >= 0)
+        {
+            rb.position = waypoints[first].position;
+            currentIndex = NextValidIndex(first + 1);
+        }
     }
 
     private void OnDrawGizmosSelected()
     {
-        Vector2 from = Application.isPlaying ? startPos : (Vector2)transform.position;
-        Vector2 to = from + (direction == MoveAxis.X ? Vector2.right : Vector2.up) * distance;
+        if (waypoints == null || waypoints.Count == 0) return;
+
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(from, to);
-        Gizmos.DrawWireCube(to, Vector3.one * 0.3f);
+        Vector2? prev = null;
+        Vector2 first = Vector2.zero;
+        bool hasFirst = false;
+        int validCount = 0;
+
+        foreach (Transform wp in waypoints)
+        {
+            if (wp == null) continue;
+            Vector2 p = wp.position;
+            Gizmos.DrawWireSphere(p, 0.25f);
+            if (!hasFirst)
+            {
+                first = p;
+                hasFirst = true;
+            }
+            if (prev.HasValue) Gizmos.DrawLine(prev.Value, p);
+            prev = p;
+            validCount++;
+        }
+
+        if (loopRoute && hasFirst && prev.HasValue && validCount > 1)
+            Gizmos.DrawLine(prev.Value, first);
     }
 }

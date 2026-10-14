@@ -1,25 +1,24 @@
 using DG.Tweening;
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer), typeof(BoxCollider2D))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class DoorScript : MonoBehaviour
 {
     [SerializeField] private float forceAmount = 5f;
     [SerializeField] private float openAlpha = 0.5f;
     [SerializeField] private float closedAlpha = 1f;
     [SerializeField] private float fadeDuration = 0.5f;
+    [SerializeField] private BoxCollider2D _boxCollider;
+    [SerializeField] private BoxCollider2D _entryboxCollider;
 
     private SpriteRenderer _spriteRen;
-    private BoxCollider2D _boxCollider;
     private Transform _selfTransform;
     private Vector2 _pushForce;
     private Tweener _fadeTween;
-    private bool _isDoorClosed;
 
     private void Awake()
     {
         _spriteRen = GetComponent<SpriteRenderer>();
-        _boxCollider = GetComponent<BoxCollider2D>();
         _selfTransform = transform;
         _pushForce = Vector2.right * forceAmount;
     }
@@ -27,13 +26,6 @@ public class DoorScript : MonoBehaviour
     private void OnValidate()
     {
         _pushForce = Vector2.right * forceAmount;
-    }
-
-    private void Start()
-    {
-        _isDoorClosed = false;
-        _boxCollider.isTrigger = true;
-        PlayFade(openAlpha);
     }
 
     private void OnDisable()
@@ -61,19 +53,24 @@ public class DoorScript : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.gameObject.CompareTag("Player")) return;
-        if (!IsPlayerOnRightSide(collision.transform.position.x)) return;
-        if (_isDoorClosed) return;
 
-        _boxCollider.isTrigger = false;
-        PlayFade(closedAlpha);
-        _isDoorClosed = true;
+        if (_entryboxCollider.IsTouching(collision))
+        {
+            PlayFade(openAlpha);
+            // Play Animation and SOund
+            _boxCollider.isTrigger = true;
+        }
     }
-
-    public void ResetDoor()
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        _isDoorClosed = false;
-        _boxCollider.isTrigger = true;
-        PlayFade(openAlpha);
+        if (!collision.gameObject.CompareTag("Player")) return;
+
+        if(IsPlayerOnRightSide(collision.transform.position.x))
+        {
+            PlayFade(closedAlpha);
+            // Play Animation and SOund
+            _boxCollider.isTrigger = false;            
+        }
     }
 
     private bool IsPlayerOnRightSide(float playerX)
