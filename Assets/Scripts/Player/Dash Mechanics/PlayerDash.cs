@@ -47,13 +47,7 @@ void Start()
     {
         GameEventBus.OnPlayerContactWithItem -= AddDashCount;
     }
-    // void OnTriggerEnter2D(Collider2D collision)
-    // {
-    //     if( collision.TryGetComponent<ToDashItem>( out ToDashItem item ) )
-    //     {
-    //         item.TriggerFunction();
-    //     }
-    // }
+
     void Update()
     {
         if( canDash && isInit )
@@ -87,8 +81,6 @@ void Start()
 
     public void TriggerDash()
     {
-        // bool cooldownElapsed = Time.time >= lastDashTime + dashCoolDownTime;
-
         if( currentDashCollectableCount > 0 && playerController.IsPlayerMoving() )
         {
             triggerDash = true;
@@ -185,7 +177,6 @@ void Start()
     private void OnTakeFromPool(DashEchoEffect Instance)
     {
         Instance.gameObject.SetActive(true);
-        // Instance.transform.SetParent(parentTransform, true);
     }
 
     private void OnReturnToPool(DashEchoEffect Instance)
