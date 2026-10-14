@@ -635,6 +635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d330b669ab3b4efa97796c5876bc70c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorScript
+  forceAmount: 15
 --- !u!1 &906577652
 GameObject:
   m_ObjectHideFlags: 0
