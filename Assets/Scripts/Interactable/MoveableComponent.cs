@@ -158,32 +158,4 @@ public class MoveableComponent : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmosSelected()
-    {
-        if (waypoints == null || waypoints.Count == 0) return;
-
-        Gizmos.color = Color.cyan;
-        Vector2? prev = null;
-        Vector2 first = Vector2.zero;
-        bool hasFirst = false;
-        int validCount = 0;
-
-        foreach (Transform wp in waypoints)
-        {
-            if (wp == null) continue;
-            Vector2 p = wp.position;
-            Gizmos.DrawWireSphere(p, 0.25f);
-            if (!hasFirst)
-            {
-                first = p;
-                hasFirst = true;
-            }
-            if (prev.HasValue) Gizmos.DrawLine(prev.Value, p);
-            prev = p;
-            validCount++;
-        }
-
-        if (loopRoute && hasFirst && prev.HasValue && validCount > 1)
-            Gizmos.DrawLine(prev.Value, first);
-    }
 }
