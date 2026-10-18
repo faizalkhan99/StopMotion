@@ -6,6 +6,7 @@ TagManager:
   tags:
   - AudioSystem
   - Stats
+  - TutorialText
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - UI
   - PostProcessing
   - Wall
-  - 
+  - Player
   - 
   - 
   - 
