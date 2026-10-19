@@ -1,70 +1,96 @@
 using DG.Tweening;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
 public class DoorScript : MonoBehaviour
 {
-    private SpriteRenderer spriteRen;
-    private BoxCollider2D boxCollider;
+    [SerializeField] private float forceAmount = 5f;
+    [SerializeField] private float openAlpha = 0.5f;
+    [SerializeField] private float closedAlpha = 1f;
+    [SerializeField] private float fadeDuration = 0.5f;
+    [SerializeField] private BoxCollider2D _boxCollider;
+    [SerializeField] private BoxCollider2D _entryboxCollider;
 
-    void Start()
+    private SpriteRenderer _spriteRen;
+    private Transform _selfTransform;
+    private Vector2 _pushForce;
+    private Tweener _fadeTween;
+
+    private void Awake()
     {
-        spriteRen = GetComponent<SpriteRenderer>();
-        boxCollider = GetComponent<BoxCollider2D>();
+        _spriteRen = GetComponent<SpriteRenderer>();
+        _selfTransform = transform;
+        _pushForce = Vector2.right * forceAmount;
     }
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if(!collision.gameObject.CompareTag("Player")) return;
 
-        if(IsPlayerOnLeftSide( collision ))
+    private void OnValidate()
+    {
+        _pushForce = Vector2.right * forceAmount;
+    }
+
+    private void OnDisable()
+    {
+        KillFade();
+    }
+
+    private void OnDestroy()
+    {
+        KillFade();
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Player")) return;
+        if (!IsPlayerOnRightSide(collision.transform.position.x)) return;
+
+        Rigidbody2D rb = collision.rigidbody;
+        if (rb != null)
         {
-            Debug.Log($" left ");
-            boxCollider.isTrigger = true;
-            spriteRen.DOFade(0.1f ,0.5f);
+            rb.AddForce(_pushForce, ForceMode2D.Impulse);
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(!collision.gameObject.CompareTag("Player")) return;
+        if (!collision.gameObject.CompareTag("Player")) return;
 
-        if(IsPlayerOnRightSide( collision ))
+        if (_entryboxCollider.IsTouching(collision))
         {
-            Debug.Log($" right ");
-            boxCollider.isTrigger = false;
-            spriteRen.DOFade(1f ,0.5f);
+            PlayFade(openAlpha);
+            // Play Animation and SOund
+            _boxCollider.isTrigger = true;
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (!collision.gameObject.CompareTag("Player")) return;
+
+        if(IsPlayerOnRightSide(collision.transform.position.x))
+        {
+            PlayFade(closedAlpha);
+            // Play Animation and SOund
+            _boxCollider.isTrigger = false;            
         }
     }
 
-    private bool IsPlayerOnLeftSide(Collision2D collision)
+    private bool IsPlayerOnRightSide(float playerX)
     {
-        // bool leftContactFound = false;
-        // for (int i = 0; i < collision.contactCount; i++)
-        // {
-        //     Vector2 normal = collision.GetContact(i).normal;
-
-        //     if (normal.x > 0.5f && Mathf.Abs(normal.y) < 0.5f)
-        //         leftContactFound = true;
-        // }
-
-        // if (!leftContactFound)
-        //     return false;
-
-        return collision.transform.position.x < transform.position.x;
+        return playerX > _selfTransform.position.x;
     }
-    private bool IsPlayerOnRightSide(Collider2D collision)
+
+    private void PlayFade(float targetAlpha)
     {
-        // bool leftContactFound = false;
-        // for (int i = 0; i < collision.contactCount; i++)
-        // {
-        //     Vector2 normal = collision.GetContact(i).normal;
+        if (_spriteRen == null) return;
+        KillFade();
+        _fadeTween = _spriteRen.DOFade(targetAlpha, fadeDuration);
+    }
 
-        //     if (normal.x > 0.5f && Mathf.Abs(normal.y) < 0.5f)
-        //         leftContactFound = true;
-        // }
-
-        // if (!leftContactFound)
-        //     return false;
-
-        return collision.transform.position.x > transform.position.x;
+    private void KillFade()
+    {
+        if (_fadeTween != null && _fadeTween.IsActive())
+        {
+            _fadeTween.Kill();
+        }
+        _fadeTween = null;
     }
 }

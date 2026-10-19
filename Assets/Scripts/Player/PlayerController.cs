@@ -174,19 +174,10 @@ public class PlayerController : MonoBehaviour
         groundFilter.layerMask = groundLayer;
 
         // 1. Zero-GC Ground Check
-        // Box matches foot width, catches edges even when only partially over ground.
-        // Trust the ride: while carried by a moving platform, the parenting IS the
-        // ground truth — skip the geometric query so solver/teleport desync can't flicker it.
-        if (transform.parent != null && transform.parent.TryGetComponent<MoveableComponent>(out _))
-        {
-            isGrounded = true;
-        }
-        else
-        {
-            Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
-            int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
-            isGrounded = hitCount > 0;
-        }
+        // Box matches foot width, catches edges even when only partially over ground
+        Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
+        int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
+        isGrounded = hitCount > 0;
         isGroundedDebugView = isGrounded; // Exposes state to your Inspector
 
         // Track continuous airtime so 1-frame separation flicker (e.g. riding a
@@ -377,9 +368,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void TeleportTo(Vector2 target)
     {
-        // Detach from moving platforms first: while parented, a world-space
-        // target would be interpreted as a local offset under the moved platform.
-        transform.SetParent(null, true);
         StopMovement();
         isDashing = false;
         DashDirectionX = 1f;
