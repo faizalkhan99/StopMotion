@@ -54,7 +54,7 @@ Material:
     - _SoilAlpha: 0
     - _SoilReach: 0.5
     - _StartTime: 0
-    - _TendrilCount: 15.7
+    - _TendrilCount: 15
     - _TendrilOvergrowth: 0.75
     - _Thickness: 0.5
     - _ZWrite: 0
