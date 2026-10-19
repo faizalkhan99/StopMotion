@@ -570,6 +570,7 @@ public class PlayerVisuals : MonoBehaviour
 
     private void HandleDashEffects()
     {
+        // GameEventBus.TriggerCameraShake();
         SquashPlayer(dashSquashAmount, dashSquashDuration);
         UpdateFaceOnPlayer(Playerface.Dash);
     }
