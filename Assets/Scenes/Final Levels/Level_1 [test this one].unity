@@ -41407,14 +41407,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cba8500344528472c8d583e330dbe16c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
-  customInspectorObjects:
-    swapCameras: 0
-    panCameraOnContact: 1
-    cameraOnLeft: {fileID: 0}
-    cameraOnRight: {fileID: 0}
-    panDirection: 1
-    panDistance: 3
-    panTime: 0.35
+  panDirection: 1
+  panDistance: 3
+  panTime: 0.35
 --- !u!1 &1510627419
 GameObject:
   m_ObjectHideFlags: 0
