@@ -16,11 +16,7 @@ public enum PanDirection
 [System.Serializable]
 public class CustomInspectorObjects
 {
-    public bool swapCameras = false;
     public bool panCameraOnContact = false;
-
-    [HideInInspector] public CinemachineCamera cameraOnLeft;
-    [HideInInspector] public CinemachineCamera cameraOnRight;
 
     [HideInInspector] public PanDirection panDirection;
     [HideInInspector] public float panDistance = 3f;
@@ -86,23 +82,6 @@ public class CameraControlTriggerEditor : Editor
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-
-        if (_cameraControlTrigger.customInspectorObjects.swapCameras)
-        {
-            _cameraControlTrigger.customInspectorObjects.cameraOnLeft = (CinemachineCamera)EditorGUILayout.ObjectField(
-                "Camera on Left",
-                _cameraControlTrigger.customInspectorObjects.cameraOnLeft,
-                typeof(CinemachineCamera),
-                true
-            );
-
-            _cameraControlTrigger.customInspectorObjects.cameraOnRight = (CinemachineCamera)EditorGUILayout.ObjectField(
-                "Camera on Right",
-                _cameraControlTrigger.customInspectorObjects.cameraOnRight,
-                typeof(CinemachineCamera),
-                true
-            );
-        }
 
         if (_cameraControlTrigger.customInspectorObjects.panCameraOnContact)
         {
