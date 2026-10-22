@@ -29,6 +29,10 @@ public class PlayerVisuals : MonoBehaviour
     [Header("Player's Face Data")]
     [SerializeField] private FaceChangeMechanic faceData;
 
+    [Header("Directional Facing")]
+    [Tooltip("Rotated 180 degrees on Y to face left. Child of the player root; keeps physics colliders and ground checks unflipped.")]
+    [SerializeField] private Transform facingRoot;
+
     [Header("Player Squash Config")]
     [SerializeField] private float dashSquashAmount;
     [SerializeField] private float dashSquashDuration;
@@ -86,6 +90,7 @@ public class PlayerVisuals : MonoBehaviour
         initialLocalScale = transform.localScale;
         originalColor = spriteRenderer.color;
         keysCollected = 0;
+        spriteRenderer.flipX = false;
 
         // We only need the parent Rigidbody to read horizontal velocity for flipping.
         // No ChronoController reference is required anymore!
@@ -109,6 +114,11 @@ public class PlayerVisuals : MonoBehaviour
         if (rootRigidbody == null)
         {
             Debug.LogError("<b>[PlayerVisuals]</b> Could not find a Rigidbody2D on parent GameObject!");
+        }
+
+        if (facingRoot == null)
+        {
+            Debug.LogError("<b>[PlayerVisuals]</b> FacingRoot not assigned — directional facing disabled!");
         }
     }
     private void Start()
@@ -230,19 +240,27 @@ public class PlayerVisuals : MonoBehaviour
     }
 
     /// <summary>
-    /// Flips the visual sprite based on horizontal velocity without touching parent physics.
+    /// Mirrors facing by rotating the FacingRoot child 180 degrees on Y based on
+    /// horizontal velocity. Replaces SpriteRenderer.flipX so Cinemachine tracking
+    /// targets parented under FacingRoot swing sides with facing. Physics root untouched.
     /// </summary>
     private void HandleDirectionalFacing()
     {
-        if (rootRigidbody == null) return;
+        if (rootRigidbody == null || facingRoot == null) return;
 
         float velocityX = rootRigidbody.linearVelocity.x;
 
         // Tolerance check prevents rapid jittering when idle or micro-drifting
         if (Mathf.Abs(velocityX) > 0.05f)
         {
-            spriteRenderer.flipX = velocityX < 0f; //This flips the sprite based on direction.
-            // UpdateFaceOnPlayer(Playerface.Moving);
+            Quaternion targetRotation = velocityX < 0f
+                ? Quaternion.Euler(0f, 180f, 0f)
+                : Quaternion.identity;
+
+            if (facingRoot.localRotation != targetRotation)
+            {
+                facingRoot.localRotation = targetRotation;
+            }
         }
         // else
         // {
@@ -321,6 +339,7 @@ public class PlayerVisuals : MonoBehaviour
         if (spriteRenderer != null) spriteRenderer.enabled = true;
         if (playerKeyboardInput != null) playerKeyboardInput.enabled = true;
         transform.localScale = initialLocalScale;
+        if (facingRoot != null) facingRoot.localRotation = Quaternion.identity;
     }
 
     /// <summary>
