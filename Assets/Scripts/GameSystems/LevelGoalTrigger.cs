@@ -43,6 +43,7 @@ public class LevelGoalTrigger : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log("Portal Detected Something" + other.name);
         if (!other.CompareTag("Player")) return;
 
         if(hasLock)
