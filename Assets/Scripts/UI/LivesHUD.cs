@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Lives HUD driven by child icons under a container (e.g. Lives HUD -> 1, 2, 3).
@@ -13,12 +14,18 @@ public class LivesHUD : MonoBehaviour
     [Header("UI References")]
     [Tooltip("Parent holding one child per life icon (e.g. Lives HUD -> 1, 2, 3).")]
     [SerializeField] private Transform livesContainer;
+    [SerializeField] private bool isVisibleOnStart = false;
 
-    private readonly List<GameObject> lifeIcons = new();
+    public List<Image> lifeIcons = new();
 
     private void Awake()
     {
-        CollectIcons();
+        if(!isVisibleOnStart)
+        {
+            livesContainer.gameObject.SetActive(false);
+            return;
+        }
+        // CollectIcons();
     }
 
     private void OnValidate()
@@ -40,7 +47,13 @@ public class LivesHUD : MonoBehaviour
 
     private void Start()
     {
-        CollectIcons();
+        // if(!isVisibleOnStart)
+        // {
+        //     livesContainer.gameObject.SetActive(false);
+        //     return;
+        // }
+
+        // CollectIcons();
         RefreshLives(GameEventBus.CurrentLives > 0 ? GameEventBus.CurrentLives : lifeIcons.Count);
     }
 
@@ -56,7 +69,10 @@ public class LivesHUD : MonoBehaviour
         if (livesContainer == null) return;
         foreach (Transform child in livesContainer)
         {
-            if (child != null) lifeIcons.Add(child.gameObject);
+            if (child != null)
+            {
+                lifeIcons.Add( child.GetChild(0).GetComponent<Image>() );
+            } 
         }
     }
 
@@ -71,7 +87,7 @@ public class LivesHUD : MonoBehaviour
         int lit = Mathf.Clamp(lives, 0, lifeIcons.Count);
         for (int i = 0; i < lifeIcons.Count; i++)
         {
-            if (lifeIcons[i] != null) lifeIcons[i].SetActive(i < lit);
+            if (lifeIcons[i] != null) lifeIcons[i].enabled = (i < lit);
         }
     }
 }

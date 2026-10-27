@@ -22,6 +22,9 @@ public class MinimapController : MonoBehaviour
     /// <summary>Active controller for the loaded scene. Cleared on destroy.</summary>
     public static MinimapController Instance { get; private set; }
 
+    [Header("Active State")]
+    [SerializeField] private bool isVisibleOnStart = false;
+
     [Header("Player")]
     [Tooltip("Transform the minimap is centered on. Auto-found by tag in Awake if left empty.")]
     [SerializeField] private Transform playerTransform;
@@ -63,6 +66,12 @@ public class MinimapController : MonoBehaviour
 
     private void Awake()
     {
+        if(!isVisibleOnStart)
+        {
+            this.gameObject.SetActive(false);
+            return;
+        }
+
         if (Instance != null && Instance != this)
         {
             Debug.LogWarning($"<b>[MinimapController]</b> Duplicate controller on '{name}' — destroying this one.", this);

@@ -32,9 +32,6 @@ public class GameplayUIManager : MonoBehaviour
     [SerializeField] private UIPanelAnimator gameOverPanel;
     [SerializeField] private UIPanelAnimator gameWinPanel;
 
-    [Header("HUD Elements")]
-    [SerializeField] private TextMeshProUGUI timerText;
-
     [Header("Button Hooks")]
     [SerializeField] private Button pauseButton;
     [SerializeField] private Button restartButton;
@@ -145,16 +142,16 @@ public class GameplayUIManager : MonoBehaviour
         }
     }
 
-    private void HandleTimerUpdated(float timeRemaining)
-    {
-        if (timerText == null || currentGameState != GameState.Gameplay) return;
+    // private void HandleTimerUpdated(float timeRemaining)
+    // {
+    //     if (timerText == null || currentGameState != GameState.Gameplay) return;
 
-        float clampedTime = Mathf.Max(0f, timeRemaining);
-        int minutes = (int)(clampedTime / 60);
-        int seconds = (int)(clampedTime % 60);
+    //     float clampedTime = Mathf.Max(0f, timeRemaining);
+    //     int minutes = (int)(clampedTime / 60);
+    //     int seconds = (int)(clampedTime % 60);
 
-        timerText.SetText("{0:00}:{1:00}", minutes, seconds);
-    }
+    //     timerText.SetText("{0:00}:{1:00}", minutes, seconds);
+    // }
 
     #endregion
 
