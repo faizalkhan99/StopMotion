@@ -5121,7 +5121,7 @@ MonoBehaviour:
   deceleration: 15
   maxJumpHeight: 3.5
   timeToApex: 0.5
-  fallGravityMultiplier: 3.5
+  fallGravityMultiplier: 2
   jumpCutMultiplier: 0.5
   coyoteTime: 0.1
   jumpBufferTime: 0.2
@@ -5130,11 +5130,11 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckWidth: 0.8
+  groundCheckWidth: 0.6
   groundCheckHeight: 0.1
   showDebugLogs: 1
   isGroundedDebugView: 0
-  landingMinAirTime: 0.1
+  landingMinAirTime: 0.3
 --- !u!50 &3281372965341174603
 Rigidbody2D:
   serializedVersion: 5
