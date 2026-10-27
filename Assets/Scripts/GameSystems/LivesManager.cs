@@ -81,8 +81,6 @@ public class LivesManager : MonoBehaviour
 
         isResolvingDeath = true;
         GameEventBus.TriggerRespawnRequested();
-
-        Debug.Log($" One life lost,  Current Live {CurrentLives} ");
     }
 
     /// <summary>Manual reset (e.g. debug). Scene reload already resets via Awake.</summary>

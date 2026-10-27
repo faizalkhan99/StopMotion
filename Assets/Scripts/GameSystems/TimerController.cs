@@ -4,13 +4,14 @@ using UnityPipeline.Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public class TimerController : MonoBehaviour
 {
+    [Header("Active State")]
+    [SerializeField] private bool TurnoffTimer = false;
+    
     [Header("Timer Settings")]
     [SerializeField] private float totalTime = 60f;
     [SerializeField] private bool autoStart = true;
     [SerializeField] private float timeRemaining;
 
-    [Header("Testing")]
-    [SerializeField] private bool TurnoffTimer = false;
     private bool isRunning;
     private bool wasStarted = false;
     private ITimerInfluence influence;

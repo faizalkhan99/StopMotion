@@ -57,7 +57,6 @@ public class GameStateManager : MonoBehaviour
     /// </summary>
     public void SetGameState(GameState newState)
     {
-        Debug.Log("new state: "+newState);
         if (currentGameState == newState) return;
 
         currentGameState = newState;

@@ -35,6 +35,11 @@ public class PlayerInputRouter : MonoBehaviour
     [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
     [SerializeField] private InputAction dashAction;  // Keyboard-only dash (Left Shift) — parity with touch double-tap
 
+    // Input boundary gate. The router never enables/disables actions on state
+    // changes — every sink below just refuses to consume input outside live
+    // gameplay (same convention as Hazard/Checkpoint/LivesManager/etc.).
+    private static bool IsGameplay => GameEventBus.CurrentGameState == GameState.Gameplay;
+
     // Movement input, tracked separately so keyboard (event-driven) and touch
     // (polled every frame) can be combined without either one stomping the other.
     private float keyboardX;
@@ -90,7 +95,7 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnEnable()
     {
-        GameEventBus.OnGameStateChanged += TempRouter;
+        GameEventBus.OnGameStateChanged += OnGameStateChanged;
         moveAction.performed += OnMove;
         moveAction.canceled += OnMove;
         jumpAction.started += OnKeyboardJumpPressed;
@@ -102,7 +107,7 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnDisable()
     {
-        GameEventBus.OnGameStateChanged -= TempRouter;
+        GameEventBus.OnGameStateChanged -= OnGameStateChanged;
         playerController.StopMovement();
         keyboardX = 0f;
         touchX = 0f;
@@ -134,15 +139,21 @@ public class PlayerInputRouter : MonoBehaviour
         // event-driven via OnMove() and cached in keyboardX. Combine both here.
         touchX = ReadHalfDrag(ScreenHalf.Left, DragAxis.Horizontal, out anyMovementAnchorActive);
 
-        horizontalInput = Mathf.Clamp(keyboardX + touchX, -1f, 1f);
+        // Forward movement only during live gameplay. Outside Gameplay (Paused,
+        // GameOver, LevelComplete) this pushes a persistent 0 so the controller
+        // never inherits stale cached input from a pre-transition frame.
+        horizontalInput = IsGameplay ? Mathf.Clamp(keyboardX + touchX, -1f, 1f) : 0f;
         playerController.SetHorizontalInput(horizontalInput);
 
-
-        UpdateRightHalfUpwardDrag();
+        if (IsGameplay)
+            UpdateRightHalfUpwardDrag();
     }
 
     private void OnMove(InputAction.CallbackContext context)
     {
+        if (!IsGameplay)
+            return;
+
         if (context.performed)
         {
             keyboardX = Mathf.Clamp(context.ReadValue<Vector2>().x, -1f, 1f);
@@ -162,6 +173,13 @@ public class PlayerInputRouter : MonoBehaviour
     private float ReadHalfDrag(ScreenHalf half, DragAxis axis, out bool touched)
     {
         touched = false;
+
+        // EnhancedTouchSupport gets reset by domain reloads and can be toggled
+        // externally; polling while disabled throws every frame, so treat it as
+        // "no touches" instead. Awake() enables it at session start.
+        if (!EnhancedTouchSupport.enabled)
+            return 0f;
+
         float dragValue = 0f;
 
         foreach (Touch touch in Touch.activeTouches)
@@ -224,10 +242,13 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void HandleFingerUp(Finger finger)
     {
+        if (!IsGameplay)
+            return;
+
         if (finger.screenPosition.x < Screen.width * screenSplitRatio)
             return; // Left half is movement, not taps.    
 
-        if (!upwardDragConsumed)
+        if (!upwardDragConsumed && dashController != null)
         {
             dashController.TriggerDash();
         }
@@ -279,6 +300,9 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnKeyboardJumpPressed(InputAction.CallbackContext context)
     {
+        if (!IsGameplay)
+            return;
+
         if (playerController.IsGrounded() && !isJumping)
         {
             isJumping = true;
@@ -295,6 +319,9 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnKeyboardJumpReleased(InputAction.CallbackContext context)
     {
+        if (!IsGameplay)
+            return;
+
         playerController.OnJumpButtonReleased();
 
         // Reset on key release rather than only on landing, so a stuck grounded
@@ -304,13 +331,16 @@ public class PlayerInputRouter : MonoBehaviour
 
     private void OnKeyboardDashTriggered(InputAction.CallbackContext context)
     {
+        if (!IsGameplay)
+            return;
+
         dashController.TriggerDash();
     }
     #endregion
 
     private void TriggerTouchJump()
     {
-        if (!playerController.IsGrounded() || isJumping)
+        if (!IsGameplay || !playerController.IsGrounded() || isJumping)
             return;
 
         isJumping = true;
@@ -327,14 +357,28 @@ public class PlayerInputRouter : MonoBehaviour
         EnhancedTouchSupport.Disable();
     }
 
-    private void TempRouter(GameState gamestate)
+    private void OnGameStateChanged(GameState newState)
     {
-        if (gamestate == GameState.LevelComplete || gamestate == GameState.GameOver)
+        // Flush buffered/transient input on every state transition so nothing
+        // bleeds across a pause, game over, respawn, restart, or level load.
+        // Actions stay enabled — sinks gate on IsGameplay instead, so input
+        // can never be accidentally left disabled by a missed transition.
+        keyboardX = 0f;
+        touchX = 0f;
+        horizontalInput = 0f;
+        anyMovementAnchorActive = false;
+        anyJumpAnchorActive = false;
+        isJumping = false;
+        upwardDragConsumed = false;
+
+        if (tapWindowRoutine != null)
         {
-            moveAction?.Disable();
-            jumpAction?.Disable();
-            dashAction?.Disable();
-            EnhancedTouchSupport.Disable();
+            StopCoroutine(tapWindowRoutine);
+            tapWindowRoutine = null;
         }
+        tapCount = 0;
+
+        if (playerController != null)
+            playerController.StopMovement();
     }
 }
