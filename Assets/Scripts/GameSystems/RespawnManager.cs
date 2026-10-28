@@ -40,7 +40,6 @@ public class RespawnManager : MonoBehaviour
 
     private Rigidbody2D playerRb;
     private PlayerController playerController;
-    private PlayerKeyboardInput keyboardInput;
     private PlayerInputRouter inputRouter;
     private SpriteRenderer[] playerSprites;
 
@@ -166,7 +165,6 @@ public class RespawnManager : MonoBehaviour
 
     private void SetInputEnabled(bool state)
     {
-        if (keyboardInput != null) keyboardInput.enabled = state;
         if (inputRouter != null) inputRouter.enabled = state;
     }
 
@@ -183,8 +181,6 @@ public class RespawnManager : MonoBehaviour
         if (playerRb == null) playerRb = playerTransform.GetComponentInChildren<Rigidbody2D>();
         playerController = playerTransform.GetComponent<PlayerController>();
         if (playerController == null) playerController = playerTransform.GetComponentInChildren<PlayerController>();
-        keyboardInput = playerTransform.GetComponent<PlayerKeyboardInput>();
-        if (keyboardInput == null) keyboardInput = playerTransform.GetComponentInChildren<PlayerKeyboardInput>();
         inputRouter = playerTransform.GetComponent<PlayerInputRouter>();
         if (inputRouter == null) inputRouter = playerTransform.GetComponentInChildren<PlayerInputRouter>();
         playerSprites = playerTransform.GetComponentsInChildren<SpriteRenderer>(true);

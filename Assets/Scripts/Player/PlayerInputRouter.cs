@@ -10,35 +10,18 @@ public class PlayerInputRouter : MonoBehaviour
     [Tooltip("The player controller this router drives. Auto-found on this GameObject if left null.")]
     [SerializeField] private PlayerController playerController;
 
-    [Tooltip(" The Dash Mechanic Script")]
-    [SerializeField] private PlayerDash dashController;
-
-    [Header("Screen Split")]
-    [Tooltip("Fraction of screen width. Columns left of this boundary = movement zone, right = jump/dash zone. 0.5 = split down the middle.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float screenSplitRatio = 0.5f;
-
-    [Header("Movement Drag")]
-    [Tooltip("Horizontal drag distance (in screen pixels) that maps to full left/right movement.")]
-    [SerializeField] private float maxDragDistance = 150f;
-
-    [Header("Upward Drag (right half)")]
-    [Tooltip("Normalized drag distance (0-1, as a fraction of maxDragDistance) the right-half finger must move upward before it counts as an upward-drag trigger.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float upwardDragThreshold = 0.5f;
-
-    [Header("Tap / Multi-Tap")]
-    [Tooltip("How long to wait after a tap to see if a second tap arrives before committing to jump vs dash.")]
-    [SerializeField] private float tapDelay = 0.2f;
-
-    [SerializeField] private InputAction moveAction;
-    [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
-    [SerializeField] private InputAction dashAction;  // Keyboard-only dash (Left Shift) — parity with touch double-tap
+    [Header("Touch Config")]
+    [Tooltip("Inspector-controllable touch tuning, grouped in one serializable config.")]
+    [SerializeField] private TouchInputConfig touchConfig = new TouchInputConfig();
 
     // Input boundary gate. The router never enables/disables actions on state
     // changes — every sink below just refuses to consume input outside live
     // gameplay (same convention as Hazard/Checkpoint/LivesManager/etc.).
     private static bool IsGameplay => GameEventBus.CurrentGameState == GameState.Gameplay;
+
+    [SerializeField] private InputAction moveAction;
+    [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
+    [SerializeField] private InputAction dashAction;  // Keyboard-only dash (<Keyboard>/f) — parity with touch double-tap
 
     // Movement input, tracked separately so keyboard (event-driven) and touch
     // (polled every frame) can be combined without either one stomping the other.
@@ -86,10 +69,15 @@ public class PlayerInputRouter : MonoBehaviour
         jumpAction = new InputAction("Jump", InputActionType.Button, "<Keyboard>/space");
         jumpAction.Enable();
 
-        // Dash: Left Shift (desktop). Was previously Enable()'d without ever being
-        // constructed/bound — threw at runtime if the Inspector binding was missing.
-        // Touch dash does NOT go through this action; it's driven by the double-tap
-        // debounce in TapWindowRoutine() below.
+        // Dash: <Keyboard>/f (desktop). The action binding is serialized with the component,
+        // but freshly-added components have no serialized action — construct the same default
+        // binding here so Enable() can never null-throw (was a runtime NRE before the guard).
+        // Touch dash does NOT go through this action; it's driven by the tap debounce
+        // in TapWindowRoutine() below.
+        if (dashAction == null)
+        {
+            dashAction = new InputAction("Dash", InputActionType.Button, "<Keyboard>/f");
+        }
         dashAction.Enable();
     }
 
@@ -184,7 +172,7 @@ public class PlayerInputRouter : MonoBehaviour
 
         foreach (Touch touch in Touch.activeTouches)
         {
-            bool isLeftSide = touch.screenPosition.x < Screen.width * screenSplitRatio;
+            bool isLeftSide = touch.screenPosition.x < Screen.width * touchConfig.screenSplitRatio;
 
             if (half == ScreenHalf.Left && !isLeftSide)
                 continue;
@@ -197,7 +185,7 @@ public class PlayerInputRouter : MonoBehaviour
                 ? touch.screenPosition.x - touch.startScreenPosition.x
                 : touch.screenPosition.y - touch.startScreenPosition.y;
 
-            dragValue = Mathf.Clamp(delta / maxDragDistance, -1f, 1f);
+            dragValue = Mathf.Clamp(delta / touchConfig.maxDragDistance, -1f, 1f);
             break; // Use the first finger found on that half.
         }
 
@@ -220,7 +208,7 @@ public class PlayerInputRouter : MonoBehaviour
         }
 
         // Screen Y increases upward in Unity, so a positive dragY is already "up".
-        if (!upwardDragConsumed && dragY >= upwardDragThreshold)
+        if (!upwardDragConsumed && dragY >= touchConfig.upwardDragThreshold)
         {
             upwardDragConsumed = true;
             OnRightHalfUpwardDrag();
@@ -245,20 +233,20 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
-        if (finger.screenPosition.x < Screen.width * screenSplitRatio)
+        if (finger.screenPosition.x < Screen.width * touchConfig.screenSplitRatio)
             return; // Left half is movement, not taps.    
 
-        if (!upwardDragConsumed && dashController != null)
+        if (!upwardDragConsumed)
         {
-            dashController.TriggerDash();
+            playerController.TriggerDash();
         }
     }
     private void HandleFingerDown(Finger finger)
     {
-        if (finger.screenPosition.x < Screen.width * screenSplitRatio)
+        if (finger.screenPosition.x < Screen.width * touchConfig.screenSplitRatio)
             return; // Left half is movement, not taps.
 
-        // dashController.TriggerDash();
+        // playerController.TriggerDash();
         // tapCount++;
 
         // if (tapWindowRoutine != null)
@@ -269,12 +257,12 @@ public class PlayerInputRouter : MonoBehaviour
 
     private IEnumerator TapWindowRoutine()
     {
-        yield return new WaitForSeconds(tapDelay);
+        yield return new WaitForSeconds(touchConfig.tapDelay);
 
         if (tapCount >= 2)
         {
             // Debug.Log("Dash performed via MultiTap!");
-            dashController.TriggerDash();
+            playerController.TriggerDash();
         }
         else if (playerController.IsGrounded() && !isJumping)
         {
@@ -334,7 +322,7 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
-        dashController.TriggerDash();
+        playerController.TriggerDash();
     }
     #endregion
 
@@ -380,5 +368,29 @@ public class PlayerInputRouter : MonoBehaviour
 
         if (playerController != null)
             playerController.StopMovement();
+    }
+
+    /// <summary>
+    /// Inspector-controllable touch tuning, exposed through the router behaviour as one
+    /// serializable config (rule: modules with tunables don't need their own components).
+    /// </summary>
+    [System.Serializable]
+    public class TouchInputConfig
+    {
+        [Header("Screen Split")]
+        [Tooltip("Fraction of screen width. Columns left of this boundary = movement zone, right = jump/dash zone. 0.5 = split down the middle.")]
+        [Range(0f, 1f)] public float screenSplitRatio = 0.5f;
+
+        [Header("Movement Drag")]
+        [Tooltip("Horizontal drag distance (in screen pixels) that maps to full left/right movement.")]
+        public float maxDragDistance = 150f;
+
+        [Header("Upward Drag (right half)")]
+        [Tooltip("Normalized drag distance (0-1, as a fraction of maxDragDistance) the right-half finger must move upward before it counts as an upward-drag trigger.")]
+        [Range(0f, 1f)] public float upwardDragThreshold = 0.5f;
+
+        [Header("Tap / Multi-Tap")]
+        [Tooltip("How long to wait after a tap to see if a second tap arrives before committing to jump vs dash.")]
+        public float tapDelay = 0.2f;
     }
 }

@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d556e944270e4f82a94ef4d2bc364cb0, type: 3}
+  m_Name: PlayerDashProfile
+  m_EditorClassIdentifier: 
+  canDash: 1
+  dashSpeed: 20
+  dashDuration: 0.2
+  dashCoolDownTime: 1
+  maxDashCollectableCount: 3
+  startingDashCharges: 3
+  echoPrefab: {fileID: 8810775629018990540, guid: 82c3da09b139c4c66bb176f161e51c13, type: 3}
+  echoSpawnInterval: 0.04
+  echoPoolSize: 5
