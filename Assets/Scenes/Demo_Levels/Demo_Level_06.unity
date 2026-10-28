@@ -22648,7 +22648,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &253630161
 BoxCollider2D:
@@ -31515,7 +31515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &354568064
 BoxCollider2D:
@@ -36578,7 +36578,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &413605242
 BoxCollider2D:
@@ -57809,7 +57809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &619957498
 BoxCollider2D:
@@ -63070,7 +63070,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &676404334
 BoxCollider2D:
@@ -76729,7 +76729,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &840029657
 BoxCollider2D:
@@ -81410,7 +81410,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &900767706
 BoxCollider2D:
@@ -92752,7 +92752,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &1024341174
 BoxCollider2D:
@@ -127809,7 +127809,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &1417358003
 BoxCollider2D:
@@ -147071,6 +147071,18 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 52.356613
       objectReference: {fileID: 0}
+    - target: {fileID: 3114214441863045942, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: m_BackGroundColor.b
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3114214441863045942, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3114214441863045942, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 3647368739686580810, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: isVisibleOnStart
       value: 1
@@ -150650,7 +150662,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &1660329424
 BoxCollider2D:
@@ -156991,7 +157003,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &1739153882
 BoxCollider2D:
@@ -161823,7 +161835,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraControlTrigger
   panDirection: 1
-  panDistance: 5
+  panDistance: 3
   panTime: 0.35
 --- !u!61 &1799412993
 BoxCollider2D:

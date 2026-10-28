@@ -312,7 +312,7 @@ Shader "Custom/URP2DSquareCircumferenceGlow"
         _GlowFalloff ("Glow Smoothness / Falloff", Range(0.1, 4.0)) = 1.5
 
         //[Header(Glow Color & Intensity)]
-        [HDR]_GlowColor ("HDR Glow Color", Color) = (0, 1, 1, 1)
+        _GlowColor ("HDR Glow Color", Color) = (0, 1, 1, 1)
         _GlowIntensity ("Glow Intensity (For Bloom)", Range(0.0, 20.0)) = 3.0
 
         //[Header(Animated Travel Around Perimeter)]
