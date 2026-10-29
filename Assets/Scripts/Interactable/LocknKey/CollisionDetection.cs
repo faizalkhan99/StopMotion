@@ -8,7 +8,8 @@ public class CollisionDetection : MonoBehaviour
     public enum InteractableItems
     {
         Key,
-        ReverseTimeAbility
+        ReverseTimeAbility,
+        DashCharge
     }
 
     public bool IsKeyItem => item == InteractableItems.Key;
@@ -56,6 +57,13 @@ public class CollisionDetection : MonoBehaviour
                 GameEventBus.TriggerReverseVines();
                 TurnOffItem();
             break;
+
+            case InteractableItems.DashCharge:
+                // DashEngine listens on this bus (only while dashProfile.canDash) —
+                // replaces the deleted ToDashItem component's contract.
+                GameEventBus.TriggerPlayerContactWithItem();
+                TurnOffItem();
+            break;
         }
     }
 
@@ -68,8 +76,8 @@ public class CollisionDetection : MonoBehaviour
     }
     private void TurnOffItem()
     {
-        collider2D.enabled = false;
-        spriteRenderer.enabled = false;
+        if (collider2D != null) collider2D.enabled = false;
+        if (spriteRenderer != null) spriteRenderer.enabled = false;
     }
 }
 

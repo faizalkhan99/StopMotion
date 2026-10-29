@@ -1,53 +1,31 @@
 using System.Collections;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
 
 [RequireComponent(typeof(SpriteRenderer))]
 public class PlayerVisuals : MonoBehaviour
 {
-    // [Header("Visual Settings")]
-    // [Tooltip("How fast the character tilts or smooth-flips when changing direction.")]
-    // [SerializeField] private float turnSmoothness = 15f;
-    // [Tooltip("The color the player flashes when violating a timer rule.")]
-    // [SerializeField] private Color warningColor = Color.red;
-    // [Tooltip("Intensity of the violent shake during the grace period.")]
-    // [SerializeField] private float shakeIntensity = 0.15f;
-    // [Tooltip("Speed at which the sprite recovers its original scale and color.")]
-    // [SerializeField] private float recoverySpeed = 8f;
+    [Header("Visual Profile (ScriptableObject)")]
+    [SerializeField] private PlayerVisualProfileSO visualProfile;
 
-    [Header("Optional VFX References")]
-    [SerializeField] private ParticleSystem confidentTrailVFX;
+    [Header("VFX References")]
     [SerializeField] private ParticleSystem destroyVFX;
     [SerializeField] private GameObject smokeVFX;
 
     [Header("Player's UI")]
     [SerializeField] private CanvasGroup keyImage;
-    [SerializeField] private float keyFadeDuration = 0.35f;
 
     [Header("Player's Face Data")]
     [SerializeField] private FaceChangeMechanic faceData;
+    [SerializeField] private Playerface currentPlayerFace;
 
     [Header("Directional Facing")]
     [Tooltip("Rotated 180 degrees on Y to face left. Child of the player root; keeps physics colliders and ground checks unflipped.")]
     [SerializeField] private Transform facingRoot;
 
-    [Header("Player Squash Config")]
-    [SerializeField] private float dashSquashAmount;
-    [SerializeField] private float dashSquashDuration;
-    [SerializeField] private float jumpUpSquashAmount;
-    [SerializeField] private float jumpUpSquashDuration;
-    [SerializeField] private float landSquashAmount;
-    [SerializeField] private float landSquashDuration;
-
-    [Header("Player's Animation")]
-    [SerializeField] private float blinkDelay;
-    [SerializeField] private float blinkDuration = 0.15f;
-    [SerializeField] private float idleDelay = 2f;
-
-    [Header("Optional VFX References")]
+    [Header("Player Transform")]
     [SerializeField] private Transform playerSquahTransform;
+
     private float blinkDelayTimer;
     private float blinkDurationTimer;
     private float idleTimer;
@@ -63,53 +41,37 @@ public class PlayerVisuals : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rootRigidbody;
     private PlayerController playerController;
-    private PlayerKeyboardInput playerKeyboardInput;
+    private PlayerInputRouter playerInputRouter;
 
-    [Header("Player Test Var")]
-    public Playerface currentPlayerFace;
-    private ParticleSystem jumpUpTrailVFX;
-    private GameObject particleObject;
+    private Coroutine keyFadeRoutine;
+
+    // Pooled jump/land puffs — plain-class pool from Modules/SmokePool.cs;
+    // its LateUpdate Tick() releases finished puffs back into the pool.
+    private SmokePool smokePool;
 
     // Destroy State
     private bool isDestroyed;
 
-    private Coroutine keyFadeRoutine;
-
     // Zero-GC State Tracking
-    private Vector3 initialLocalPosition;
-    private Vector3 initialLocalScale;
-    private Color originalColor;
-    private float currentViolationSeverity;
-    private ChronoState currentChronoState;
     private GameState currentGameState = GameState.Booting;
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        initialLocalPosition = transform.localPosition;
-        initialLocalScale = transform.localScale;
-        originalColor = spriteRenderer.color;
+
         keysCollected = 0;
         spriteRenderer.flipX = false;
+
+        if (visualProfile == null)
+        {
+            Debug.LogError("<b>[PlayerVisuals]</b> Visual profile not assigned — squash/blink/puff settings fall back to code defaults!");
+        }
 
         // We only need the parent Rigidbody to read horizontal velocity for flipping.
         // No ChronoController reference is required anymore!
         rootRigidbody = GetComponentInParent<Rigidbody2D>();
         playerController = GetComponentInParent<PlayerController>();
-        playerKeyboardInput = GetComponentInParent<PlayerKeyboardInput>();
-
-        // CreataAChild();
-        // if (particleObject.TryGetComponent<ParticleSystem>(out ParticleSystem ps))
-        // {
-        //     jumpUpTrailVFX = ps;
-
-        //     var main = ps.main;
-        //     main.stopAction = ParticleSystemStopAction.None;
-        // }     
-        // else
-        // {
-        //     Debug.LogWarning(" NO Particle System Found! ");
-        // }   
+        playerInputRouter = GetComponentInParent<PlayerInputRouter>();
 
         if (rootRigidbody == null)
         {
@@ -120,38 +82,37 @@ public class PlayerVisuals : MonoBehaviour
         {
             Debug.LogError("<b>[PlayerVisuals]</b> FacingRoot not assigned — directional facing disabled!");
         }
+
+        smokePool = new SmokePool(smokeVFX, visualProfile != null ? visualProfile.SmokePoolSize : 6);
+        smokePool.TryCreate();
     }
-    private void Start()
-    {
-        keyFadeRoutine = null;
-    }
+
     private void OnEnable()
     {
         // Subscribe directly to our centralized, zero-allocation switchboard
-        GameEventBus.OnChronoStateChanged += HandleChronoStateChanged;
-        GameEventBus.OnGracePeriodUpdated += HandleGraceViolation;
+        // GameEventBus.OnGracePeriodUpdated += HandleGraceViolation;
         GameEventBus.OnGameStateChanged += HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered += HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange += UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash += HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash += HandlePlayerScale;
-        GameEventBus.OnPlayerGroundImpact += SpawnVfx;
+        GameEventBus.OnPlayerGroundImpact += HandleGroundImpact;
         GameEventBus.OnPlayerRespawned += HandlePlayerRespawned;
     }
 
     private void OnDisable()
     {
         // Unsubscribe to prevent dangling delegates and memory leaks
-        GameEventBus.OnChronoStateChanged -= HandleChronoStateChanged;
-        GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
+        // GameEventBus.OnGracePeriodUpdated -= HandleGraceViolation;
         GameEventBus.OnGameStateChanged -= HandleGameStateChanged;
         GameEventBus.OnGameOverTriggered -= HandleGameOverTriggered;
         GameEventBus.OnPlayerFaceChange -= UpdateFaceOnPlayer;
         GameEventBus.OnPlayerDash -= HandleDashEffects;
         GameEventBus.OnPlayerJumpSquash -= HandlePlayerScale;
-        GameEventBus.OnPlayerGroundImpact -= SpawnVfx;
+        GameEventBus.OnPlayerGroundImpact -= HandleGroundImpact;
         GameEventBus.OnPlayerRespawned -= HandlePlayerRespawned;
         isLandingSquashActive = false;
+        if (smokePool != null) smokePool.ReleaseAll();
     }
 
     private void Update()
@@ -163,13 +124,13 @@ public class PlayerVisuals : MonoBehaviour
 
         HandleDirectionalFacing();
         UpdateBlink();
-        // ApplyJuiceEffects();
         HandleUpdatedFace();
-        // CheckFrozenViolation();
     }
 
     private void LateUpdate()
     {
+        smokePool?.Tick();
+
         if (isDestroyed) return;
         if (currentGameState == GameState.Paused) return;
 
@@ -210,36 +171,6 @@ public class PlayerVisuals : MonoBehaviour
     }
 
     /// <summary>
-    /// Visual-only idle detection — polls PlayerController.IsIdle (raw grounded + no horizontal input).
-    /// Runs in LateUpdate so Controller.Update() has already refreshed isGrounded/horizontalInput.
-    /// After idleDelay, triggers repeated blinks every blinkDelay while idle persists.
-    /// </summary>
-    private void UpdateIdleState()
-    {
-        bool isIdle = playerController != null && playerController.IsIdle;
-
-        if (!isIdle)
-        {
-            idleTimer = 0f;
-            blinkDelayTimer = 0f;
-            return;
-        }
-
-        idleTimer += Time.deltaTime;
-        if (idleTimer < idleDelay) return;
-
-        // Already blinking — let UpdateBlink() finish duration before retriggering
-        if (isBlinking) return;
-
-        blinkDelayTimer += Time.deltaTime;
-        if (blinkDelayTimer >= blinkDelay)
-        {
-            StartBlink();
-            blinkDelayTimer = 0f;
-        }
-    }
-
-    /// <summary>
     /// Mirrors facing by rotating the FacingRoot child 180 degrees on Y based on
     /// horizontal velocity. Replaces SpriteRenderer.flipX so Cinemachine tracking
     /// targets parented under FacingRoot swing sides with facing. Physics root untouched.
@@ -262,42 +193,6 @@ public class PlayerVisuals : MonoBehaviour
                 facingRoot.localRotation = targetRotation;
             }
         }
-        // else
-        // {
-        //     UpdateFaceOnPlayer(Playerface.Idle);
-        // }
-    }
-
-    /// <summary>
-    /// Event receiver: Controls particle trails and visual state transitions.
-    /// </summary>
-    private void HandleChronoStateChanged(ChronoState newState)
-    {
-        currentChronoState = newState;
-
-        if (confidentTrailVFX != null)
-        {
-            switch (newState)
-            {
-                case ChronoState.Ticking:
-                    confidentTrailVFX.Play();
-                    break;
-                case ChronoState.Frozen:
-                    confidentTrailVFX.Pause(); // Freezes particles in mid-air for visual stasis
-                    break;
-                default:
-                    confidentTrailVFX.Stop();
-                    break;
-            }
-        }
-    }
-
-    /// <summary>
-    /// Event receiver: Updates visual severity during rule violations.
-    /// </summary>
-    private void HandleGraceViolation(float severity)
-    {
-        currentViolationSeverity = severity;
     }
 
     /// <summary>
@@ -333,31 +228,17 @@ public class PlayerVisuals : MonoBehaviour
         isDestroyed = false;
         isBlinking = false;
         isLandingSquashActive = false;
-        currentViolationSeverity = 0f;
         currentPlayerFace = Playerface.Idle;
         HandleUpdatedFace();
         if (spriteRenderer != null) spriteRenderer.enabled = true;
-        if (playerKeyboardInput != null) playerKeyboardInput.enabled = true;
-        transform.localScale = initialLocalScale;
+        if (playerInputRouter != null) playerInputRouter.enabled = true;
         if (facingRoot != null) facingRoot.localRotation = Quaternion.identity;
     }
 
     /// <summary>
     /// Triggers the destroy VFX, hides the player visuals, and disables input/control.
     /// </summary>
-    // public void TriggerDestroy()
-    // {
-    //     if (isDestroyed) return;
-    //     isDestroyed = true;
-
-    //     GameEventBus.TriggerCameraShake();
-    //     destroyVFX?.Play();
-    //     GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion); 
-    //     spriteRenderer.enabled = false;
-
-    //     StopPlayerMovement();
-    // }
-    public void TriggerDestroy() //added function
+    public void TriggerDestroy()
     {
         if (isDestroyed) return;
         isDestroyed = true;
@@ -375,18 +256,16 @@ public class PlayerVisuals : MonoBehaviour
         destroyVFX?.Play();
         GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
 
-        // spriteRenderer.enabled = false;  // removed: player stays visible after the explosion
-
         StopPlayerMovement();
     }
 
     private void StopPlayerMovement()
     {
-        if (playerKeyboardInput != null) playerKeyboardInput.enabled = false;
+        if (playerInputRouter != null) playerInputRouter.enabled = false;
         if (playerController != null) playerController.StopMovement();
     }
 
-
+#region Key Collected
     /// <summary>
     /// Shows canvas in Player's UI
     /// </summary>
@@ -418,40 +297,30 @@ public class PlayerVisuals : MonoBehaviour
         }
     }
 
+    private bool HasVisualProfile => visualProfile != null;
+
     private System.Collections.IEnumerator FadeKeyImage(float targetAlpha)
     {
         if (keyImage == null) yield break;
 
         float startAlpha = keyImage.alpha;
         float elapsed = 0f;
+        float fadeDuration = HasVisualProfile ? visualProfile.KeyFadeDuration : 0.35f;
 
-        while (elapsed < keyFadeDuration)
+        while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            keyImage.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / keyFadeDuration);
+            keyImage.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / fadeDuration);
             yield return null;
         }
 
         keyImage.alpha = targetAlpha;
         keyFadeRoutine = null;
     }
-
+#endregion
     #region Face Changing
 
-    // private void UpdateFaceOnPlayer(Playerface face)
-    // {
-    //     if (currentPlayerFace == face) return;
-
-    //     var tempface = currentPlayerFace;
-    //     currentPlayerFace = face;
-
-    //     HandleJumpVFX(face);
-
-    //     if (face == Playerface.Idle)
-    //         UpdateFaceAfterAction();
-    //     // Debug.Log($"[PlayerVisuals] : Face changed from {tempface} to {currentPlayerFace}");
-    // }
-    private void UpdateFaceOnPlayer(Playerface face) //added function
+    private void UpdateFaceOnPlayer(Playerface face)
     {
         // Once dead, the face is locked to Die
         if (currentPlayerFace == Playerface.Die && face != Playerface.Die) return;
@@ -475,16 +344,45 @@ public class PlayerVisuals : MonoBehaviour
     }
 
     #region Eye Blinking
+    /// <summary>
+    /// Visual-only idle detection — polls PlayerController.IsIdle (raw grounded + no horizontal input).
+    /// Runs in LateUpdate so Controller.Update() has already refreshed isGrounded/horizontalInput.
+    /// After idleDelay, triggers repeated blinks every blinkDelay while idle persists.
+    /// </summary>
+    private void UpdateIdleState()
+    {
+        bool isIdle = playerController != null && playerController.IsIdle;
+        float idleDelay = HasVisualProfile ? visualProfile.IdleDelay : 2f;
+        float blinkDelay = HasVisualProfile ? visualProfile.BlinkDelay : 2f;
+
+        if (!isIdle)
+        {
+            idleTimer = 0f;
+            blinkDelayTimer = 0f;
+            return;
+        }
+
+        idleTimer += Time.deltaTime;
+        if (idleTimer < idleDelay) return;
+
+        // Already blinking — let UpdateBlink() finish duration before retriggering
+        if (isBlinking) return;
+
+        blinkDelayTimer += Time.deltaTime;
+        if (blinkDelayTimer >= blinkDelay)
+        {
+            StartBlink();
+            blinkDelayTimer = 0f;
+        }
+    }
     private void StartBlink()
     {
         if (isBlinking || currentPlayerFace == Playerface.Die) return;
 
-        // gameplayFace = lastGameplayFace;
         isBlinking = true;
         currentPlayerFace = Playerface.Blink;
-        blinkDurationTimer = blinkDuration;
+        blinkDurationTimer = HasVisualProfile ? visualProfile.BlinkDuration : 0.15f;
         blinkDelayTimer = 0f;
-
     }
 
     private void UpdateBlink()
@@ -549,48 +447,33 @@ public class PlayerVisuals : MonoBehaviour
 
     private void HandleJumpVFX(Playerface face)
     {
-
         switch (face)
         {
             case Playerface.JumpUp:
-
-                // if (jumpUpTrailVFX != null && !jumpUpTrailVFX.isPlaying)
-                // {
                 SpawnVfx(transform.position);
-                // jumpUpTrailVFX.Play();
-                // Debug.Log($"[VFX] :  Dust Playing ");
-                // }
-
-                break;
-
-            case Playerface.FallDown_Impact:
-
-                // if (jumpUpTrailVFX != null && jumpUpTrailVFX.isPlaying)
-                // {
-                // jumpUpTrailVFX.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-                // Debug.Log($"[VFX] :  Stopped Playing ");
-                // }
-
                 break;
         }
     }
 
+    private void HandleGroundImpact(Vector2 position)
+    {
+        SpawnVfx(position);
+    }
+
     private void SpawnVfx(Vector2 position)
     {
-        if (smokeVFX == null) return;
-
-        GameObject vfx = Instantiate(smokeVFX);
-        vfx.transform.position = position;
-        vfx.GetComponent<ParticleSystem>().Play();
+        smokePool?.Spawn(position);
     }
+
     #endregion
 
     #region Dashing Effects
 
     private void HandleDashEffects()
     {
-        // GameEventBus.TriggerCameraShake();
-        SquashPlayer(dashSquashAmount, dashSquashDuration);
+        SquashPlayer(
+            HasVisualProfile ? visualProfile.DashSquashAmount : 0.8f,
+            HasVisualProfile ? visualProfile.DashSquashDuration : 0.2f);
         UpdateFaceOnPlayer(Playerface.Dash);
     }
     private void SquashPlayer(float amount, float duration)
@@ -606,9 +489,13 @@ public class PlayerVisuals : MonoBehaviour
     private void HandlePlayerScale(bool onAir)
     {
         if (onAir)
-            HandleJumpSquash(onAir, scaleAmount: jumpUpSquashAmount, scaleDuration: jumpUpSquashDuration, squashableObj: transform);
+            HandleJumpSquash(onAir, scaleAmount: HasVisualProfile ? visualProfile.JumpUpSquashAmount : 1.5f,
+                scaleDuration: HasVisualProfile ? visualProfile.JumpUpSquashDuration : 0.2f,
+                squashableObj: transform);
         else
-            HandleJumpSquash(onAir, scaleAmount: landSquashAmount, scaleDuration: landSquashDuration, squashableObj: playerSquahTransform);
+            HandleJumpSquash(onAir, scaleAmount: HasVisualProfile ? visualProfile.LandSquashAmount : 0.7f,
+                scaleDuration: HasVisualProfile ? visualProfile.LandSquashDuration : 0.2f,
+                squashableObj: playerSquahTransform);
     }
 
     // Handles the jump squash animation triggered via GameEventBus
@@ -643,16 +530,5 @@ public class PlayerVisuals : MonoBehaviour
                         }
                     });
             });
-    }
-
-    private void CreataAChild()
-    {
-        particleObject = Instantiate(
-            smokeVFX,
-            transform
-        );
-
-        particleObject.transform.localPosition = Vector3.zero;
-        particleObject.transform.localRotation = Quaternion.identity;
     }
 }

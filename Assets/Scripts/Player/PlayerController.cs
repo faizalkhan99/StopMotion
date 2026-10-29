@@ -3,101 +3,88 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] PlayerDash playerDash;
+    [Header("Config Profiles (ScriptableObjects)")]
+    [SerializeField] private PlayerLocomotionProfileSO locomotionProfile;
+    [SerializeField] private PlayerDashProfileSO dashProfile;
+
     [SerializeField] PlayerInputRouter playerInput;
 
-    [Header("Movement")]
-    [Tooltip("Maximum horizontal speed in units per second.")]
-    [SerializeField] private float maxSpeed = 8f;
-    [Tooltip("How fast the player reaches max speed.")]
-    [SerializeField] private float acceleration = 50f;
-    [Tooltip("How fast the player stops when no input is provided. High values give snappy shooter controls.")]
-    [SerializeField] private float deceleration = 60f;
-
-
-    [Header("Jump Architecture (Kinematic Math)")]
-    [Tooltip("The exact peak height of the jump in Unity units.")]
-    [SerializeField] private float maxJumpHeight = 3.5f;
-    [Tooltip("Time in seconds to reach the jump apex. Lower values = faster, snappier jump.")]
-    [SerializeField] private float timeToApex = 0.35f;
-    [Tooltip("Multiplier applied to gravity when falling. > 1 means falling is faster than rising (heavy, realistic gravity).")]
-    [SerializeField] private float fallGravityMultiplier = 1.8f;
-    [Tooltip("Reduces vertical velocity by this percentage when the jump button is released early (0.5 = 50% cut).")]
-    [Range(0f, 1f)]
-    [SerializeField] private float jumpCutMultiplier = 0.5f;
-
-    [Header("Juice & Responsiveness (Tolerances)")]
-    [Tooltip("Time in seconds player can still jump after falling off a ledge.")]
-    [SerializeField] private float coyoteTime = 0.1f;
-    [Tooltip("Time in seconds a jump input is remembered before hitting the ground.")]
-    [SerializeField] private float jumpBufferTime = 0.1f;
+    [Header("Scene References")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform dashEchoParent;
 
     [Header("Collision Checks")]
-    [SerializeField] private Transform groundCheck;
-    [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float groundCheckWidth = 0.8f;
-    [SerializeField] private float groundCheckHeight = 0.1f;
 
     [Header("Debug & Diagnostics")]
     [Tooltip("Enable to see exact reasons why jumps fail in the Console.")]
     [SerializeField] private bool showDebugLogs = true;
     [SerializeField] private bool isGroundedDebugView; // Read-only view in Inspector
 
-    // Jump Descending Detection
-    private bool detectJump = false;
-    private bool hasStartedDescending = false;
-
-    // Internal Physics & Mechanics
     private Rigidbody2D rb;
     private float baseGravityScale;
-    private float initialJumpVelocity;
+
+    // ---- Plain-class modules (no MonoBehaviour) — wired once in Awake ----
+    private GroundSensor groundSensor;
+    private JumpEngine jumpEngine;
+    private LocomotionEngine locomotion;
+    private DashEngine dashEngine;
+    private EchoTrailSpawner echoSpawner;
+    private FallDampingRelay fallDamping;
 
     // Input State (Driven by public mobile methods)
     private float horizontalInput;
-    private bool isGrounded;
-    private bool wasGrounded;
-    public bool isDashing { get; private set; } = false;
+
+    public bool isDashing => dashEngine != null && dashEngine.IsDashing;
+    public float DashDirectionX => dashEngine != null ? dashEngine.DirectionX : 1f;
 
     // Idle query - raw grounded (no coyote) for visual idle detection
-    public bool IsIdle => isGrounded && Mathf.Abs(horizontalInput) < 0.01f;
-    public bool IsGroundedRaw => isGrounded;
-
-    // Zero-GC Timers
-    private float coyoteTimer;
-    private float jumpBufferTimer;
-
-    [Tooltip("Min continuous airtime before a re-ground counts as a landing. Filters 1-frame separation flicker on moving platforms.")]
-    [SerializeField, Range(0.03f, 1f)] private float landingMinAirTime = 0.1f;
-    private float airborneTimer;
-
-    // Zero-GC Physics Buffer (Pre-allocated array prevents runtime garbage)
-    private readonly Collider2D[] groundHitBuffer = new Collider2D[1];
-    private ContactFilter2D groundFilter;
+    public bool IsIdle => IsGroundedRaw && Mathf.Abs(horizontalInput) < 0.01f;
+    public bool IsGroundedRaw => groundSensor != null && groundSensor.IsGroundedRaw;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+
+        if (locomotionProfile == null)
+        {
+            Debug.LogError("<b>[PlayerController]</b> Locomotion profile not assigned — player disabled.");
+            enabled = false;
+            return;
+        }
+
+        if (dashProfile == null)
+        {
+            Debug.LogError("<b>[PlayerController]</b> Dash profile not assigned — player disabled.");
+            enabled = false;
+            return;
+        }
+
         EnforceZeroFriction();
-        // 1. Calculate physics formulas based on designer metrics
-        float calculatedGravity = -(2f * maxJumpHeight) / (timeToApex * timeToApex);
+        WireModules();
+        groundSensor.OnLanded += GroundImpactDetection;
+    }
+
+    /// <summary>
+    /// 1. Calculate physics formulas based on designer metrics, then wire every plain-class
+    /// module. Profiles carry the inspector-controllable numbers; this behaviour stays a
+    /// thin pump + scene-reference holder.
+    /// </summary>
+    private void WireModules()
+    {
+        float calculatedGravity = -(2f * locomotionProfile.MaxJumpHeight) / (locomotionProfile.TimeToApex * locomotionProfile.TimeToApex);
         baseGravityScale = calculatedGravity / Physics2D.gravity.y;
-        initialJumpVelocity = Mathf.Abs(calculatedGravity) * timeToApex;
+        float initialJumpVelocity = Mathf.Abs(calculatedGravity) * locomotionProfile.TimeToApex;
         rb.gravityScale = baseGravityScale;
 
-        // 2. CACHE THE CONTACT FILTER (Unity 6 Standard)
-        // Instead of building filters or passing masks every frame, we configure this struct ONCE at startup.
-        groundFilter = new ContactFilter2D();
-        groundFilter.useLayerMask = true;
-        groundFilter.layerMask = groundLayer;
-        groundFilter.useTriggers = false; // Ignore triggers so enemy/item zones don't count as ground
+        groundSensor = new GroundSensor(groundCheck, groundLayer, locomotionProfile);
+        jumpEngine = new JumpEngine(rb, locomotionProfile, initialJumpVelocity);
+        locomotion = new LocomotionEngine(rb, locomotionProfile, baseGravityScale);
+        echoSpawner = new EchoTrailSpawner(dashProfile.EchoPrefab, dashEchoParent, transform, dashProfile.EchoSpawnInterval, dashProfile.EchoPoolSize);
+        dashEngine = new DashEngine(rb, dashProfile, echoSpawner);
+        fallDamping = new FallDampingRelay(rb, showDebugLogs);
     }
 
-    private void Start()
-    {
-        wasGrounded = isGrounded;
-        playerDash.InitDash(this);
-    }
     /// <summary>
     /// Prevents Unity's physics solver from calculating impact friction when hitting the floor.
     /// This stops the character from stuttering or halting for a frame upon landing.
@@ -128,167 +115,61 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    private void Start()
+    {
+        // Was PlayerDash.InitDash(this) — echo pool creation + collectable subscription
+        // now live in the plain-class DashEngine.
+        dashEngine.Initialize();
+    }
+
+    private void OnDestroy()
+    {
+        dashEngine?.Dispose();
+    }
+
     private void Update()
     {
-        UpdateGroundDetection();
-        CheckJumpApex();
-        HandleJumpExecution();
-        UpdateFallDamping();
-    }
+        isGroundedDebugView = IsGroundedRaw; // Exposes state to your Inspector
 
-    private void CheckJumpApex()
-    {
-        // if (!detectJump) return;           // only for intentional jumps (not walk-off ledge)
-        if (isGrounded) return;
-        if (isDashing) return;             // dash freezes gravity/face — don't stomp dash face
-        if (hasStartedDescending) return;  // fire once per jump
-        if (rb.linearVelocity.y < -0.01f)  // apex crossed: rising → falling (same epsilon as ApplyDynamicGravity)
-        {
-            hasStartedDescending = true;
-            GameEventBus.TriggerPlayerFaceChange(Playerface.JumpDown);
-        }
-    }
-
-    private void HandleJumpExecution()
-    {
-        if (isGrounded)
-        {
-            coyoteTimer = coyoteTime;
-        }
-        else
-        {
-            coyoteTimer -= Time.deltaTime;
-        }
-
-        jumpBufferTimer -= Time.deltaTime;
-
-        // 3. Execute Jump if tolerances align
-        if (jumpBufferTimer > 0f && coyoteTimer > 0f)
-        {
-            ExecuteJump();
-        }
-    }
-
-    private void UpdateGroundDetection()
-    {
-        // Keep filter synced in case you tweak LayerMasks in the Inspector during Play Mode!
-        groundFilter.layerMask = groundLayer;
-
-        // 1. Zero-GC Ground Check
-        // Box matches foot width, catches edges even when only partially over ground
-        Vector2 boxSize = new Vector2(groundCheckWidth, groundCheckHeight);
-        int hitCount = Physics2D.OverlapBox(groundCheck.position, boxSize, 0f, groundFilter, groundHitBuffer);
-        isGrounded = hitCount > 0;
-        isGroundedDebugView = isGrounded; // Exposes state to your Inspector
-
-        // Track continuous airtime so 1-frame separation flicker (e.g. riding a
-        // transform-moved platform) never counts as a landing on its own.
-        if (!isGrounded)
-        {
-            airborneTimer += Time.deltaTime;
-        }
-
-        // Fall detection — only after genuine airtime, not contact flicker.
-        if (isGrounded && !wasGrounded && airborneTimer >= landingMinAirTime)
-        {
-            GroundImpactDetection();
-            airborneTimer = 0f;
-        }
-        wasGrounded = isGrounded;
+        groundSensor.SyncLayerMask(groundLayer); // Keep filter synced for Play Mode Inspector tweaks
+        groundSensor.Tick();                     // was UpdateGroundDetection
+        jumpEngine.TickApex(IsGroundedRaw, isDashing); // was CheckJumpApex
+        jumpEngine.Tick(IsGroundedRaw);                // was HandleJumpExecution
+        fallDamping.Tick(IsGroundedRaw);               // was UpdateFallDamping
+        dashEngine.Tick();                             // was PlayerDash.Update
+        echoSpawner.Tick();                            // was PlayerDash.SpawnEchoTrail coroutine
     }
 
     private void FixedUpdate()
     {
         if (!isDashing)
         {
-            ApplyHorizontalMovement();
-            ApplyDynamicGravity();
+            locomotion.MoveFixed(Time.fixedDeltaTime, horizontalInput);
         }
         else
         {
-            StopGravity();
+            locomotion.SuspendGravity();
         }
     }
 
-    /// <summary>
-    /// Hollow Knight-style camera feel: when falling fast, hand the camera a lighter
-    /// Y damping (fall pan) so it lags behind the player, then lerps it back on landing.
-    /// CameraManager lerps Damping.y itself on another CinemachineCamera's Composer via
-    /// LerpYDamping(true/false). Scenes without a CameraManager (main menu, Test_Level)
-    /// are safe — guarded no-op.
-    /// </summary>
-    private void UpdateFallDamping()
+    private void GroundImpactDetection()
     {
-        CameraManager cameraManager = CameraManager.instance;
-        if (cameraManager == null) return;
+        jumpEngine.ClearDescent();
+        GameEventBus.TriggerPlayerJumpSquash(false);
+        GameEventBus.TriggerGroundImpact(transform.position);
 
-        float velocityY = rb.linearVelocity.y;
-
-        // 1. Fast fall detected: engage fall damping once (not mid-lerp, not already flagged)
-        if (velocityY < cameraManager._fallSpeedYDampingChangeThreshold
-            && !cameraManager.IsLerpingYDamping
-            && !cameraManager.LerpedFromPlayerFalling)
+        // Landing mid-dash: don't let the impact face stomp the dash face.
+        // isDashing is this component's own authoritative state — no lookup
+        // into another system needed. Fixes #14.
+        if (!isDashing)
         {
-            if (showDebugLogs)
-            {
-                Debug.Log($"<b><color=cyan>[CAMERA]</color></b> Fast fall {velocityY:0.0} < {cameraManager._fallSpeedYDampingChangeThreshold} → LerpYDamping(true)");
-            }
-            cameraManager.LerpYDamping(true);
+            GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
         }
 
-        // 2. Rising / standing / grounded: fully restore damping when the flag is live
-        if ((velocityY >= 0f || isGrounded) && cameraManager.LerpedFromPlayerFalling)
-        {
-            if (showDebugLogs)
-            {
-                Debug.Log($"<b><color=cyan>[CAMERA]</color></b> Fall ended (v={velocityY:0.0}, grounded={isGrounded}) → LerpYDamping(false)");
-            }
-            cameraManager.LerpedFromPlayerFalling = false;
-            cameraManager.LerpYDamping(false);
-        }
+        if (playerInput != null)
+            playerInput.SetIsJumpFalse();
     }
-
-    private void ApplyHorizontalMovement()
-    {
-        // CACHING NATIVE CALLS: Read rb.linearVelocity ONCE into a local stack variable.
-        // Every time you call 'rb.linearVelocity', Unity crosses the C# to C++ Native boundary.
-        Vector2 currentVel = rb.linearVelocity;
-
-        float targetSpeed = horizontalInput * maxSpeed;
-        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deceleration;
-
-        // MoveTowards provides crisp, snappy changes without the floatiness of Lerp
-        float newVelocityX = Mathf.MoveTowards(currentVel.x, targetSpeed, accelRate * Time.fixedDeltaTime);
-
-        // Write back to native property ONCE
-        rb.linearVelocity = new Vector2(newVelocityX, currentVel.y);
-    }
-
-    private void ApplyDynamicGravity()
-    {
-        // Asymmetric Gravity: Make falling faster than rising for a weighty, responsive feel
-        if (rb.linearVelocity.y < -0.01f)
-        {
-            rb.gravityScale = baseGravityScale * fallGravityMultiplier;
-        }
-        else
-        {
-            rb.gravityScale = baseGravityScale;
-        }
-    }
-
-    private void StopGravity()
-    {
-        rb.gravityScale = 0f;
-    }
-    private void ExecuteJump()
-    {
-        // Apply vertical impulse and reset timers to prevent double-consuming the jump
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, initialJumpVelocity);
-        jumpBufferTimer = 0f;
-        coyoteTimer = 0f;
-    }
-
 
     #region Mobile Touch Interface (Public API)
 
@@ -299,8 +180,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnJumpButtonPressed()
     {
-        jumpBufferTimer = jumpBufferTime;
-        detectJump = true;
+        jumpEngine.BufferJump();
         GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
         GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
     }
@@ -311,12 +191,8 @@ public class PlayerController : MonoBehaviour
     public void OnJumpButtonReleased()
     {
         // If moving upward and player releases screen, cut vertical velocity immediately
-        Vector2 currentVel = rb.linearVelocity;
-        if (currentVel.y > 0f)
-        {
-            rb.linearVelocity = new Vector2(currentVel.x, currentVel.y * jumpCutMultiplier);
-        }
-        // JumpDown face is now handled automatically by CheckJumpApex() when velocity crosses apex
+        jumpEngine.CutJump();
+        // JumpDown face is now handled automatically by TickApex() when velocity crosses apex
     }
     public void StopMovement()
     {
@@ -329,65 +205,21 @@ public class PlayerController : MonoBehaviour
     public void SetHorizontalInput(float input)
     {
         horizontalInput = Mathf.Clamp(input, -1f, 1f);
-        //Debug.Log($"[PlayerController] : updated {horizontalInput}");
     }
 
-    private void GroundImpactDetection()
-    {
-        // if( detectJump )
-        // {
-        //     detectJump = false;
-        hasStartedDescending = false;
-        GameEventBus.TriggerPlayerJumpSquash(false);
-        GameEventBus.TriggerGroundImpact(transform.position);
-
-        // Landing mid-dash: don't let the impact face stomp the dash face.
-        // isDashing is this component's own authoritative state — no lookup
-        // into another system needed. Fixes #14.
-        if (!isDashing)
-        {
-            GameEventBus.TriggerPlayerFaceChange(Playerface.FallDown_Impact);
-        }
-
-        playerInput.SetIsJumpFalse();
-        // }
-    }
     #endregion
 
     #region Dash Effect
-    /// <summary>Authoritative horizontal dash direction: +1 = right, -1 = left.</summary>
-    public float DashDirectionX { get; private set; } = 1f;
 
-    public bool CanDash(float dashSpeed)
+    /// <summary>Router entry point — replaced PlayerDash.TriggerDash with a charge + movement gate.</summary>
+    public void TriggerDash()
     {
-        Vector2 currentVelocity = rb.linearVelocity;
-
-        if (currentVelocity.magnitude > 0.1f)
-        {
-            isDashing = true;
-            Vector2 lastKnowDir = currentVelocity.normalized;
-
-            if (lastKnowDir.x > 0)
-            {
-                DashDirectionX = 1f;
-                rb.linearVelocity = new Vector2(dashSpeed * 1f, 0f);
-                return true;
-            }
-            else if (lastKnowDir.x < 0)
-            {
-                DashDirectionX = -1f;
-                rb.linearVelocity = new Vector2(dashSpeed * -1f, 0f);
-                return true;
-            }
-            return false;
-        }
-        return false;
+        dashEngine.Request(IsPlayerMoving());
     }
 
     public void UnDash()
     {
-        isDashing = false;
-        GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
+        dashEngine.EndDash();
     }
 
     public bool IsPlayerMoving()
@@ -407,12 +239,8 @@ public class PlayerController : MonoBehaviour
     public void TeleportTo(Vector2 target)
     {
         StopMovement();
-        isDashing = false;
-        DashDirectionX = 1f;
-        coyoteTimer = 0f;
-        jumpBufferTimer = 0f;
-        hasStartedDescending = false;
-        detectJump = false;
+        dashEngine.Flush();
+        jumpEngine.Flush();
 
         if (rb != null)
         {
@@ -427,14 +255,14 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (groundCheck != null)
+        if (groundCheck != null && locomotionProfile != null)
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+            Gizmos.DrawWireSphere(groundCheck.position, locomotionProfile.Ground.gizmoRadius);
         }
     }
     public bool IsGrounded()
     {
-        return isGrounded || coyoteTimer > 0f;
+        return IsGroundedRaw || jumpEngine.HasCoyoteTime;
     }
 }
