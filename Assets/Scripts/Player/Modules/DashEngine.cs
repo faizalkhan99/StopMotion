@@ -28,6 +28,10 @@ public class DashEngine
         this.rb = rb;
         this.profile = profile;
         this.echoSpawner = echoSpawner;
+
+        // Backdate so the cooldown has already elapsed at level start —
+        // otherwise the first dash stays locked for dashCoolDownTime after spawn.
+        lastDashTime = -profile.DashCoolDownTime;
     }
 
     /// <summary>
@@ -49,10 +53,15 @@ public class DashEngine
         }
     }
 
-    /// <summary>Router entry (was PlayerDash.TriggerDash). Only accepts while charges remain and the player is moving.</summary>
+    /// <summary>
+    /// Router entry (was PlayerDash.TriggerDash). Only accepts while charges remain and the
+    /// player is moving. Presses that land mid-cooldown are consumed and refused — never
+    /// buffered — so a stale press can't auto-fire the dash when the cooldown ends.
+    /// </summary>
     public void Request(bool isPlayerMoving)
     {
         if (!profile.CanDash) return;
+        if (Time.time < lastDashTime + profile.DashCoolDownTime) return; // mid-cooldown: refuse, don't buffer
         if (collectableCount > 0 && isPlayerMoving)
         {
             triggerDash = true;

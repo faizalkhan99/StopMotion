@@ -16,10 +16,10 @@ public class PlayerDashProfileSO : ScriptableObject
     [SerializeField] private float dashCoolDownTime = 1f;
 
     [Header(" Dash Collectable ")]
-    [Tooltip("Max dash charges held from ToDashItem pickups.")]
+    [Tooltip("Max dash charges held from pickups (CollisionDetection with item = DashCharge).")]
     [SerializeField] private int maxDashCollectableCount = 3;
 
-    [Tooltip("Charges granted at level start. 0 = must collect ToDashItem pickups first.")]
+    [Tooltip("Charges granted at level start. 0 = must collect DashCharge pickups first.")]
     [SerializeField] private int startingDashCharges = 3;
 
     [Header("Echo Effect")]

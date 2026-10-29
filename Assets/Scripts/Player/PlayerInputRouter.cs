@@ -10,6 +10,10 @@ public class PlayerInputRouter : MonoBehaviour
     [Tooltip("The player controller this router drives. Auto-found on this GameObject if left null.")]
     [SerializeField] private PlayerController playerController;
 
+    [Header("Input Source")]
+    [Tooltip("TRUE = Touch only (left-half drag / right-half tap & swipe). FALSE = Keyboard only (A-D/arrows, Space, F). The inactive source is fully ignored — no mixing. Flips take effect live in Play Mode.")]
+    [SerializeField] private bool useTouchInput = false;
+
     [Header("Touch Config")]
     [Tooltip("Inspector-controllable touch tuning, grouped in one serializable config.")]
     [SerializeField] private TouchInputConfig touchConfig = new TouchInputConfig();
@@ -124,13 +128,16 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Touch drag (left half) is polled every frame since EnhancedTouch has no
         // "performed" callback equivalent for continuous drag. Keyboard input is
-        // event-driven via OnMove() and cached in keyboardX. Combine both here.
+        // event-driven via OnMove() and cached in keyboardX. Source gate: only the
+        // active source contributes — ReadHalfDrag() returns 0 in keyboard mode,
+        // and keyboardX is zeroed here in touch mode so a mid-gesture flip can't
+        // leave stale cached input driving the player.
         touchX = ReadHalfDrag(ScreenHalf.Left, DragAxis.Horizontal, out anyMovementAnchorActive);
 
         // Forward movement only during live gameplay. Outside Gameplay (Paused,
         // GameOver, LevelComplete) this pushes a persistent 0 so the controller
         // never inherits stale cached input from a pre-transition frame.
-        horizontalInput = IsGameplay ? Mathf.Clamp(keyboardX + touchX, -1f, 1f) : 0f;
+        horizontalInput = IsGameplay ? Mathf.Clamp((useTouchInput ? 0f : keyboardX) + touchX, -1f, 1f) : 0f;
         playerController.SetHorizontalInput(horizontalInput);
 
         if (IsGameplay)
@@ -141,6 +148,9 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (!IsGameplay)
             return;
+
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard movement.
 
         if (context.performed)
         {
@@ -161,6 +171,11 @@ public class PlayerInputRouter : MonoBehaviour
     private float ReadHalfDrag(ScreenHalf half, DragAxis axis, out bool touched)
     {
         touched = false;
+
+        // Source gate: in keyboard mode touches are never read — both drag
+        // readers (movement + upward-drag jump) go dark through this one check.
+        if (!useTouchInput)
+            return 0f;
 
         // EnhancedTouchSupport gets reset by domain reloads and can be toggled
         // externally; polling while disabled throws every frame, so treat it as
@@ -233,6 +248,9 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
+        if (!useTouchInput)
+            return; // Source gate: keyboard mode ignores touch taps.
+
         if (finger.screenPosition.x < Screen.width * touchConfig.screenSplitRatio)
             return; // Left half is movement, not taps.    
 
@@ -259,21 +277,25 @@ public class PlayerInputRouter : MonoBehaviour
     {
         yield return new WaitForSeconds(touchConfig.tapDelay);
 
-        if (tapCount >= 2)
+        // Source gate: in keyboard mode touch taps do nothing (cleanup still runs).
+        if (useTouchInput)
         {
-            // Debug.Log("Dash performed via MultiTap!");
-            playerController.TriggerDash();
-        }
-        else if (playerController.IsGrounded() && !isJumping)
-        {
-            isJumping = true;
+            if (tapCount >= 2)
+            {
+                // Debug.Log("Dash performed via MultiTap!");
+                playerController.TriggerDash();
+            }
+            else if (playerController.IsGrounded() && !isJumping)
+            {
+                isJumping = true;
 
-            // Same buffered-jump + cosmetic-squash pattern as the keyboard path,
-            // so touch jump doesn't skip the squash animation or fire mid-air.
-            playerController.OnJumpButtonPressed();
-            GameEventBus.TriggerPlayerJumpSquash(true);
+                // Same buffered-jump + cosmetic-squash pattern as the keyboard path,
+                // so touch jump doesn't skip the squash animation or fire mid-air.
+                playerController.OnJumpButtonPressed();
+                GameEventBus.TriggerPlayerJumpSquash(true);
 
-            // Debug.Log("Jump performed after tap delay!");
+                // Debug.Log("Jump performed after tap delay!");
+            }
         }
 
         tapCount = 0;
@@ -290,6 +312,9 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (!IsGameplay)
             return;
+
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard jump.
 
         if (playerController.IsGrounded() && !isJumping)
         {
@@ -310,6 +335,9 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard jump.
+
         playerController.OnJumpButtonReleased();
 
         // Reset on key release rather than only on landing, so a stuck grounded
@@ -322,13 +350,16 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard dash.
+
         playerController.TriggerDash();
     }
     #endregion
 
     private void TriggerTouchJump()
     {
-        if (!IsGameplay || !playerController.IsGrounded() || isJumping)
+        if (!IsGameplay || !useTouchInput || !playerController.IsGrounded() || isJumping)
             return;
 
         isJumping = true;

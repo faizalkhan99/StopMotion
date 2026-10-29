@@ -19,9 +19,9 @@ MonoBehaviour:
   timeToApex: 0.5
   fallGravityMultiplier: 2
   jumpCutMultiplier: 0.5
-  coyoteTime: 0.1
-  jumpBufferTime: 0.2
-  landingMinAirTime: 0.3
+  coyoteTime: 0.3
+  jumpBufferTime: 0.3
+  landingMinAirTime: 0.2
   groundCheck:
     checkWidth: 0.6
     checkHeight: 0.1
