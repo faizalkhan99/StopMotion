@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6127324778659822898}
   - component: {fileID: 1567744389316588642}
   - component: {fileID: 3404845790830843842}
+  - component: {fileID: 7423409604817894793}
   m_Layer: 3
   m_Name: Wall_Tile1x1
   m_TagString: Untagged
@@ -139,3 +140,15 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &7423409604817894793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3519084132371452380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e073cdc453689494a94400cf3117501f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridGlowCell

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2904487526873329749}
   - component: {fileID: 5803045413907732622}
   - component: {fileID: 143619958738559269}
+  - component: {fileID: -8810167846430196686}
   m_Layer: 3
   m_Name: Win_Gate
   m_TagString: Untagged
@@ -155,3 +156,21 @@ MonoBehaviour:
   hasLock: 0
   _lockedGateRadius: 0
   _openGateRadius: 0.5
+--- !u!114 &-8810167846430196686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4946837443873458192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c11d83b0780eb4811988bd73cdf8c10c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MinimapMarker
+  targetTransform: {fileID: 4749493612592159845}
+  iconSprite: {fileID: 21300000, guid: b1006412326991944b8ce1782fecaa9e, type: 3}
+  iconColor: {r: 1, g: 1, b: 1, a: 1}
+  iconSize: {x: 128, y: 128}
+  rotateWhenOffscreen: 1
+  rotationOffset: -90
