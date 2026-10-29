@@ -10,35 +10,22 @@ public class PlayerInputRouter : MonoBehaviour
     [Tooltip("The player controller this router drives. Auto-found on this GameObject if left null.")]
     [SerializeField] private PlayerController playerController;
 
-    [Tooltip(" The Dash Mechanic Script")]
-    [SerializeField] private PlayerDash dashController;
+    [Header("Input Source")]
+    [Tooltip("TRUE = Touch only (left-half drag / right-half tap & swipe). FALSE = Keyboard only (A-D/arrows, Space, F). The inactive source is fully ignored — no mixing. Flips take effect live in Play Mode.")]
+    [SerializeField] private bool useTouchInput = false;
 
-    [Header("Screen Split")]
-    [Tooltip("Fraction of screen width. Columns left of this boundary = movement zone, right = jump/dash zone. 0.5 = split down the middle.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float screenSplitRatio = 0.5f;
-
-    [Header("Movement Drag")]
-    [Tooltip("Horizontal drag distance (in screen pixels) that maps to full left/right movement.")]
-    [SerializeField] private float maxDragDistance = 150f;
-
-    [Header("Upward Drag (right half)")]
-    [Tooltip("Normalized drag distance (0-1, as a fraction of maxDragDistance) the right-half finger must move upward before it counts as an upward-drag trigger.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float upwardDragThreshold = 0.5f;
-
-    [Header("Tap / Multi-Tap")]
-    [Tooltip("How long to wait after a tap to see if a second tap arrives before committing to jump vs dash.")]
-    [SerializeField] private float tapDelay = 0.2f;
-
-    [SerializeField] private InputAction moveAction;
-    [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
-    [SerializeField] private InputAction dashAction;  // Keyboard-only dash (Left Shift) — parity with touch double-tap
+    [Header("Touch Config")]
+    [Tooltip("Inspector-controllable touch tuning, grouped in one serializable config.")]
+    [SerializeField] private TouchInputConfig touchConfig = new TouchInputConfig();
 
     // Input boundary gate. The router never enables/disables actions on state
     // changes — every sink below just refuses to consume input outside live
     // gameplay (same convention as Hazard/Checkpoint/LivesManager/etc.).
     private static bool IsGameplay => GameEventBus.CurrentGameState == GameState.Gameplay;
+
+    [SerializeField] private InputAction moveAction;
+    [SerializeField] private InputAction jumpAction; // Keyboard-only jump (Space)
+    [SerializeField] private InputAction dashAction;  // Keyboard-only dash (<Keyboard>/f) — parity with touch double-tap
 
     // Movement input, tracked separately so keyboard (event-driven) and touch
     // (polled every frame) can be combined without either one stomping the other.
@@ -86,10 +73,15 @@ public class PlayerInputRouter : MonoBehaviour
         jumpAction = new InputAction("Jump", InputActionType.Button, "<Keyboard>/space");
         jumpAction.Enable();
 
-        // Dash: Left Shift (desktop). Was previously Enable()'d without ever being
-        // constructed/bound — threw at runtime if the Inspector binding was missing.
-        // Touch dash does NOT go through this action; it's driven by the double-tap
-        // debounce in TapWindowRoutine() below.
+        // Dash: <Keyboard>/f (desktop). The action binding is serialized with the component,
+        // but freshly-added components have no serialized action — construct the same default
+        // binding here so Enable() can never null-throw (was a runtime NRE before the guard).
+        // Touch dash does NOT go through this action; it's driven by the tap debounce
+        // in TapWindowRoutine() below.
+        if (dashAction == null)
+        {
+            dashAction = new InputAction("Dash", InputActionType.Button, "<Keyboard>/f");
+        }
         dashAction.Enable();
     }
 
@@ -136,13 +128,16 @@ public class PlayerInputRouter : MonoBehaviour
     {
         // Touch drag (left half) is polled every frame since EnhancedTouch has no
         // "performed" callback equivalent for continuous drag. Keyboard input is
-        // event-driven via OnMove() and cached in keyboardX. Combine both here.
+        // event-driven via OnMove() and cached in keyboardX. Source gate: only the
+        // active source contributes — ReadHalfDrag() returns 0 in keyboard mode,
+        // and keyboardX is zeroed here in touch mode so a mid-gesture flip can't
+        // leave stale cached input driving the player.
         touchX = ReadHalfDrag(ScreenHalf.Left, DragAxis.Horizontal, out anyMovementAnchorActive);
 
         // Forward movement only during live gameplay. Outside Gameplay (Paused,
         // GameOver, LevelComplete) this pushes a persistent 0 so the controller
         // never inherits stale cached input from a pre-transition frame.
-        horizontalInput = IsGameplay ? Mathf.Clamp(keyboardX + touchX, -1f, 1f) : 0f;
+        horizontalInput = IsGameplay ? Mathf.Clamp((useTouchInput ? 0f : keyboardX) + touchX, -1f, 1f) : 0f;
         playerController.SetHorizontalInput(horizontalInput);
 
         if (IsGameplay)
@@ -153,6 +148,9 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (!IsGameplay)
             return;
+
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard movement.
 
         if (context.performed)
         {
@@ -174,6 +172,11 @@ public class PlayerInputRouter : MonoBehaviour
     {
         touched = false;
 
+        // Source gate: in keyboard mode touches are never read — both drag
+        // readers (movement + upward-drag jump) go dark through this one check.
+        if (!useTouchInput)
+            return 0f;
+
         // EnhancedTouchSupport gets reset by domain reloads and can be toggled
         // externally; polling while disabled throws every frame, so treat it as
         // "no touches" instead. Awake() enables it at session start.
@@ -184,7 +187,7 @@ public class PlayerInputRouter : MonoBehaviour
 
         foreach (Touch touch in Touch.activeTouches)
         {
-            bool isLeftSide = touch.screenPosition.x < Screen.width * screenSplitRatio;
+            bool isLeftSide = touch.screenPosition.x < Screen.width * touchConfig.screenSplitRatio;
 
             if (half == ScreenHalf.Left && !isLeftSide)
                 continue;
@@ -197,7 +200,7 @@ public class PlayerInputRouter : MonoBehaviour
                 ? touch.screenPosition.x - touch.startScreenPosition.x
                 : touch.screenPosition.y - touch.startScreenPosition.y;
 
-            dragValue = Mathf.Clamp(delta / maxDragDistance, -1f, 1f);
+            dragValue = Mathf.Clamp(delta / touchConfig.maxDragDistance, -1f, 1f);
             break; // Use the first finger found on that half.
         }
 
@@ -220,7 +223,7 @@ public class PlayerInputRouter : MonoBehaviour
         }
 
         // Screen Y increases upward in Unity, so a positive dragY is already "up".
-        if (!upwardDragConsumed && dragY >= upwardDragThreshold)
+        if (!upwardDragConsumed && dragY >= touchConfig.upwardDragThreshold)
         {
             upwardDragConsumed = true;
             OnRightHalfUpwardDrag();
@@ -245,20 +248,23 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
-        if (finger.screenPosition.x < Screen.width * screenSplitRatio)
+        if (!useTouchInput)
+            return; // Source gate: keyboard mode ignores touch taps.
+
+        if (finger.screenPosition.x < Screen.width * touchConfig.screenSplitRatio)
             return; // Left half is movement, not taps.    
 
-        if (!upwardDragConsumed && dashController != null)
+        if (!upwardDragConsumed)
         {
-            dashController.TriggerDash();
+            playerController.TriggerDash();
         }
     }
     private void HandleFingerDown(Finger finger)
     {
-        if (finger.screenPosition.x < Screen.width * screenSplitRatio)
+        if (finger.screenPosition.x < Screen.width * touchConfig.screenSplitRatio)
             return; // Left half is movement, not taps.
 
-        // dashController.TriggerDash();
+        // playerController.TriggerDash();
         // tapCount++;
 
         // if (tapWindowRoutine != null)
@@ -269,23 +275,27 @@ public class PlayerInputRouter : MonoBehaviour
 
     private IEnumerator TapWindowRoutine()
     {
-        yield return new WaitForSeconds(tapDelay);
+        yield return new WaitForSeconds(touchConfig.tapDelay);
 
-        if (tapCount >= 2)
+        // Source gate: in keyboard mode touch taps do nothing (cleanup still runs).
+        if (useTouchInput)
         {
-            // Debug.Log("Dash performed via MultiTap!");
-            dashController.TriggerDash();
-        }
-        else if (playerController.IsGrounded() && !isJumping)
-        {
-            isJumping = true;
+            if (tapCount >= 2)
+            {
+                // Debug.Log("Dash performed via MultiTap!");
+                playerController.TriggerDash();
+            }
+            else if (playerController.IsGrounded() && !isJumping)
+            {
+                isJumping = true;
 
-            // Same buffered-jump + cosmetic-squash pattern as the keyboard path,
-            // so touch jump doesn't skip the squash animation or fire mid-air.
-            playerController.OnJumpButtonPressed();
-            GameEventBus.TriggerPlayerJumpSquash(true);
+                // Same buffered-jump + cosmetic-squash pattern as the keyboard path,
+                // so touch jump doesn't skip the squash animation or fire mid-air.
+                playerController.OnJumpButtonPressed();
+                GameEventBus.TriggerPlayerJumpSquash(true);
 
-            // Debug.Log("Jump performed after tap delay!");
+                // Debug.Log("Jump performed after tap delay!");
+            }
         }
 
         tapCount = 0;
@@ -302,6 +312,9 @@ public class PlayerInputRouter : MonoBehaviour
     {
         if (!IsGameplay)
             return;
+
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard jump.
 
         if (playerController.IsGrounded() && !isJumping)
         {
@@ -322,6 +335,9 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard jump.
+
         playerController.OnJumpButtonReleased();
 
         // Reset on key release rather than only on landing, so a stuck grounded
@@ -334,13 +350,16 @@ public class PlayerInputRouter : MonoBehaviour
         if (!IsGameplay)
             return;
 
-        dashController.TriggerDash();
+        if (useTouchInput)
+            return; // Source gate: touch mode ignores keyboard dash.
+
+        playerController.TriggerDash();
     }
     #endregion
 
     private void TriggerTouchJump()
     {
-        if (!IsGameplay || !playerController.IsGrounded() || isJumping)
+        if (!IsGameplay || !useTouchInput || !playerController.IsGrounded() || isJumping)
             return;
 
         isJumping = true;
@@ -380,5 +399,29 @@ public class PlayerInputRouter : MonoBehaviour
 
         if (playerController != null)
             playerController.StopMovement();
+    }
+
+    /// <summary>
+    /// Inspector-controllable touch tuning, exposed through the router behaviour as one
+    /// serializable config (rule: modules with tunables don't need their own components).
+    /// </summary>
+    [System.Serializable]
+    public class TouchInputConfig
+    {
+        [Header("Screen Split")]
+        [Tooltip("Fraction of screen width. Columns left of this boundary = movement zone, right = jump/dash zone. 0.5 = split down the middle.")]
+        [Range(0f, 1f)] public float screenSplitRatio = 0.5f;
+
+        [Header("Movement Drag")]
+        [Tooltip("Horizontal drag distance (in screen pixels) that maps to full left/right movement.")]
+        public float maxDragDistance = 150f;
+
+        [Header("Upward Drag (right half)")]
+        [Tooltip("Normalized drag distance (0-1, as a fraction of maxDragDistance) the right-half finger must move upward before it counts as an upward-drag trigger.")]
+        [Range(0f, 1f)] public float upwardDragThreshold = 0.5f;
+
+        [Header("Tap / Multi-Tap")]
+        [Tooltip("How long to wait after a tap to see if a second tap arrives before committing to jump vs dash.")]
+        public float tapDelay = 0.2f;
     }
 }
