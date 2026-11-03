@@ -45,22 +45,31 @@ Material:
     - _Duration: 60
     - _EdgeJaggedness: 0
     - _EnableExternalAlpha: 0
+    - _FlashDuration: 0.4
+    - _FlashIntensity: 2
+    - _FlashReveal: 0.3
     - _GlowIntensity: 8
+    - _GrowthDelay: 5
     - _IsRunning: 0
+    - _LoopCycles: 1
     - _NoiseScale: 8.3
     - _NoiseStrength: 1
-    - _PausedGrowth: 0
+    - _PausedGrowth: 1
+    - _PlayerClearRadius: 0
+    - _PlayerInfluence: 1
     - _Radius: 1.2
     - _SoilAlpha: 0
     - _SoilReach: 0.5
     - _StartTime: 0
     - _TendrilCount: 15
-    - _TendrilOvergrowth: 0.75
+    - _TendrilOvergrowth: 1
     - _Thickness: 0.5
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _FlashColor: {r: 1, g: 1, b: 1, a: 1}
     - _GlowColor: {r: 1, g: 0.29931036, b: 0.19999999, a: 1}
+    - _PlayerPos: {r: 0.57, g: 0.57, b: 0, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _SoilColorA: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

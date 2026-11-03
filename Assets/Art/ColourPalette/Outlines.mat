@@ -8,13 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Outlines
-  m_Shader: {fileID: 4800000, guid: 9863a0d740ffb634e83e45cd29ec1acf, type: 3}
+  m_Shader: {fileID: 4800000, guid: 606a6ac9f3322824da56202ff10d52ed, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _HIGH_QUALITY
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - _HIGHQUALITY_ON
+  - _HIGH_QUALITY
   - _UVBORDER_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -114,9 +114,9 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Duration: 60
-    - _EdgeIntensity: 2
+    - _EdgeIntensity: 0.5
     - _EdgeJaggedness: 0.6
-    - _EdgeWidth: 10
+    - _EdgeWidth: 0.1
     - _EnableExternalAlpha: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
