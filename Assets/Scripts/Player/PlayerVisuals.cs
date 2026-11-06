@@ -1,4 +1,3 @@
-using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
@@ -11,9 +10,6 @@ public class PlayerVisuals : MonoBehaviour
     [Header("VFX References")]
     [SerializeField] private ParticleSystem destroyVFX;
     [SerializeField] private GameObject smokeVFX;
-
-    [Header("Player's UI")]
-    [SerializeField] private CanvasGroup keyImage;
 
     [Header("Player's Face Data")]
     [SerializeField] private FaceChangeMechanic faceData;
@@ -34,16 +30,11 @@ public class PlayerVisuals : MonoBehaviour
     private Playerface gameplayFace;
     private Playerface lastGameplayFace;
 
-    // Key UI is view-only. The gate (LevelGoalTrigger) owns collected/total counts.
-    public int keysCollected { get; private set; }
-
     // Internal References & Caching
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rootRigidbody;
     private PlayerController playerController;
     private PlayerInputRouter playerInputRouter;
-
-    private Coroutine keyFadeRoutine;
 
     // Pooled jump/land puffs — plain-class pool from Modules/SmokePool.cs;
     // its LateUpdate Tick() releases finished puffs back into the pool.
@@ -58,8 +49,6 @@ public class PlayerVisuals : MonoBehaviour
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-
-        keysCollected = 0;
         spriteRenderer.flipX = false;
 
         if (visualProfile == null)
@@ -265,59 +254,9 @@ public class PlayerVisuals : MonoBehaviour
         if (playerController != null) playerController.StopMovement();
     }
 
-#region Key Collected
-    /// <summary>
-    /// Shows canvas in Player's UI
-    /// </summary>
-    public void ShowKeyInUI()
-    {
-        if (keyFadeRoutine != null) StopCoroutine(keyFadeRoutine);
-        keyFadeRoutine = StartCoroutine(FadeKeyImage(1f));
-    }
-
-    public void AddKey()
-    {
-        keysCollected++;
-        ShowKeyInUI();
-    }
-
-    public void ResetKeys()
-    {
-        keysCollected = 0;
-    }
-
-    /// <summary>
-    /// Hides Key Canvas in Player's UI only once
-    /// </summary>
-    public void HideKeyInUI()
-    {
-        if (keyFadeRoutine == null)
-        {
-            keyFadeRoutine = StartCoroutine(FadeKeyImage(0f));
-        }
-    }
-
+    // Visual-profile presence — timing/VFX fallback checks throughout visuals.
     private bool HasVisualProfile => visualProfile != null;
 
-    private System.Collections.IEnumerator FadeKeyImage(float targetAlpha)
-    {
-        if (keyImage == null) yield break;
-
-        float startAlpha = keyImage.alpha;
-        float elapsed = 0f;
-        float fadeDuration = HasVisualProfile ? visualProfile.KeyFadeDuration : 0.35f;
-
-        while (elapsed < fadeDuration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            keyImage.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / fadeDuration);
-            yield return null;
-        }
-
-        keyImage.alpha = targetAlpha;
-        keyFadeRoutine = null;
-    }
-#endregion
     #region Face Changing
 
     private void UpdateFaceOnPlayer(Playerface face)

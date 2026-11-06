@@ -37,7 +37,7 @@ namespace StopMotion.Visuals
         [Tooltip("Seconds between automatic growth steps.")]
         [SerializeField, Min(0.1f)] private float growthTickInterval = 5f;
         [Tooltip("How much growth (0-1) each tick adds.")]
-        [SerializeField, Range(0f, 1f)] private float growthTickAmount = 0.1f;
+        [SerializeField] private float growDelay = 0.5f;
 
         [Header("Flash Burst (fires on every GrowBy)")]
         [SerializeField] private bool flashOnGrow = true;
@@ -63,6 +63,7 @@ namespace StopMotion.Visuals
         private static readonly int FlashCountID         = Shader.PropertyToID("_FlashCount");
         private static readonly int FlashPulseDurationID = Shader.PropertyToID("_FlashPulseDuration");
 
+        private float growthTickAmount;
         private Material _instancedMaterial;
         private float _pausedElapsed; // seconds already consumed when paused (time mode)
         private bool _isRunning;      // time mode: mirrors _IsRunning; guards CaptureElapsed()
@@ -98,6 +99,7 @@ namespace StopMotion.Visuals
             GameEventBus.OnLevelDurationUpdated += StartVineVisuals;
             GameEventBus.OnGameStateChanged += HandleEventChanges;
             GameEventBus.OnReverseVines += HandleReverseVines;
+            // GameEventBus.OnGameOverTriggered +=
             // GameEventBus.OnGrowVines += GrowBy; // NEW: add this event to GameEventBus
         }
 
@@ -106,6 +108,7 @@ namespace StopMotion.Visuals
             GameEventBus.OnLevelDurationUpdated -= StartVineVisuals;
             GameEventBus.OnGameStateChanged -= HandleEventChanges;
             GameEventBus.OnReverseVines -= HandleReverseVines;
+            // GameEventBus.OnGameOverTriggered +=
             // GameEventBus.OnGrowVines -= GrowBy;
             CancelGrowthRoutine();
         }
@@ -129,6 +132,10 @@ namespace StopMotion.Visuals
                 case GameState.LevelComplete:
                     Pause();
                     _isActive = false;
+                break;
+
+                case GameState.GameOver:
+                _isActive = false;
                 break;
             }
         }
@@ -238,6 +245,7 @@ namespace StopMotion.Visuals
         {
             SetLevelDuration(levelDuration);
             Play();
+            growthTickAmount = growthTickInterval / Mathf.Max(duration, 0.0001f);
         }
 
         /// <summary>
@@ -336,10 +344,14 @@ namespace StopMotion.Visuals
             CancelGrowthRoutine();
             float target = Mathf.Clamp01(_currentGrowth + amount);
 
+            // Flash, flash, flash... THEN grow: hold the growth tween until the
+            // last flash of the burst has finished.
             if (flashOnGrow)
+            {
                 TriggerFlash();
+            }
 
-            _growthRoutine = StartCoroutine(AnimateGrowth(target, growStepDuration));
+            _growthRoutine = StartCoroutine(AnimateGrowth(target, growStepDuration, growDelay));
         }
 
         /// <summary>Start a burst of flashCount rapid flashes right now.</summary>
@@ -356,8 +368,13 @@ namespace StopMotion.Visuals
             _instancedMaterial.SetFloat(FlashTriggerTimeID, -1000f);
         }
 
-        private IEnumerator AnimateGrowth(float target, float stepTime)
+        private IEnumerator AnimateGrowth(float target, float stepTime, float startDelay = 0f)
         {
+            // Scaled wait on purpose: the flash burst runs on shader _Time.y
+            // (scaled), so the delay stays in sync with it.
+            if (startDelay > 0f)
+                yield return new WaitForSeconds(startDelay);
+
             float from = _currentGrowth;
             float elapsed = 0f;
 
@@ -446,5 +463,10 @@ namespace StopMotion.Visuals
                 _growthRoutine = null;
             }
         }
+
+        // private void HandleGameOver()
+        // {
+            
+        // }
     }
 }

@@ -1,6 +1,5 @@
 using System;
-using System.Dynamic;
-using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -19,6 +18,10 @@ public static class GameEventBus
 
         if (newState == GameState.MainMenu)
             ResetCachedState();
+
+        // Key progress is level-scoped: every level (re)load starts from zero.
+        if (newState == GameState.Loading)
+            ResetKeyProgress();
     }
 
     // Chrono Timer Micro-State Events
@@ -57,6 +60,43 @@ public static class GameEventBus
     // Level Won Event
     public static event Action OnLevelWon;
     public static void TriggerLevelWon() => OnLevelWon?.Invoke();
+
+    #region Keys & Locked Gate
+    /// <summary>
+    /// Single owner of key collection state. Keys self-register on enable, so
+    /// TotalKeys is derived from the scene itself. Consumers react only to the
+    /// events — nothing depends on when TotalKeys becomes valid, so there is
+    /// no init-order coupling (this replaces LevelGoalTrigger's counter copy
+    /// and its lazy-repair workaround).
+    /// </summary>
+    private static readonly HashSet<CollisionDetection> registeredKeys = new();
+
+    /// <summary>Keys currently registered by the active level (self-registered on enable).</summary>
+    public static int TotalKeys => registeredKeys.Count;
+    public static int CollectedKeys { get; private set; }
+    public static bool AllKeysCollected => TotalKeys > 0 && CollectedKeys >= TotalKeys;
+
+    public static event Action OnKeyCollected;
+    public static event Action OnAllKeysCollected;
+
+    public static void RegisterKey(CollisionDetection key)   => registeredKeys.Add(key);
+    public static void UnregisterKey(CollisionDetection key) => registeredKeys.Remove(key);
+
+    public static void TriggerKeyCollected(CollisionDetection key)
+    {
+        CollectedKeys++;
+
+        OnKeyCollected?.Invoke();
+        if (AllKeysCollected) OnAllKeysCollected?.Invoke();
+    }
+
+    /// <summary>Runs when the state enters Loading — every level (re)load starts with zero keys.</summary>
+    private static void ResetKeyProgress()
+    {
+        registeredKeys.Clear();
+        CollectedKeys = 0;
+    }
+    #endregion
 
     #region Lives & Checkpoints
     public static int CurrentLives { get; private set; } = 3;
@@ -170,6 +210,10 @@ public static class GameEventBus
         OnHazardHit = null;
         OnRespawnRequested = null;
         OnPlayerVulnerable = null;
+        OnKeyCollected = null;
+        OnAllKeysCollected = null;
+        registeredKeys.Clear();
+        CollectedKeys = 0;
         ResetCachedState();
     }
 }

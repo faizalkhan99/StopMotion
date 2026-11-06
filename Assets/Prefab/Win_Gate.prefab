@@ -156,6 +156,7 @@ MonoBehaviour:
   hasLock: 0
   _lockedGateRadius: 0
   _openGateRadius: 0.5
+  gateMarker: {fileID: -8810167846430196686}
 --- !u!114 &-8810167846430196686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,5 +173,6 @@ MonoBehaviour:
   iconSprite: {fileID: 21300000, guid: b1006412326991944b8ce1782fecaa9e, type: 3}
   iconColor: {r: 1, g: 1, b: 1, a: 1}
   iconSize: {x: 128, y: 128}
+  startHidden: 0
   rotateWhenOffscreen: 1
   rotationOffset: -90

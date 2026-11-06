@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
@@ -14,31 +13,30 @@ public class CollisionDetection : MonoBehaviour
 
     public bool IsKeyItem => item == InteractableItems.Key;
 
-    public static event Action OnKeyCollected;
-
-    // Self-registration so gates can read the total without FindObjectsOfType.
-    private static readonly System.Collections.Generic.HashSet<CollisionDetection> keyRegistry = new();
-    public static int TotalKeyCount => keyRegistry.Count;
     private SpriteRenderer spriteRenderer;
     private BoxCollider2D collider2D;
+    private MinimapMarker minimapMarker;
     private bool alreadyCollected;
+
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         collider2D = GetComponent<BoxCollider2D>();
         collider2D.isTrigger = true;
+        // Optional: pickups can carry a minimap blip; it's hidden on pickup.
+        minimapMarker = GetComponent<MinimapMarker>();
     }
 
     private void OnEnable()
     {
         if (IsKeyItem)
-            keyRegistry.Add(this);
+            GameEventBus.RegisterKey(this);
     }
 
     private void OnDisable()
     {
         if (IsKeyItem)
-            keyRegistry.Remove(this);
+            GameEventBus.UnregisterKey(this);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -49,7 +47,9 @@ public class CollisionDetection : MonoBehaviour
         switch (item)
         {
             case InteractableItems.Key:
-                AddKeyToPlayer(other);
+                // The bus owns counting + the OnAllKeysCollected moment.
+                alreadyCollected = true;
+                GameEventBus.TriggerKeyCollected(this);
                 TurnOffItem();
             break;
 
@@ -67,17 +67,10 @@ public class CollisionDetection : MonoBehaviour
         }
     }
 
-    private void AddKeyToPlayer(Collider2D other)
-    {
-        PlayerVisuals visuals = other.GetComponentInChildren<PlayerVisuals>();
-        if (visuals != null) visuals.AddKey();
-        alreadyCollected = true;
-        OnKeyCollected?.Invoke();
-    }
     private void TurnOffItem()
     {
         if (collider2D != null) collider2D.enabled = false;
         if (spriteRenderer != null) spriteRenderer.enabled = false;
+        if (minimapMarker != null) minimapMarker.SetMarkerActive(false);
     }
 }
-
