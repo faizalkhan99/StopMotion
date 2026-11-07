@@ -4977,29 +4977,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1ff3da808aa22b499b4cdadd78f2320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
-  playerInput: {fileID: 6013962473497615207}
   locomotionProfile: {fileID: 11400000, guid: 1274e49193b54965b8d01197c247e429, type: 2}
   dashProfile: {fileID: 11400000, guid: f61f4f369c0441388901f2a83ab16dc2, type: 2}
-  dashEchoParent: {fileID: 632827621670714177}
-  maxSpeed: 8
-  acceleration: 60
-  deceleration: 15
-  maxJumpHeight: 3.5
-  timeToApex: 0.5
-  fallGravityMultiplier: 2
-  jumpCutMultiplier: 0.5
-  coyoteTime: 0.1
-  jumpBufferTime: 0.2
+  playerInput: {fileID: 6013962473497615207}
   groundCheck: {fileID: 2215210576407454491}
-  groundCheckRadius: 0.2
+  dashEchoParent: {fileID: 632827621670714177}
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  groundCheckWidth: 0.6
-  groundCheckHeight: 0.1
   showDebugLogs: 1
   isGroundedDebugView: 0
-  landingMinAirTime: 0.3
 --- !u!50 &3281372965341174603
 Rigidbody2D:
   serializedVersion: 5
@@ -5086,15 +5073,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInputRouter
   playerController: {fileID: 2642700810949302365}
+  useTouchInput: 1
   touchConfig:
     screenSplitRatio: 0.5
     maxDragDistance: 150
     upwardDragThreshold: 0.5
     tapDelay: 0.01
-  screenSplitRatio: 0.5
-  maxDragDistance: 150
-  upwardDragThreshold: 0.5
-  tapDelay: 0.01
   moveAction:
     m_Name: Move
     m_Type: 0
@@ -10507,24 +10491,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerVisuals
   visualProfile: {fileID: 11400000, guid: a025812a6b6a4ee68c039ff154270b94, type: 2}
-  confidentTrailVFX: {fileID: 0}
   destroyVFX: {fileID: 6884573141956384920}
   smokeVFX: {fileID: 4311628596090616934, guid: 9d233be67488d4abaae9fec75c07d77c, type: 3}
-  keyImage: {fileID: 0}
-  keyFadeDuration: 0.35
   faceData: {fileID: 11400000, guid: b336b7d1d24544cf7a9c0379f821d459, type: 2}
-  facingRoot: {fileID: 1493132717286531026}
-  dashSquashAmount: 0.8
-  dashSquashDuration: 0.2
-  jumpUpSquashAmount: 1.5
-  jumpUpSquashDuration: 0.2
-  landSquashAmount: 0.7
-  landSquashDuration: 0.2
-  blinkDelay: 2
-  blinkDuration: 0.5
-  idleDelay: 2
-  playerSquahTransform: {fileID: 7034762990874064005}
   currentPlayerFace: 0
+  facingRoot: {fileID: 1493132717286531026}
+  playerSquahTransform: {fileID: 7034762990874064005}
 --- !u!1 &8852577014946695415
 GameObject:
   m_ObjectHideFlags: 0

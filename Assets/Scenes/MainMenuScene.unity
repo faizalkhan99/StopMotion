@@ -630,7 +630,7 @@ MonoBehaviour:
   fpsUpdateInterval: 0.5
   memorySampleEveryNFrames: 30
   fontSize: 28
-  screenPadding: {x: 16, y: 16}
+  screenPadding: {x: 1500, y: 700}
   cornerTapZoneSize: 120
   visibleOnStart: 1
 --- !u!4 &196343045

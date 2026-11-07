@@ -75,10 +75,10 @@ public class GameplayUIManager : MonoBehaviour
             pauseButton.onClick.RemoveAllListeners();
     }
 
-    private void Update()
-    {
-        HandleKeyboardInput();
-    }
+    // private void Update()
+    // {
+    //     HandleKeyboardInput();
+    // }
 
     /// <summary>
     /// Monitors hardware input and routes actions contextually based on the macro game state[cite: 16].

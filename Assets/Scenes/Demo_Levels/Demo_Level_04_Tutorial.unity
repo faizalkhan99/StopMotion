@@ -22556,6 +22556,22 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 7334469295832446911, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1149802686}
+    - target: {fileID: 7334469295832446911, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: targetCamera
+      value: 
+      objectReference: {fileID: 1149802687}
+    - target: {fileID: 7606497553999260366, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: autoStart
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7606497553999260366, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: TurnoffTimer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7782328395542630558, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -22601,6 +22617,16 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+--- !u!4 &1149802686 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1102030530369239850, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+  m_PrefabInstance: {fileID: 1149802685}
+  m_PrefabAsset: {fileID: 0}
+--- !u!20 &1149802687 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 3114214441863045942, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+  m_PrefabInstance: {fileID: 1149802685}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1150018752
 GameObject:
   m_ObjectHideFlags: 0
