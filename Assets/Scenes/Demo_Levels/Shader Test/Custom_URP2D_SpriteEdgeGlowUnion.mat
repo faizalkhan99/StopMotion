@@ -8,11 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Custom_URP2D_SpriteEdgeGlowUnion
-  m_Shader: {fileID: 4800000, guid: 606a6ac9f3322824da56202ff10d52ed, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9863a0d740ffb634e83e45cd29ec1acf, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _UVBORDER_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -29,10 +30,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EdgeIntensity: 0
-    - _EdgeWidth: 0.005
+    - _EdgeIntensity: 2.32
+    - _EdgeWidth: 10
+    - _HighQuality: 0
+    - _UVBorder: 1
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EdgeColor: {r: 0.2, g: 0.9, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

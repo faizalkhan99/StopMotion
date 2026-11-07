@@ -254,6 +254,7 @@ namespace StopMotion.Visuals
         /// </summary>
         public void Play()
         {
+            Debug.Log("some log:)");
             CancelGrowthRoutine();
             ClearFlash(); // no flash at the beginning
             SnapPlayerTracking();

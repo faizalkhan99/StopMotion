@@ -31919,7 +31919,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1476716304
 RectTransform:
   m_ObjectHideFlags: 0
@@ -31954,6 +31954,10 @@ MonoBehaviour:
   player: {fileID: 198648379}
   targetCamera: {fileID: 70468857}
   growthInterval: 5
+  growthDuration: 3
+  flashDuration: 0.12
+  flashGap: 0.08
+  flashCount: 3
   sourceMaterial: {fileID: 2100000, guid: 66ecc7529247f416f9439fa1e32214cf, type: 2}
 --- !u!114 &1476716306
 MonoBehaviour:
@@ -39883,14 +39887,30 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -1.6433876
       objectReference: {fileID: 0}
+    - target: {fileID: 1965555340487520836, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: orthographic size
+      value: 5.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965555340487520836, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: m_OcclusionCulling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1965555340487520836, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 296
+      objectReference: {fileID: 0}
     - target: {fileID: 2813002660243604756, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3647368739686580810, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: minimapRadius
       value: 150
       objectReference: {fileID: 0}
+    - target: {fileID: 3647368739686580810, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 198648379}
     - target: {fileID: 3647368739686580810, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: isVisibleOnStart
       value: 1
@@ -39962,6 +39982,14 @@ PrefabInstance:
     - target: {fileID: 6888292908432481643, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7334469295832446911, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: flashCount
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7334469295832446911, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: flashPulseDuration
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7606497553999260366, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: autoStart

@@ -114,9 +114,9 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Duration: 60
-    - _EdgeIntensity: 0.5
+    - _EdgeIntensity: 1.5
     - _EdgeJaggedness: 0.6
-    - _EdgeWidth: 0.1
+    - _EdgeWidth: 0.005
     - _EnableExternalAlpha: 0
     - _EnvironmentReflections: 1
     - _GlossMapScale: 0
