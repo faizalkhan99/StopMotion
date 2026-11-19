@@ -18,9 +18,6 @@ public class PlayerVisualProfileSO : ScriptableObject
     [SerializeField] private float blinkDuration = 0.15f;
     [SerializeField] private float idleDelay = 2f;
 
-    [Header("Player's Key UI")]
-    [SerializeField] private float keyFadeDuration = 0.35f;
-
     [Header("VFX Pools")]
     [Tooltip("Prewarmed puff instances. Spawned puffs return here (instead of leaking clones) once their particles die.")]
     [SerializeField, Min(1)] private int smokePoolSize = 6;
@@ -34,6 +31,5 @@ public class PlayerVisualProfileSO : ScriptableObject
     public float BlinkDelay => blinkDelay;
     public float BlinkDuration => blinkDuration;
     public float IdleDelay => idleDelay;
-    public float KeyFadeDuration => keyFadeDuration;
     public int SmokePoolSize => smokePoolSize;
 }

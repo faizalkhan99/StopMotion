@@ -136,6 +136,9 @@ public class MinimapController : MonoBehaviour
     {
         if (marker == null) return;
 
+        // Hidden markers own no icon until SetMarkerActive(true) reveals them.
+        if (!marker.IsMarkerActive) return;
+
         // Already fully registered and visible -> nothing to do.
         if (activeIcons.ContainsKey(marker)) return;
 

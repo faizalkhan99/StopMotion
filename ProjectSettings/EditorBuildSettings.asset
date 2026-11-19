@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Demo_Levels/Demo_Level_03_Tutorial.unity
     guid: 5eabbdd4f29088f4ba82a8465dd0b993
   - enabled: 1
+    path: Assets/Scenes/Demo_Levels/Demo_Level_04_Tutorial.unity
+    guid: 54f1bc8e60549a342abd126fd2f1f816
+  - enabled: 1
     path: Assets/Scenes/Demo_Levels/Demo_Level_05.unity
     guid: ece39821246894f4197c4ae0386b5473
   - enabled: 1

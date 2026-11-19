@@ -23,6 +23,17 @@ public class MinimapMarker : MonoBehaviour
     [Tooltip("Minimap icon size in UI pixels.")]
     [SerializeField] private Vector2 iconSize = new Vector2(12f, 12f);
 
+    [Header("Runtime Visibility")]
+    [Tooltip("If true, the marker starts hidden and SetMarkerActive(true) reveals it at runtime (e.g. locked portal after all keys are collected).")]
+    [SerializeField] private bool startHidden = false;
+
+    /// <summary>
+    /// Initial visibility read by Start/OnEnable. Runtime code (e.g.
+    /// LevelGoalTrigger.Awake) can set this before Start so a marker spawns
+    /// hidden regardless of script execution order.
+    /// </summary>
+    public bool StartHidden { get => startHidden; set => startHidden = value; }
+
     [Header("Offscreen Indicator")]
     [Tooltip("When the target is outside the minimap radius, rotate the icon to point " +
              "toward the true target (arrow-style indicators). Leave off for upright " +
@@ -66,7 +77,7 @@ public class MinimapMarker : MonoBehaviour
     private void Start()
     {
         started = true;
-        IsMarkerActive = true;
+        IsMarkerActive = !startHidden;
 
         MinimapController controller = MinimapController.Instance;
         if (controller == null)
@@ -76,16 +87,19 @@ public class MinimapMarker : MonoBehaviour
             return;
         }
 
-        controller.Register(this);
+        if (IsMarkerActive)
+            controller.Register(this);
     }
 
     private void OnEnable()
     {
         if (!started) return; // first registration is handled by Start
 
-        // Re-enabling the component always restores a visible marker.
-        IsMarkerActive = true;
-        MinimapController.Instance?.Register(this);
+        // Re-enabling restores the marker to its start state (start-hidden
+        // markers stay hidden until runtime code reveals them again).
+        IsMarkerActive = !startHidden;
+        if (IsMarkerActive)
+            MinimapController.Instance?.Register(this);
     }
 
     private void OnDisable()

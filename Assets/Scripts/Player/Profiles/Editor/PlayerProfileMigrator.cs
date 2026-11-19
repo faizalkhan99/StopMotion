@@ -106,7 +106,6 @@ public static class PlayerProfileMigrator
         SetFloat(so, "blinkDelay", 2f);                  // was blinkDelay: 2
         SetFloat(so, "blinkDuration", 0.5f);             // was blinkDuration: 0.5
         SetFloat(so, "idleDelay", 2f);                   // was idleDelay: 2
-        SetFloat(so, "keyFadeDuration", 0.35f);          // was keyFadeDuration: 0.35
         SetInt(so, "smokePoolSize", 6);                  // was smokePoolSize default: 6
 
         so.ApplyModifiedPropertiesWithoutUndo();

@@ -532,6 +532,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LivesHUD
   livesContainer: {fileID: 6394113425487805810}
+  isVisibleOnStart: 0
+  lifeIcons: []
 --- !u!114 &7077493315745542570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2678,6 +2680,14 @@ PrefabInstance:
     - target: {fileID: 62420596743793913, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: m_BackGroundColor.r
       value: 0.4745098
+      objectReference: {fileID: 0}
+    - target: {fileID: 608449078400189200, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 608449078400189200, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 619765261714819117, guid: 3cf84d4368a43e0448ba4f30e54317e0, type: 3}
       propertyPath: autoStart
