@@ -517,8 +517,16 @@ PrefabInstance:
       value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5682890801209510316, guid: 56d949ae90e564765b3e6ce277089faa, type: 3}
-      propertyPath: far clip plane
-      value: 50
+      propertyPath: m_BackGroundColor.b
+      value: 0.37254903
+      objectReference: {fileID: 0}
+    - target: {fileID: 5682890801209510316, guid: 56d949ae90e564765b3e6ce277089faa, type: 3}
+      propertyPath: m_BackGroundColor.g
+      value: 0.26666668
+      objectReference: {fileID: 0}
+    - target: {fileID: 5682890801209510316, guid: 56d949ae90e564765b3e6ce277089faa, type: 3}
+      propertyPath: m_BackGroundColor.r
+      value: 0.20784314
       objectReference: {fileID: 0}
     - target: {fileID: 6934510260255929142, guid: 56d949ae90e564765b3e6ce277089faa, type: 3}
       propertyPath: m_LocalPosition.x

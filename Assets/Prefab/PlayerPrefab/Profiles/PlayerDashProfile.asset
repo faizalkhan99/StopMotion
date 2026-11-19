@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d556e944270e4f82a94ef4d2bc364cb0, type: 3}
   m_Name: PlayerDashProfile
   m_EditorClassIdentifier: 
-  canDash: 1
+  canDash: 0
   dashSpeed: 20
   dashDuration: 0.2
   dashCoolDownTime: 1

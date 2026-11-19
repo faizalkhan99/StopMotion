@@ -48,12 +48,14 @@ public class CollisionDetection : MonoBehaviour
         {
             case InteractableItems.Key:
                 // The bus owns counting + the OnAllKeysCollected moment.
+                GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Key);
                 alreadyCollected = true;
                 GameEventBus.TriggerKeyCollected(this);
                 TurnOffItem();
             break;
 
             case InteractableItems.ReverseTimeAbility:
+                GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_PushbackOrb);
                 GameEventBus.TriggerReverseVines();
                 TurnOffItem();
             break;

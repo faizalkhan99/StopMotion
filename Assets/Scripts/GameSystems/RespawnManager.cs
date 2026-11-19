@@ -128,7 +128,7 @@ public class RespawnManager : MonoBehaviour
 
         GameEventBus.TriggerPlayerFaceChange(Playerface.Idle);
         GameEventBus.TriggerPlayerRespawned();
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Respawn);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Respawn);
 
         RestartBlink();
         SetInputEnabled(true);

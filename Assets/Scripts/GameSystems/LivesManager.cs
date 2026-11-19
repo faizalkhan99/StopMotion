@@ -69,7 +69,7 @@ public class LivesManager : MonoBehaviour
 
         CurrentLives = Mathf.Max(0, CurrentLives - 1);
         GameEventBus.TriggerLivesChanged(CurrentLives); // LiveHUD UI call
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Damage); //Sound
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Damage); //Sound
         GameEventBus.TriggerCameraShake(); // Camer Shake
         GameEventBus.TriggerPlayerFaceChange(Playerface.Die); // Face Change
 

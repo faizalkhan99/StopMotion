@@ -367,7 +367,7 @@ public class MainMenuUIManager : MonoBehaviour
 
     private void OnPlayClicked()
     {
-        GameEventBus.TriggerPlaySFXCommand(SoundID.ButtonClick);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_ButtonClick);
         if (isTransitioning) return;
         isTransitioning = true;
 
@@ -387,7 +387,7 @@ public class MainMenuUIManager : MonoBehaviour
 
     private void OnQuitClicked()
     {
-        GameEventBus.TriggerPlaySFXCommand(SoundID.ButtonClick);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_ButtonClick);
         if (isTransitioning) return;
 
         Debug.Log("<b>[MainMenuUIManager]</b> Application Quit requested.");
@@ -402,7 +402,7 @@ public class MainMenuUIManager : MonoBehaviour
 
     public void SwitchPanel(UIPanelAnimator targetPanel)
     {
-        GameEventBus.TriggerPlaySFXCommand(SoundID.ButtonClick);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_ButtonClick);
 
         if (isTransitioning || targetPanel == null || targetPanel == currentActivePanel) return;
 

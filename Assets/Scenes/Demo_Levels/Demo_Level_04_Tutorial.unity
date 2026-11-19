@@ -22486,11 +22486,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 420544285391575468, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -104.85495
+      value: -102.75152
       objectReference: {fileID: 0}
     - target: {fileID: 420544285391575468, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.8001041
+      value: 3.158123
       objectReference: {fileID: 0}
     - target: {fileID: 1857943596051068272, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.x
@@ -22499,6 +22499,10 @@ PrefabInstance:
     - target: {fileID: 1857943596051068272, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.y
       value: 1.3566124
+      objectReference: {fileID: 0}
+    - target: {fileID: 3114214441863045942, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: orthographic size
+      value: 5.5
       objectReference: {fileID: 0}
     - target: {fileID: 3662874123594985895, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_Name
@@ -22548,6 +22552,10 @@ PrefabInstance:
       propertyPath: BoundingShape2D
       value: 
       objectReference: {fileID: 732187783}
+    - target: {fileID: 6246504546243750445, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
+      propertyPath: Lens.OrthographicSize
+      value: 5.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6888292908432481643, guid: dfd893e7d389349b48d23d031bedc995, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11

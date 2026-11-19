@@ -243,7 +243,7 @@ public class PlayerVisuals : MonoBehaviour
 
         GameEventBus.TriggerCameraShake();
         destroyVFX?.Play();
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Explosion);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Explosion);
 
         StopPlayerMovement();
     }
@@ -401,7 +401,7 @@ public class PlayerVisuals : MonoBehaviour
 
     private void SpawnVfx(Vector2 position)
     {
-        smokePool?.Spawn(position);
+        smokePool?.Spawn(position- new Vector2(0f,0.5f));
     }
 
     #endregion

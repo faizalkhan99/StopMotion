@@ -216,7 +216,7 @@ public class GameplayUIManager : MonoBehaviour
     /// </summary>
     private void PlayButtonClickAudio()
     {
-        GameEventBus.TriggerPlaySFXCommand(SoundID.ButtonClick);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_ButtonClick);
     }
 
     #endregion

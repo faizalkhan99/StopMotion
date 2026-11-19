@@ -64,6 +64,7 @@ public class LevelGoalTrigger : MonoBehaviour
 
     private void OpenGate()
     {
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Portal);
         gateShader.SetFloat(PortalRadius, _openGateRadius);
         if (gateMarker != null) gateMarker.SetMarkerActive(true);
     }

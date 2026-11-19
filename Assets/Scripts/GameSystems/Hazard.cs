@@ -30,6 +30,7 @@ public class Hazard : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player")) return;
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Damage);
         if (GameEventBus.CurrentGameState != GameState.Gameplay) return;
         if (Time.time - lastTriggerTime < retriggerCooldown) return;
 

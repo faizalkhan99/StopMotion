@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Hazards
-  m_Shader: {fileID: 4800000, guid: 8d2bb70cbf9db8d4da26e15b26e74248, type: 3}
+  m_Shader: {fileID: 4800000, guid: 606a6ac9f3322824da56202ff10d52ed, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -17,8 +17,7 @@ Material:
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
   m_LockedProperties: 
@@ -81,6 +80,8 @@ Material:
     - _Cutoff: 0.5
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _EdgeIntensity: 0.75
+    - _EdgeWidth: 0.1
     - _EnableExternalAlpha: 0
     - _GlossinessSource: 0
     - _QueueOffset: 0
@@ -98,6 +99,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 0.5019608, b: 0.43137255, a: 1}
     - _Color: {r: 1, g: 0.5019608, b: 0.4313725, a: 1}
+    - _EdgeColor: {r: 1, g: 0.49650002, b: 0.43, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}

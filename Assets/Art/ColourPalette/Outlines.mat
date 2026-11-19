@@ -114,7 +114,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Duration: 60
-    - _EdgeIntensity: 1.5
+    - _EdgeIntensity: 1
     - _EdgeJaggedness: 0.6
     - _EdgeWidth: 0.005
     - _EnableExternalAlpha: 0
@@ -161,7 +161,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.18360656, g: 0.22950816, b: 0.35, a: 1}
-    - _Color: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+    - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EdgeColor: {r: 0, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}

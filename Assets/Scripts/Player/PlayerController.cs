@@ -181,7 +181,7 @@ public class PlayerController : MonoBehaviour
     public void OnJumpButtonPressed()
     {
         jumpEngine.BufferJump();
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Jump);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Jump);
         GameEventBus.TriggerPlayerFaceChange(Playerface.JumpUp);
     }
 

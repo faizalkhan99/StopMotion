@@ -38,7 +38,7 @@ public class Checkpoint : MonoBehaviour
         activated = true;
 
         GameEventBus.TriggerCheckpointReached(transform.position);
-        GameEventBus.TriggerPlaySFXCommand(SoundID.Checkpoint);
+        GameEventBus.TriggerPlaySFXCommand(SoundID.sfx_Checkpoint);
 
         if (spriteRenderer != null)
             spriteRenderer.color = activatedTint;
