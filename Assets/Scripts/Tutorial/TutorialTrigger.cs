@@ -10,6 +10,10 @@ public class TutorialTrigger : MonoBehaviour
     [TextArea(3, 10)] // This makes the text field in the inspector bigger
     [SerializeField] private string tutorialMessage;
 
+    [Header("Trigger")]
+    [Tooltip("Display this message when all keys have been collected instead of when the player enters the trigger.")]
+    [SerializeField] private bool showWhenAllKeysCollected;
+
     [Header("UI & Timing")]
     [Tooltip("How long this message will stay on screen before disappearing.")]
     [SerializeField] private float displayDuration = 5f;
@@ -30,27 +34,52 @@ public class TutorialTrigger : MonoBehaviour
             if (textObject != null)
             {
                 tutorialTextElement = textObject.GetComponent<TextMeshProUGUI>();
-                // Hide it at the very start of the game
-                tutorialTextElement.gameObject.SetActive(false);
+                if (tutorialTextElement != null)
+                {
+                    // Hide it at the very start of the game
+                    tutorialTextElement.gameObject.SetActive(false);
+                }
+                else
+                {
+                    Debug.LogError("The GameObject tagged 'TutorialText' is missing a TextMeshProUGUI component.", textObject);
+                }
             }
             else
             {
-                Debug.LogError("No GameObject with the tag 'TutorialText' was found in the scene. Please create one.");
+                Debug.LogError("No GameObject tagged 'TutorialText' was found in the scene. Please create one with a TextMeshProUGUI component.", this);
             }
         }
     }
 
+    private void OnEnable()
+    {
+        if (showWhenAllKeysCollected)
+            GameEventBus.OnAllKeysCollected += ShowTutorial;
+    }
+
+    private void OnDisable()
+    {
+        GameEventBus.OnAllKeysCollected -= ShowTutorial;
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (showWhenAllKeysCollected) return;
+
         // Check if the object entering is the player AND if this trigger has not been used yet
         if (other.CompareTag("Player") && !hasBeenTriggered)
-        {
-            // Set the flag to true so this can't run again
-            hasBeenTriggered = true;
-            
-            // Start the process of showing our unique message
-            StartCoroutine(ShowTutorialCoroutine());
-        }
+            ShowTutorial();
+    }
+
+    private void ShowTutorial()
+    {
+        if (hasBeenTriggered) return;
+
+        // Set the flag to true so this can't run again
+        hasBeenTriggered = true;
+
+        // Start the process of showing our unique message
+        StartCoroutine(ShowTutorialCoroutine());
     }
 
     private IEnumerator ShowTutorialCoroutine()
